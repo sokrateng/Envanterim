@@ -102,6 +102,10 @@ export const itemCreateSchema = z.object({
     .enum(ITEM_STATUS, { errorMap: () => ({ message: "Geçersiz durum" }) })
     .default("IN_USE"),
   categoryId: emptyToUndefined(trimmed),
+  sellerId: emptyToUndefined(trimmed),
+  // Listede olmayan satıcı formda adıyla yazılır; sunucu varsa bulur, yoksa
+  // açar. Satıcı için ayrı bir yönetim ekranına gerek kalmıyor.
+  sellerName: emptyToUndefined(trimmed.max(80, "En çok 80 karakter")),
   // Dinamik alanlar burada ham gelir; asıl doğrulama kategori tanımlarından
   // üretilen şemayla yapılır (src/lib/custom-fields.ts).
   customFields: z.record(z.unknown()).default({}),

@@ -43,6 +43,14 @@ export const ATTACHMENT_KINDS = [
 ] as const;
 export type AttachmentKind = (typeof ATTACHMENT_KINDS)[number];
 
+export const ATTACHMENT_KIND_LABELS: Record<string, string> = {
+  PHOTO: "Fotoğraf",
+  INVOICE: "Fatura",
+  WARRANTY: "Garanti belgesi",
+  MANUAL: "Kılavuz",
+  OTHER: "Diğer",
+};
+
 export const EVENT_KINDS = ["READING", "SERVICE", "LOG", "ASSIGNMENT"] as const;
 export type EventKind = (typeof EVENT_KINDS)[number];
 

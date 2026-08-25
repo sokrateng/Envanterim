@@ -162,6 +162,7 @@ model Attachment {
   id         String   @id @default(cuid())
   itemId     String
   url        String
+  path       String // depolamadaki nesne yolu; silerken gerekiyor
   name       String
   kind       String // PHOTO | INVOICE | WARRANTY | MANUAL | OTHER
   mimeType   String?

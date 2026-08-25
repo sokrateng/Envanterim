@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireLocationEditor } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError, parseBody } from "@/lib/api";
 import { loadFieldDefs, validateCustomFields } from "@/lib/item-fields";
+import { resolveSeller } from "@/lib/seller";
 import { itemUpdateSchema } from "@/lib/validation";
 
 export async function PATCH(
@@ -38,10 +39,18 @@ export async function PATCH(
   const custom = validateCustomFields(data.customFields, fields, item.customFields);
   if (!custom.ok) return apiError(custom.message, 422);
 
+  const seller = await resolveSeller(
+    item.locationId,
+    data.sellerId,
+    data.sellerName,
+  );
+  if (!seller.ok) return apiError(seller.message, 422);
+
   const updated = await prisma.item.update({
     where: { id: item.id },
     data: {
       categoryId: data.categoryId ?? null,
+      sellerId: seller.sellerId,
       name: data.name,
       brand: data.brand ?? null,
       model: data.model ?? null,

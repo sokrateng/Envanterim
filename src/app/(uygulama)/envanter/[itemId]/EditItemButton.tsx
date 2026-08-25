@@ -9,15 +9,18 @@ import {
   collectCustomFields,
   type CategoryOption,
   type ItemDefaults,
+  type VendorOption,
 } from "@/components/ItemFields";
 
 export function EditItemButton({
   itemId,
   categories,
+  vendors,
   defaults,
 }: {
   itemId: string;
   categories: CategoryOption[];
+  vendors: VendorOption[];
   defaults: ItemDefaults;
 }) {
   const closeAndRefresh = useCloseAndRefresh();
@@ -39,6 +42,8 @@ export function EditItemButton({
       body: JSON.stringify({
         name: text("name"),
         categoryId: text("categoryId"),
+        sellerId: text("sellerId"),
+        sellerName: text("sellerName"),
         brand: text("brand"),
         model: text("model"),
         serialNo: text("serialNo"),
@@ -73,7 +78,11 @@ export function EditItemButton({
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Ekipmanı düzenle">
         <form onSubmit={onSubmit} className="max-h-[70dvh] overflow-y-auto pb-2">
-          <ItemFields categories={categories} defaults={defaults} />
+          <ItemFields
+            categories={categories}
+            vendors={vendors}
+            defaults={defaults}
+          />
           <FormError message={error} />
           <SubmitButton pending={pending}>Kaydet</SubmitButton>
         </form>

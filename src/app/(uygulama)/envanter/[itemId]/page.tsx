@@ -12,6 +12,7 @@ import { canEdit } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { warrantyStatus } from "@/lib/warranty";
 import type { CategoryOption } from "@/components/ItemFields";
+import { Attachments, type AttachmentView } from "./Attachments";
 import { EditItemButton } from "./EditItemButton";
 import { StatusPicker } from "./StatusPicker";
 
@@ -53,8 +54,14 @@ export default async function EkipmanPage({
       purchaseDate: true,
       purchasePriceMinor: true,
       currency: true,
+      sellerId: true,
+      seller: { select: { name: true } },
       warrantyEndDate: true,
       customFields: true,
+      attachments: {
+        select: { id: true, url: true, name: true, kind: true, mimeType: true },
+        orderBy: { uploadedAt: "desc" },
+      },
       location: { select: { id: true, name: true } },
       category: {
         select: {
@@ -117,6 +124,14 @@ export default async function EkipmanPage({
       })
     : [];
 
+  const vendors = editable
+    ? await prisma.vendor.findMany({
+        where: { locationId: item.locationId, isSeller: true },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      })
+    : [];
+
   const categoryOptions: CategoryOption[] = categories.map((category) => ({
     id: category.id,
     name: category.name,
@@ -141,6 +156,7 @@ export default async function EkipmanPage({
             <EditItemButton
               itemId={item.id}
               categories={categoryOptions}
+              vendors={vendors}
               defaults={{
                 name: item.name,
                 brand: item.brand ?? "",
@@ -158,6 +174,7 @@ export default async function EkipmanPage({
                     : "",
                 status: item.status,
                 categoryId: item.categoryId ?? "",
+                sellerId: item.sellerId ?? "",
                 customFields:
                   item.customFields && typeof item.customFields === "object"
                     ? (item.customFields as Record<string, unknown>)
@@ -207,6 +224,7 @@ export default async function EkipmanPage({
             title="Alış tarihi"
             trailing={item.purchaseDate ? trDate.format(item.purchaseDate) : "—"}
           />
+          <Row title="Satıcı" trailing={item.seller?.name ?? "—"} />
           <Row
             title="Alış tutarı"
             trailing={
@@ -233,6 +251,12 @@ export default async function EkipmanPage({
           </Rows>
         </Group>
       ) : null}
+
+      <Attachments
+        itemId={item.id}
+        editable={editable}
+        attachments={item.attachments as AttachmentView[]}
+      />
 
       {editable ? (
         <StatusPicker itemId={item.id} status={item.status as ItemStatus} />

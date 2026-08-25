@@ -8,16 +8,19 @@ import {
   ItemFields,
   collectCustomFields,
   type CategoryOption,
+  type VendorOption,
 } from "@/components/ItemFields";
 
 export function NewItemButton({
   locations,
   defaultLocationId,
   categoriesByLocation,
+  vendorsByLocation,
 }: {
   locations: Array<{ id: string; name: string }>;
   defaultLocationId: string;
   categoriesByLocation: Record<string, CategoryOption[]>;
+  vendorsByLocation: Record<string, VendorOption[]>;
 }) {
   const closeAndRefresh = useCloseAndRefresh();
   const [open, setOpen] = useState(false);
@@ -39,6 +42,8 @@ export function NewItemButton({
       body: JSON.stringify({
         name: text("name"),
         categoryId: text("categoryId"),
+        sellerId: text("sellerId"),
+        sellerName: text("sellerName"),
         brand: text("brand"),
         model: text("model"),
         serialNo: text("serialNo"),
@@ -95,6 +100,7 @@ export function NewItemButton({
           <ItemFields
             key={locationId}
             categories={categoriesByLocation[locationId] ?? []}
+            vendors={vendorsByLocation[locationId] ?? []}
           />
 
           <FormError message={error} />

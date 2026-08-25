@@ -12,6 +12,8 @@ export type CategoryOption = {
   fields: FieldDef[];
 };
 
+export type VendorOption = { id: string; name: string };
+
 export type ItemDefaults = {
   name?: string;
   brand?: string;
@@ -23,6 +25,7 @@ export type ItemDefaults = {
   purchasePrice?: string;
   status?: string;
   categoryId?: string;
+  sellerId?: string;
   customFields?: Record<string, unknown>;
 };
 
@@ -41,9 +44,11 @@ export function collectCustomFields(form: FormData): Record<string, unknown> {
 
 export function ItemFields({
   categories,
+  vendors = [],
   defaults = {},
 }: {
   categories: CategoryOption[];
+  vendors?: VendorOption[];
   defaults?: ItemDefaults;
 }) {
   const [categoryId, setCategoryId] = useState(defaults.categoryId ?? "");
@@ -130,6 +135,25 @@ export function ItemFields({
           />
         </Field>
       </div>
+
+      <Field label="Satıcı" hint="Listede yoksa aşağıya adını yaz.">
+        <select
+          name="sellerId"
+          defaultValue={defaults.sellerId ?? ""}
+          className={inputClass}
+        >
+          <option value="">Seçilmedi</option>
+          {vendors.map((vendor) => (
+            <option key={vendor.id} value={vendor.id}>
+              {vendor.name}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      <Field label="Yeni satıcı">
+        <input name="sellerName" className={inputClass} placeholder="Teknosa" />
+      </Field>
 
       <Field label="Alış tutarı" hint="Örn. 18.400,50">
         <input

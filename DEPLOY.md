@@ -43,6 +43,9 @@ bakmak yetmiyor (docs/TASARIM.md).
    | `DIRECT_URL` | doğrudan (5432) adres |
    | `NEXTAUTH_SECRET` | rastgele 32 bayt |
    | `NEXTAUTH_URL` | `https://<proje>.vercel.app` |
+   | `NEXT_PUBLIC_SUPABASE_URL` | Supabase proje adresi |
+   | `SUPABASE_SERVICE_ROLE_KEY` | service_role anahtarı — **yalnız sunucu** |
+   | `SUPABASE_BUCKET` | `ekler` |
 
 3. Build komutu `npm run build` — içinde `prisma generate` var, ayrıca
    ayarlamana gerek yok.
@@ -70,7 +73,20 @@ npx prisma migrate resolve --applied 0_init
 Bu depoda `prisma/migrations/0_init/migration.sql` hazır: boş bir veritabanında
 `npm run db:deploy` yeter.
 
-## 5. İlk hesap
+## 5. Depolama kovası
+
+Supabase panelinde **Storage → New bucket → `ekler`** aç (public okuma yeterli;
+uygulama yazmayı `service_role` ile yapıyor).
+
+Bu değişkenler tanımsızsa yükleme yerel diske (`.uploads/`) düşer. Geliştirmede
+işe yarar, **üretimde kullanılamaz**: sunucusuz dosya sistemi kalıcı değildir,
+dağıtım sonrası dosyalar kaybolur.
+
+Yükleme yolunda bilinen sınırlar: istek gövdesi ~4,5 MB (uygulama 4 MB'da
+kesiyor), fotoğraf yüklemeden önce istemcide 2000 px kenara küçültülüyor,
+Supabase'e yazarken `apikey` başlığı da gönderiliyor (docs/TUZAKLAR.md #5).
+
+## 6. İlk hesap
 
 Üretim veritabanına giriş yapacak kimse olmadan dağıtma:
 
@@ -78,7 +94,7 @@ Bu depoda `prisma/migrations/0_init/migration.sql` hazır: boş bir veritabanın
 DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uzun-bir-sifre"
 ```
 
-## 6. Duman testi (dağıtımdan sonra)
+## 7. Duman testi (dağıtımdan sonra)
 
 1. `/giris` → ilk hesapla gir.
 2. Lokasyon oluştur → listede görünüyor mu?
@@ -89,12 +105,13 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 5. `Envanter` sekmesinde ekipman ekle: ad + garanti bitiş tarihi.
 6. Garanti rozeti doğru gün sayısını yazıyor mu?
 7. İkinci kullanıcıyla gir: aynı ekipmanı görüyor, üye ekleyemiyor.
-8. Üçüncü, hiçbir lokasyona üye olmayan kullanıcıyla gir: envanter boş.
+8. Ekipmana bir fotoğraf ve bir fatura PDF'i ekle; fotoğraf ızgarada,
+   PDF belge listesinde çıkmalı.
+9. Üçüncü, hiçbir lokasyona üye olmayan kullanıcıyla gir: envanter boş;
+   diğerinin ek dosyasının adresine gitmeyi dene — 404 dönmeli.
 
-## 7. Sonraki sürümde eklenecek dağıtım adımları
+## 8. Sonraki sürümde eklenecek dağıtım adımları
 
-- **Storage bucket** (`faturalar`, `fotograflar`) + `SUPABASE_SERVICE_ROLE_KEY`
-  — yükleme `apikey` başlığı da ister (docs/TUZAKLAR.md #5).
 - **Vercel Cron** garanti uyarısı için günde bir; `ItemReminder.sentAt`
   damgası gönderimden **önce** yazılır (#28).
 - **VAPID anahtarları** web push için.

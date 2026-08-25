@@ -143,6 +143,22 @@ export default async function EnvanterPage({
       })
     : [];
 
+  const vendors = memberLocationIds.length
+    ? await prisma.vendor.findMany({
+        where: { locationId: { in: memberLocationIds }, isSeller: true },
+        select: { id: true, name: true, locationId: true },
+        orderBy: { name: "asc" },
+      })
+    : [];
+
+  const vendorsByLocation: Record<string, Array<{ id: string; name: string }>> = {};
+  for (const vendor of vendors) {
+    (vendorsByLocation[vendor.locationId] ??= []).push({
+      id: vendor.id,
+      name: vendor.name,
+    });
+  }
+
   const editableLocations = locations.filter(
     (l) => l.role === "OWNER" || l.role === "EDITOR",
   );
@@ -160,6 +176,7 @@ export default async function EnvanterPage({
               }))}
               defaultLocationId={selectedLocation ?? editableLocations[0].id}
               categoriesByLocation={categoriesByLocation}
+              vendorsByLocation={vendorsByLocation}
             />
           ) : undefined
         }
