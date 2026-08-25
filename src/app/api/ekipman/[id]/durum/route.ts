@@ -7,10 +7,11 @@ import { itemStatusSchema } from "@/lib/validation";
 // Ekipman silinmez; yaşam döngüsünden durumla çıkar (CLAUDE.md).
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params;
   const item = await prisma.item.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { id: true, locationId: true },
   });
   // Üye olmayan için "yok" ile "yetkisiz" aynı yanıt: envanterin varlığı sızmaz.

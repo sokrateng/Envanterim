@@ -14,7 +14,7 @@ HIG'e yakın durmalı — ayrıntı `docs/TASARIM.md`.
 
 ## Yığın
 
-Next.js 14 App Router · TypeScript · Tailwind · Prisma + PostgreSQL (Supabase) ·
+Next.js 15 App Router · TypeScript · Tailwind · Prisma + PostgreSQL (Supabase) ·
 NextAuth (credentials) · Vitest · Vercel · web-push (VAPID)
 
 ## Komutlar

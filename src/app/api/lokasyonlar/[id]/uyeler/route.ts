@@ -6,9 +6,10 @@ import { memberInviteSchema } from "@/lib/validation";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const access = await requireLocationOwner(params.id);
+  const { id } = await params;
+  const access = await requireLocationOwner(id);
   if (!access) return NOT_MEMBER();
   if (access === "readonly") return READONLY();
 
@@ -23,14 +24,14 @@ export async function POST(
   if (invitee.status === "FROZEN") return apiError("Bu hesap donduruldu", 409);
 
   const existing = await prisma.locationMember.findUnique({
-    where: { locationId_userId: { locationId: params.id, userId: invitee.id } },
+    where: { locationId_userId: { locationId: id, userId: invitee.id } },
     select: { id: true },
   });
   if (existing) return apiError("Bu kişi zaten üye", 409);
 
   const member = await prisma.locationMember.create({
     data: {
-      locationId: params.id,
+      locationId: id,
       userId: invitee.id,
       role: parsed.data.role,
     },

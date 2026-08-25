@@ -12,13 +12,14 @@ export const dynamic = "force-dynamic";
 export default async function UyelerPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const access = await requireLocation(params.id);
+  const { id } = await params;
+  const access = await requireLocation(id);
   if (!access) notFound();
 
   const location = await prisma.location.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: {
       name: true,
       members: {
@@ -41,8 +42,8 @@ export default async function UyelerPage({
     <Screen>
       <ScreenHeader
         title="Üyeler"
-        back={{ href: `/lokasyonlar/${params.id}`, label: location.name }}
-        action={isOwner ? <InviteMemberButton locationId={params.id} /> : undefined}
+        back={{ href: `/lokasyonlar/${id}`, label: location.name }}
+        action={isOwner ? <InviteMemberButton locationId={id} /> : undefined}
       />
 
       <Group
@@ -57,7 +58,7 @@ export default async function UyelerPage({
           {location.members.map((member) => (
             <MemberRow
               key={member.id}
-              locationId={params.id}
+              locationId={id}
               memberId={member.id}
               name={member.user.name}
               username={member.user.username}

@@ -6,7 +6,7 @@ import { canChangeRole, canRemoveMember } from "@/lib/permissions";
 import { memberUpdateSchema } from "@/lib/validation";
 import type { Role } from "@/lib/constants";
 
-type Params = { params: { id: string; uyeId: string } };
+type Params = { params: Promise<{ id: string; uyeId: string }> };
 
 async function loadTarget(locationId: string, memberId: string) {
   const [target, ownerCount] = await Promise.all([
@@ -20,14 +20,15 @@ async function loadTarget(locationId: string, memberId: string) {
 }
 
 export async function PATCH(request: Request, { params }: Params) {
-  const access = await requireLocationOwner(params.id);
+  const { id, uyeId } = await params;
+  const access = await requireLocationOwner(id);
   if (!access) return NOT_MEMBER();
   if (access === "readonly") return READONLY();
 
   const parsed = await parseBody(request, memberUpdateSchema);
   if ("response" in parsed) return parsed.response;
 
-  const { target, ownerCount } = await loadTarget(params.id, params.uyeId);
+  const { target, ownerCount } = await loadTarget(id, uyeId);
   if (!target) return apiError("Üye bulunamadı", 404);
 
   const canChange = canChangeRole(
@@ -48,11 +49,12 @@ export async function PATCH(request: Request, { params }: Params) {
 }
 
 export async function DELETE(_request: Request, { params }: Params) {
-  const access = await requireLocationOwner(params.id);
+  const { id, uyeId } = await params;
+  const access = await requireLocationOwner(id);
   if (!access) return NOT_MEMBER();
   if (access === "readonly") return READONLY();
 
-  const { target, ownerCount } = await loadTarget(params.id, params.uyeId);
+  const { target, ownerCount } = await loadTarget(id, uyeId);
   if (!target) return apiError("Üye bulunamadı", 404);
 
   if (!canRemoveMember(access, { role: target.role as Role }, ownerCount)) {

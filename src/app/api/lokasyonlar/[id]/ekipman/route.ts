@@ -6,9 +6,10 @@ import { itemCreateSchema } from "@/lib/validation";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const access = await requireLocationEditor(params.id);
+  const { id } = await params;
+  const access = await requireLocationEditor(id);
   if (!access) return NOT_MEMBER();
   if (access === "readonly") return READONLY();
 
@@ -18,7 +19,7 @@ export async function POST(
 
   const item = await prisma.item.create({
     data: {
-      locationId: params.id,
+      locationId: id,
       name: data.name,
       brand: data.brand,
       model: data.model,

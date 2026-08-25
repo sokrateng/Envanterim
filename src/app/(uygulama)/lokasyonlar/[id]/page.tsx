@@ -9,14 +9,15 @@ export const dynamic = "force-dynamic";
 export default async function LokasyonPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const access = await requireLocation(params.id);
+  const { id } = await params;
+  const access = await requireLocation(id);
   // Üye olmayana "yok" diyoruz: lokasyonun varlığı bile sızmasın.
   if (!access) notFound();
 
   const location = await prisma.location.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: {
       name: true,
       icon: true,
@@ -35,13 +36,13 @@ export default async function LokasyonPage({
       <Group>
         <Rows>
           <Row
-            href={`/envanter?lokasyon=${params.id}`}
+            href={`/envanter?lokasyon=${id}`}
             title="Envanter"
             subtitle="Ekipman listesi, arama ve durum filtresi"
             trailing={String(location._count.items)}
           />
           <Row
-            href={`/lokasyonlar/${params.id}/uyeler`}
+            href={`/lokasyonlar/${id}/uyeler`}
             title="Üyeler"
             subtitle="Kimin ne yetkiyle eriştiği"
             trailing={String(location._count.members)}

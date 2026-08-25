@@ -18,8 +18,9 @@ type Search = { q?: string; durum?: string; lokasyon?: string };
 export default async function EnvanterPage({
   searchParams,
 }: {
-  searchParams: Search;
+  searchParams: Promise<Search>;
 }) {
+  const filters = await searchParams;
   const user = await requireUser();
   const locations = await listMyLocations(user.id);
 
@@ -27,15 +28,15 @@ export default async function EnvanterPage({
   // lokasyonlara bakar, gelen lokasyon parametresi bu kümeyle kesiştirilir.
   const memberLocationIds = locations.map((l) => l.id);
   const selectedLocation =
-    searchParams.lokasyon && memberLocationIds.includes(searchParams.lokasyon)
-      ? searchParams.lokasyon
+    filters.lokasyon && memberLocationIds.includes(filters.lokasyon)
+      ? filters.lokasyon
       : null;
 
-  const status = ITEM_STATUS.includes(searchParams.durum as ItemStatus)
-    ? (searchParams.durum as ItemStatus)
+  const status = ITEM_STATUS.includes(filters.durum as ItemStatus)
+    ? (filters.durum as ItemStatus)
     : null;
 
-  const query = (searchParams.q ?? "").trim();
+  const query = (filters.q ?? "").trim();
 
   const items = memberLocationIds.length
     ? await prisma.item.findMany({
@@ -103,14 +104,14 @@ export default async function EnvanterPage({
       {locations.length > 1 ? (
         <div className="flex gap-2 overflow-x-auto px-4 pt-3">
           <LocationChip
-            href={buildHref({ ...searchParams, lokasyon: undefined })}
+            href={buildHref({ ...filters, lokasyon: undefined })}
             label="Tüm lokasyonlar"
             active={!selectedLocation}
           />
           {locations.map((location) => (
             <LocationChip
               key={location.id}
-              href={buildHref({ ...searchParams, lokasyon: location.id })}
+              href={buildHref({ ...filters, lokasyon: location.id })}
               label={`${location.icon ?? "📍"} ${location.name}`}
               active={selectedLocation === location.id}
             />
