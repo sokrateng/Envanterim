@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireLocationEditor } from "@/lib/access";
-import { NOT_MEMBER, READONLY, parseBody } from "@/lib/api";
+import { NOT_MEMBER, READONLY, apiError, parseBody } from "@/lib/api";
+import { loadFieldDefs, validateCustomFields } from "@/lib/item-fields";
 import { itemCreateSchema } from "@/lib/validation";
 
 export async function POST(
@@ -17,9 +18,24 @@ export async function POST(
   if ("response" in parsed) return parsed.response;
   const data = parsed.data;
 
+  if (data.categoryId) {
+    const category = await prisma.category.findFirst({
+      where: { id: data.categoryId, locationId: id },
+      select: { id: true },
+    });
+    if (!category) return apiError("Kategori bu lokasyona ait değil", 422);
+  }
+
+  // Dinamik alanlar veritabanı tarafında tip zorlamıyor; şema kategori
+  // tanımlarından çalışma anında üretilir (CLAUDE.md).
+  const fields = await loadFieldDefs(data.categoryId, id);
+  const custom = validateCustomFields(data.customFields, fields, {});
+  if (!custom.ok) return apiError(custom.message, 422);
+
   const item = await prisma.item.create({
     data: {
       locationId: id,
+      categoryId: data.categoryId ?? null,
       name: data.name,
       brand: data.brand,
       model: data.model,
@@ -29,6 +45,7 @@ export async function POST(
       purchasePriceMinor: data.purchasePrice ?? null,
       warrantyEndDate: data.warrantyEndDate,
       status: data.status,
+      customFields: custom.values,
     },
     select: { id: true, name: true },
   });

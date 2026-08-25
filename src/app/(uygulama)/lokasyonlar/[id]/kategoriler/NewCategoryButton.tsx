@@ -4,9 +4,8 @@ import { useState } from "react";
 import { Sheet } from "@/components/Sheet";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
-import { ROLES, ROLE_LABELS } from "@/lib/constants";
 
-export function InviteMemberButton({ locationId }: { locationId: string }) {
+export function NewCategoryButton({ locationId }: { locationId: string }) {
   const closeAndRefresh = useCloseAndRefresh();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -18,19 +17,19 @@ export function InviteMemberButton({ locationId }: { locationId: string }) {
     setError(null);
 
     const form = new FormData(event.currentTarget);
-    const response = await fetch(`/api/lokasyonlar/${locationId}/uyeler`, {
+    const response = await fetch(`/api/lokasyonlar/${locationId}/kategoriler`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        username: String(form.get("username") ?? ""),
-        role: String(form.get("role") ?? "VIEWER"),
+        name: String(form.get("name") ?? ""),
+        icon: String(form.get("icon") ?? ""),
       }),
     });
 
     setPending(false);
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
-      setError(body.hata ?? "Üye eklenemedi");
+      setError(body.hata ?? "Kategori oluşturulamadı");
       return;
     }
 
@@ -44,36 +43,19 @@ export function InviteMemberButton({ locationId }: { locationId: string }) {
         onClick={() => setOpen(true)}
         className="min-h-touch px-2 text-body text-blue active:opacity-60"
       >
-        + Üye
+        + Yeni
       </button>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Üye ekle">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni kategori">
         <form onSubmit={onSubmit}>
-          <Field
-            label="Kullanıcı adı"
-            hint="Kişinin hesabı önceden açılmış olmalı; davet var olan kullanıcıya yapılır."
-          >
-            <input
-              name="username"
-              required
-              autoFocus
-              autoCapitalize="none"
-              autoCorrect="off"
-              className={inputClass}
-              placeholder="buketc"
-            />
+          <Field label="Ad">
+            <input name="name" required autoFocus className={inputClass} placeholder="Beyaz eşya" />
           </Field>
-          <Field label="Rol">
-            <select name="role" defaultValue="VIEWER" className={inputClass}>
-              {ROLES.map((role) => (
-                <option key={role} value={role}>
-                  {ROLE_LABELS[role]}
-                </option>
-              ))}
-            </select>
+          <Field label="Simge" hint="Tek bir emoji.">
+            <input name="icon" maxLength={8} className={inputClass} placeholder="🧺" />
           </Field>
           <FormError message={error} />
-          <SubmitButton pending={pending}>Ekle</SubmitButton>
+          <SubmitButton pending={pending}>Oluştur</SubmitButton>
         </form>
       </Sheet>
     </>

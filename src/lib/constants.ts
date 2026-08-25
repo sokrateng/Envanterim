@@ -26,6 +26,14 @@ export const ITEM_STATUS_LABELS: Record<ItemStatus, string> = {
 export const FIELD_TYPES = ["TEXT", "NUMBER", "DATE", "SELECT", "BOOL"] as const;
 export type FieldType = (typeof FIELD_TYPES)[number];
 
+export const FIELD_TYPE_LABELS: Record<FieldType, string> = {
+  TEXT: "Metin",
+  NUMBER: "Sayı",
+  DATE: "Tarih",
+  SELECT: "Seçim",
+  BOOL: "Evet/Hayır",
+};
+
 export const ATTACHMENT_KINDS = [
   "PHOTO",
   "INVOICE",

@@ -21,7 +21,7 @@ export default async function LokasyonPage({
     select: {
       name: true,
       icon: true,
-      _count: { select: { items: true, members: true } },
+      _count: { select: { items: true, members: true, categories: true } },
     },
   });
   if (!location) notFound();
@@ -40,6 +40,12 @@ export default async function LokasyonPage({
             title="Envanter"
             subtitle="Ekipman listesi, arama ve durum filtresi"
             trailing={String(location._count.items)}
+          />
+          <Row
+            href={`/lokasyonlar/${id}/kategoriler`}
+            title="Kategoriler"
+            subtitle="Kategoriye özel alanlar"
+            trailing={String(location._count.categories)}
           />
           <Row
             href={`/lokasyonlar/${id}/uyeler`}

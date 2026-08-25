@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { Badge, EmptyState, Group, Row, Rows, Screen, ScreenHeader } from "@/components/ui";
 import { listMyLocations } from "@/lib/access";
-import { ITEM_STATUS, ITEM_STATUS_LABELS, type ItemStatus } from "@/lib/constants";
+import {
+  ITEM_STATUS,
+  ITEM_STATUS_LABELS,
+  type FieldType,
+  type ItemStatus,
+} from "@/lib/constants";
+import type { CategoryOption } from "@/components/ItemFields";
 import { formatMoney } from "@/lib/money";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
@@ -13,7 +19,12 @@ import { StatusFilter } from "./StatusFilter";
 export const metadata = { title: "Envanter — Envanterim" };
 export const dynamic = "force-dynamic";
 
-type Search = { q?: string; durum?: string; lokasyon?: string };
+type Search = {
+  q?: string;
+  durum?: string;
+  lokasyon?: string;
+  kategori?: string;
+};
 
 export default async function EnvanterPage({
   searchParams,
@@ -37,6 +48,63 @@ export default async function EnvanterPage({
     : null;
 
   const query = (filters.q ?? "").trim();
+  const requestedCategory = filters.kategori ?? null;
+
+  // Kategoriler lokasyona ait; forma yalnız üye olunan lokasyonlarınki gider.
+  const categories = memberLocationIds.length
+    ? await prisma.category.findMany({
+        where: { locationId: { in: memberLocationIds } },
+        select: {
+          id: true,
+          name: true,
+          icon: true,
+          locationId: true,
+          fields: {
+            select: {
+              key: true,
+              label: true,
+              type: true,
+              required: true,
+              options: true,
+              hidden: true,
+            },
+            orderBy: { order: "asc" },
+          },
+        },
+        orderBy: { name: "asc" },
+      })
+    : [];
+
+  const categoriesByLocation: Record<string, CategoryOption[]> = {};
+  for (const category of categories) {
+    const option: CategoryOption = {
+      id: category.id,
+      name: category.name,
+      icon: category.icon,
+      fields: category.fields.map((field) => ({
+        key: field.key,
+        label: field.label,
+        type: field.type as FieldType,
+        required: field.required,
+        options: Array.isArray(field.options) ? (field.options as string[]) : null,
+        hidden: field.hidden,
+      })),
+    };
+    (categoriesByLocation[category.locationId] ??= []).push(option);
+  }
+
+  // Filtre çubuğu yalnız seçili lokasyonun (ya da hepsinin) kategorilerini
+  // gösterir; başka lokasyonun kategorisiyle filtrelemek anlamsız olurdu.
+  const filterCategories = selectedLocation
+    ? (categoriesByLocation[selectedLocation] ?? [])
+    : categories.map((c) => ({ id: c.id, name: c.name, icon: c.icon, fields: [] }));
+
+  // Başka lokasyonun kategorisiyle filtrelenmesin: gelen parametre üye
+  // olunan lokasyonların kategorileriyle kesiştirilir.
+  const categoryFilter =
+    requestedCategory && categories.some((c) => c.id === requestedCategory)
+      ? requestedCategory
+      : null;
 
   const items = memberLocationIds.length
     ? await prisma.item.findMany({
@@ -45,6 +113,7 @@ export default async function EnvanterPage({
             ? selectedLocation
             : { in: memberLocationIds },
           ...(status ? { status } : {}),
+          ...(categoryFilter ? { categoryId: categoryFilter } : {}),
           ...(query
             ? {
                 OR: [
@@ -67,6 +136,7 @@ export default async function EnvanterPage({
           purchasePriceMinor: true,
           currency: true,
           location: { select: { id: true, name: true, icon: true } },
+          category: { select: { name: true, icon: true } },
         },
         orderBy: [{ updatedAt: "desc" }],
         take: 200,
@@ -89,6 +159,7 @@ export default async function EnvanterPage({
                 name: l.name,
               }))}
               defaultLocationId={selectedLocation ?? editableLocations[0].id}
+              categoriesByLocation={categoriesByLocation}
             />
           ) : undefined
         }
@@ -103,17 +174,35 @@ export default async function EnvanterPage({
 
       {locations.length > 1 ? (
         <div className="flex gap-2 overflow-x-auto px-4 pt-3">
-          <LocationChip
+          <Chip
             href={buildHref({ ...filters, lokasyon: undefined })}
             label="Tüm lokasyonlar"
             active={!selectedLocation}
           />
           {locations.map((location) => (
-            <LocationChip
+            <Chip
               key={location.id}
               href={buildHref({ ...filters, lokasyon: location.id })}
               label={`${location.icon ?? "📍"} ${location.name}`}
               active={selectedLocation === location.id}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {filterCategories.length ? (
+        <div className="flex gap-2 overflow-x-auto px-4 pt-3">
+          <Chip
+            href={buildHref({ ...filters, kategori: undefined })}
+            label="Tüm kategoriler"
+            active={!categoryFilter}
+          />
+          {filterCategories.map((category) => (
+            <Chip
+              key={category.id}
+              href={buildHref({ ...filters, kategori: category.id })}
+              label={`${category.icon ?? "🏷"} ${category.name}`}
+              active={categoryFilter === category.id}
             />
           ))}
         </div>
@@ -140,6 +229,7 @@ export default async function EnvanterPage({
               const warranty = warrantyStatus(item.warrantyEndDate);
               const details = [
                 [item.brand, item.model].filter(Boolean).join(" "),
+                item.category?.name ?? null,
                 item.serialNo ? `SN ${item.serialNo}` : null,
                 selectedLocation ? null : item.location.name,
               ]
@@ -150,6 +240,7 @@ export default async function EnvanterPage({
                 <Row
                   key={item.id}
                   badgesBelow
+                  href={`/envanter/${item.id}`}
                   title={item.name}
                   subtitle={details || "Ayrıntı girilmemiş"}
                   badge={
@@ -192,11 +283,12 @@ function buildHref(params: Search) {
   if (params.q) query.set("q", params.q);
   if (params.durum) query.set("durum", params.durum);
   if (params.lokasyon) query.set("lokasyon", params.lokasyon);
+  if (params.kategori) query.set("kategori", params.kategori);
   const text = query.toString();
   return text ? `/envanter?${text}` : "/envanter";
 }
 
-function LocationChip({
+function Chip({
   href,
   label,
   active,

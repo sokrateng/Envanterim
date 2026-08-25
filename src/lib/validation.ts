@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ITEM_STATUS, ROLES } from "@/lib/constants";
+import { FIELD_TYPES, ITEM_STATUS, ROLES } from "@/lib/constants";
 import { parseMoney } from "@/lib/money";
 import { normalizeInviteCode } from "@/lib/invite";
 
@@ -101,6 +101,39 @@ export const itemCreateSchema = z.object({
   status: z
     .enum(ITEM_STATUS, { errorMap: () => ({ message: "Geçersiz durum" }) })
     .default("IN_USE"),
+  categoryId: emptyToUndefined(trimmed),
+  // Dinamik alanlar burada ham gelir; asıl doğrulama kategori tanımlarından
+  // üretilen şemayla yapılır (src/lib/custom-fields.ts).
+  customFields: z.record(z.unknown()).default({}),
+});
+
+export const itemUpdateSchema = itemCreateSchema;
+
+export const categorySchema = z.object({
+  name: trimmed.min(1, "Kategori adı gerekli").max(60, "En çok 60 karakter"),
+  icon: emptyToUndefined(trimmed.max(8)),
+});
+
+export const fieldCreateSchema = z.object({
+  label: trimmed.min(1, "Alan adı gerekli").max(40, "En çok 40 karakter"),
+  type: z.enum(FIELD_TYPES, { errorMap: () => ({ message: "Geçersiz alan tipi" }) }),
+  required: z.coerce.boolean().default(false),
+  // Seçenekler formda satır satır girilir.
+  options: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .transform((value) => {
+      if (value === undefined) return [];
+      const list = Array.isArray(value) ? value : value.split("\n");
+      return list.map((option) => option.trim()).filter(Boolean).slice(0, 40);
+    }),
+});
+
+export const fieldUpdateSchema = z.object({
+  label: trimmed.min(1, "Alan adı gerekli").max(40, "En çok 40 karakter").optional(),
+  required: z.boolean().optional(),
+  hidden: z.boolean().optional(),
+  order: z.number().int().min(0).max(999).optional(),
 });
 
 export const itemStatusSchema = z.object({

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
+import { useCloseAndRefresh } from "@/lib/history-layer";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 
 export function NewLocationButton() {
-  const router = useRouter();
+  const closeAndRefresh = useCloseAndRefresh();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,8 +33,7 @@ export function NewLocationButton() {
       return;
     }
 
-    setOpen(false);
-    router.refresh();
+    closeAndRefresh(() => setOpen(false));
   }
 
   return (
