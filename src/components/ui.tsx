@@ -1,0 +1,155 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+
+/**
+ * iOS "Inset Grouped" liste deseni ve temel kabuk (docs/TASARIM.md).
+ * Hiçbiri hover'a bağlı değil; basılı hissi active:scale ile verilir.
+ */
+
+export function Screen({ children }: { children: ReactNode }) {
+  return <div className="mx-auto w-full max-w-[430px] pb-28">{children}</div>;
+}
+
+export function ScreenHeader({
+  title,
+  action,
+  back,
+}: {
+  title: string;
+  action?: ReactNode;
+  back?: { href: string; label: string };
+}) {
+  return (
+    <header className="px-4 pt-[calc(env(safe-area-inset-top)+12px)]">
+      {back ? (
+        <Link
+          href={back.href}
+          className="-ml-1 inline-flex h-touch items-center gap-1 text-body text-blue active:opacity-60"
+        >
+          <span aria-hidden>‹</span>
+          {back.label}
+        </Link>
+      ) : null}
+      <div className="flex items-end justify-between gap-3">
+        <h1 className="text-large-title tracking-tight">{title}</h1>
+        {action}
+      </div>
+    </header>
+  );
+}
+
+export function Group({
+  title,
+  footer,
+  children,
+}: {
+  title?: string;
+  footer?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section className="mt-6">
+      {title ? (
+        <h2 className="px-8 pb-2 text-footnote uppercase text-muted">{title}</h2>
+      ) : null}
+      <div className="mx-4 overflow-hidden rounded-card bg-surface">
+        {children}
+      </div>
+      {footer ? (
+        <p className="px-8 pt-2 text-footnote text-muted">{footer}</p>
+      ) : null}
+    </section>
+  );
+}
+
+/** Satır ayracı soldan 16px içeriden başlar — iOS deseni. */
+export function Rows({ children }: { children: ReactNode }) {
+  return <div className="divide-y divide-separator [&>*]:pl-4">{children}</div>;
+}
+
+export function Row({
+  href,
+  title,
+  subtitle,
+  trailing,
+  badge,
+  badgesBelow = false,
+}: {
+  href?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  trailing?: ReactNode;
+  badge?: ReactNode;
+  /** Rozetler adın yanına sığmıyorsa alt satıra alınır — ad kırpılmasın. */
+  badgesBelow?: boolean;
+}) {
+  const inner = (
+    <div className="flex min-h-touch items-center gap-3 py-2.5 pr-4">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="truncate text-headline">{title}</span>
+          {badgesBelow ? null : badge}
+        </div>
+        {subtitle ? (
+          <div className="truncate text-footnote text-muted">{subtitle}</div>
+        ) : null}
+        {badgesBelow && badge ? (
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">{badge}</div>
+        ) : null}
+      </div>
+      {trailing ? (
+        <div className="shrink-0 text-subheadline text-muted">{trailing}</div>
+      ) : null}
+      {href ? (
+        <span aria-hidden className="shrink-0 text-muted">
+          ›
+        </span>
+      ) : null}
+    </div>
+  );
+
+  if (!href) return inner;
+  return (
+    <Link href={href} className="block active:bg-surface-pressed">
+      {inner}
+    </Link>
+  );
+}
+
+export function EmptyState({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="px-8 py-12 text-center">
+      <p className="text-headline">{title}</p>
+      <p className="pt-1 text-subheadline text-muted">{description}</p>
+    </div>
+  );
+}
+
+export function Badge({
+  tone = "muted",
+  children,
+}: {
+  tone?: "muted" | "green" | "orange" | "red" | "blue";
+  children: ReactNode;
+}) {
+  const tones: Record<string, string> = {
+    muted: "bg-separator/40 text-muted",
+    green: "bg-green/15 text-green",
+    orange: "bg-orange/15 text-orange",
+    red: "bg-red/15 text-red",
+    blue: "bg-blue/15 text-blue",
+  };
+  return (
+    <span
+      className={`shrink-0 rounded-full px-2 py-0.5 text-caption ${tones[tone]}`}
+    >
+      {children}
+    </span>
+  );
+}

@@ -1,0 +1,101 @@
+import { z } from "zod";
+import { ITEM_STATUS, ROLES } from "@/lib/constants";
+import { parseMoney } from "@/lib/money";
+
+// Her API ucunun gövdesi buradan geçer; hata mesajları Türkçe (CLAUDE.md).
+
+const trimmed = z.string().trim();
+
+/** "2026-03-14" → yerel günün başı. Saat dilimi kayması TUZAKLAR #27. */
+export const dateOnly = trimmed
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Tarih GG.AA.YYYY biçiminde olmalı")
+  .transform((value, ctx) => {
+    const [y, m, d] = value.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+    if (
+      date.getFullYear() !== y ||
+      date.getMonth() !== m - 1 ||
+      date.getDate() !== d
+    ) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Geçersiz tarih" });
+      return z.NEVER;
+    }
+    return date;
+  });
+
+/** Form metnini kuruşa çevirir. Boş alan null. */
+export const moneyMinor = trimmed.transform((value, ctx) => {
+  if (value === "") return null;
+  const minor = parseMoney(value);
+  if (minor === null) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Tutar sayı olmalı" });
+    return z.NEVER;
+  }
+  if (minor < 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Tutar eksi olamaz" });
+    return z.NEVER;
+  }
+  return minor;
+});
+
+const optionalText = trimmed.max(200, "En çok 200 karakter").optional();
+/**
+ * Formdan boş alan "" gelir; şemaya girmeden undefined'a çevrilir.
+ * Dönüş tipi açıkça yazılıyor: z.preprocess girdi tipini unknown'a düşürüyor
+ * ve çıktı tipi Prisma'ya giderken kayboluyor.
+ */
+const emptyToUndefined = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess(
+    (v) => (v === "" || v === null ? undefined : v),
+    schema.optional(),
+  ) as unknown as z.ZodType<z.output<T> | undefined, z.ZodTypeDef, unknown>;
+
+export const loginSchema = z.object({
+  username: trimmed.min(1, "Kullanıcı adı gerekli"),
+  password: z.string().min(1, "Şifre gerekli"),
+});
+
+export const usernameSchema = trimmed
+  .min(3, "Kullanıcı adı en az 3 karakter")
+  .max(32, "Kullanıcı adı en çok 32 karakter")
+  .regex(/^[a-z0-9._-]+$/i, "Yalnız harf, rakam, nokta, tire ve alt çizgi")
+  .transform((v) => v.toLowerCase());
+
+export const locationCreateSchema = z.object({
+  name: trimmed.min(1, "Lokasyon adı gerekli").max(60, "En çok 60 karakter"),
+  icon: emptyToUndefined(trimmed.max(8)),
+});
+
+export const memberInviteSchema = z.object({
+  username: usernameSchema,
+  role: z.enum(ROLES, { errorMap: () => ({ message: "Geçersiz rol" }) }),
+});
+
+export const memberUpdateSchema = z.object({
+  role: z.enum(ROLES, { errorMap: () => ({ message: "Geçersiz rol" }) }),
+});
+
+export const itemCreateSchema = z.object({
+  name: trimmed.min(1, "Ekipman adı gerekli").max(120, "En çok 120 karakter"),
+  brand: emptyToUndefined(optionalText),
+  model: emptyToUndefined(optionalText),
+  serialNo: emptyToUndefined(optionalText),
+  place: emptyToUndefined(optionalText),
+  purchaseDate: emptyToUndefined(dateOnly),
+  purchasePrice: emptyToUndefined(moneyMinor),
+  warrantyEndDate: emptyToUndefined(dateOnly),
+  status: z
+    .enum(ITEM_STATUS, { errorMap: () => ({ message: "Geçersiz durum" }) })
+    .default("IN_USE"),
+});
+
+export const itemStatusSchema = z.object({
+  status: z.enum(ITEM_STATUS, {
+    errorMap: () => ({ message: "Geçersiz durum" }),
+  }),
+});
+
+/** Zod hatasını kullanıcıya gösterilecek tek cümleye indirir. */
+export function firstError(error: z.ZodError): string {
+  return error.issues[0]?.message ?? "Geçersiz veri";
+}

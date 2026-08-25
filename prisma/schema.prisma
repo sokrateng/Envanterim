@@ -1,0 +1,219 @@
+// Şemada enum yok: sabitler src/lib/constants.ts içinde metin olarak durur.
+// Yeni bir durum/rol eklemek göç gerektirmesin diye (CLAUDE.md "Yapma" listesi).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // havuzlanmış (Supabase pooler, 6543)
+  directUrl = env("DIRECT_URL") // doğrudan (5432) — migrate/db push (TUZAKLAR #3)
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  username     String   @unique
+  passwordHash String
+  status       String   @default("ACTIVE") // PENDING | ACTIVE | FROZEN
+  inviteCode   String?  @unique
+  createdAt    DateTime @default(now())
+
+  memberships       LocationMember[]
+  assignedEvents    ItemEvent[]        @relation("EventAssignee")
+  pushSubscriptions PushSubscription[]
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  icon      String?
+  createdAt DateTime @default(now())
+
+  members    LocationMember[]
+  items      Item[]
+  categories Category[]
+  vendors    Vendor[]
+}
+
+model LocationMember {
+  id         String   @id @default(cuid())
+  locationId String
+  userId     String
+  role       String // OWNER | EDITOR | VIEWER
+  createdAt  DateTime @default(now())
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([locationId, userId])
+  @@index([userId])
+}
+
+model Category {
+  id         String   @id @default(cuid())
+  locationId String
+  name       String
+  icon       String?
+  createdAt  DateTime @default(now())
+
+  location Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  fields   CategoryField[]
+  items    Item[]
+
+  @@index([locationId])
+}
+
+model CategoryField {
+  id         String  @id @default(cuid())
+  categoryId String
+  key        String
+  label      String
+  type       String // TEXT | NUMBER | DATE | SELECT | BOOL
+  order      Int     @default(0)
+  required   Boolean @default(false)
+  options    Json? // SELECT için seçenekler
+  hidden     Boolean @default(false) // silmek yerine gizle (TUZAKLAR #26)
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, key])
+}
+
+model Vendor {
+  id         String  @id @default(cuid())
+  locationId String
+  name       String
+  phone      String?
+  email      String?
+  address    String?
+  note       String?
+  isSeller   Boolean @default(true)
+  isService  Boolean @default(false)
+
+  location  Location    @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  soldItems Item[]      @relation("ItemSeller")
+  events    ItemEvent[]
+  parts     Part[]
+
+  @@index([locationId])
+}
+
+model Item {
+  id         String  @id @default(cuid())
+  locationId String
+  categoryId String?
+  name       String
+  brand      String?
+  model      String?
+  serialNo   String?
+  place      String? // oda/raf — serbest metin
+
+  sellerId           String?
+  purchaseDate       DateTime?
+  purchasePriceMinor Int? // kuruş
+  currency           String    @default("TRY")
+  warrantyEndDate    DateTime?
+
+  status       String @default("IN_USE") // IN_USE | IN_REPAIR | RETIRED | SOLD
+  customFields Json   @default("{}") // CategoryField tanımlarına göre doğrulanır
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  location    Location       @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  category    Category?      @relation(fields: [categoryId], references: [id])
+  seller      Vendor?        @relation("ItemSeller", fields: [sellerId], references: [id])
+  attachments Attachment[]
+  events      ItemEvent[]
+  parts       Part[]
+  reminders   ItemReminder[]
+
+  @@index([locationId, status])
+  @@index([locationId, categoryId])
+  @@index([serialNo])
+}
+
+model Attachment {
+  id         String   @id @default(cuid())
+  itemId     String
+  url        String
+  name       String
+  kind       String // PHOTO | INVOICE | WARRANTY | MANUAL | OTHER
+  mimeType   String?
+  uploadedAt DateTime @default(now())
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+}
+
+model ItemEvent {
+  id     String   @id @default(cuid())
+  itemId String
+  date   DateTime
+  kind   String // READING | SERVICE | LOG | ASSIGNMENT
+  note   String?
+
+  readingValue Float? // km, saat, sayfa — metin değil (bakım kuralı buna bakar)
+  readingUnit  String?
+
+  costMinor Int? // kuruş
+  vendorId  String?
+
+  assignedToUserId String?
+  assignedPlace    String?
+
+  createdAt DateTime @default(now())
+
+  item           Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  vendor         Vendor? @relation(fields: [vendorId], references: [id])
+  assignedToUser User?   @relation("EventAssignee", fields: [assignedToUserId], references: [id])
+
+  @@index([itemId, date])
+}
+
+model Part {
+  id         String  @id @default(cuid())
+  itemId     String
+  name       String
+  partNo     String?
+  priceMinor Int? // kuruş
+  vendorId   String?
+  stock      Int?
+
+  item   Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  vendor Vendor? @relation(fields: [vendorId], references: [id])
+
+  @@index([itemId])
+}
+
+model ItemReminder {
+  id       String    @id @default(cuid())
+  itemId   String
+  kind     String // WARRANTY | MAINTENANCE
+  dueDate  DateTime
+  leadDays Int       @default(30)
+  sentAt   DateTime? // damgalanmazsa cron her gün tekrar gönderir (TUZAKLAR #28)
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, kind, dueDate, leadDays])
+  @@index([dueDate])
+}
+
+// Web push aboneliği kullanıcı başına saklanır (MIMARI §4).
+// 410 Gone dönen abonelik silinir (TUZAKLAR #29).
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

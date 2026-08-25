@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* iOS sistem renkleri (docs/TASARIM.md). Koyu tema prefers-color-scheme ile. */
+:root {
+  --ios-blue: #007aff;
+  --ios-green: #34c759;
+  --ios-red: #ff3b30;
+  --ios-orange: #ff9500;
+
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --surface-pressed: #d1d1d6;
+  --separator: #c6c6c8;
+  --text: #000000;
+  --text-secondary: #8e8e93;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ios-blue: #0a84ff;
+    --ios-green: #30d158;
+    --ios-red: #ff453a;
+    --ios-orange: #ff9f0a;
+
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --surface-pressed: #2c2c2e;
+    --separator: #38383a;
+    --text: #ffffff;
+    --text-secondary: #8e8e93;
+  }
+}
+
+html {
+  /* SF Pro sistem yığınından gelir; web fontu indirilmez (docs/TASARIM.md). */
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui,
+    "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg);
+  /* iOS'ta gri dokunma parlaması yerel görünmüyor. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: 17px; /* 16px altına inme: Safari girdi odağında sayfayı yakınlaştırır */
+  line-height: 1.35;
+  min-height: 100dvh;
+}
+
+/* Izgara çocuğu varsayılan min-width: auto ile kutusundan taşar (TUZAKLAR #10) */
+input,
+select,
+textarea,
+button {
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+}
+
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Alttan açılan panel — 200-300ms, iOS eğrisi (docs/TASARIM.md) */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.sheet-in {
+  animation: sheet-in 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
