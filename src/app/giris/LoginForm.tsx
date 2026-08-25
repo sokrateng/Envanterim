@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 
@@ -56,8 +57,11 @@ export function LoginForm() {
       <FormError message={error} />
       <SubmitButton pending={pending}>Giriş yap</SubmitButton>
       <p className="pt-4 text-footnote text-muted">
-        Hesabın yoksa seni bir lokasyona davet eden kişiden hesap açmasını iste.
-        İlk hesap <code>npm run create-admin</code> ile açılır.
+        Davet kodun mu var?{" "}
+        <Link href="/kayit" className="text-blue">
+          Hesap aç
+        </Link>
+        . İlk hesap <code>npm run create-admin</code> ile açılır.
       </p>
     </form>
   );

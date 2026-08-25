@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ITEM_STATUS, ROLES } from "@/lib/constants";
 import { parseMoney } from "@/lib/money";
+import { normalizeInviteCode } from "@/lib/invite";
 
 // Her API ucunun gövdesi buradan geçer; hata mesajları Türkçe (CLAUDE.md).
 
@@ -73,6 +74,19 @@ export const memberInviteSchema = z.object({
 
 export const memberUpdateSchema = z.object({
   role: z.enum(ROLES, { errorMap: () => ({ message: "Geçersiz rol" }) }),
+});
+
+export const inviteCreateSchema = z.object({
+  role: z.enum(ROLES, { errorMap: () => ({ message: "Geçersiz rol" }) }),
+});
+
+export const registerSchema = z.object({
+  code: trimmed
+    .min(1, "Davet kodu gerekli")
+    .transform((value) => normalizeInviteCode(value)),
+  name: trimmed.min(1, "Ad gerekli").max(60, "En çok 60 karakter"),
+  username: usernameSchema,
+  password: z.string().min(8, "Şifre en az 8 karakter"),
 });
 
 export const itemCreateSchema = z.object({

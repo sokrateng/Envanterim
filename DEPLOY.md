@@ -82,11 +82,14 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 
 1. `/giris` → ilk hesapla gir.
 2. Lokasyon oluştur → listede görünüyor mu?
-3. İkinci bir kullanıcıyı `+ Üye` ile davet et, rolünü `EDITOR` yap.
-4. `Envanter` sekmesinde ekipman ekle: ad + garanti bitiş tarihi.
-5. Garanti rozeti doğru gün sayısını yazıyor mu?
-6. İkinci kullanıcıyla gir: aynı ekipmanı görüyor, üye ekleyemiyor.
-7. Üçüncü, hiçbir lokasyona üye olmayan kullanıcıyla gir: envanter boş.
+3. Hesabı olan birini `+ Üye` ile ekle, rolünü `EDITOR` yap.
+4. `+ Davet` ile kod üret; koddaki bağlantıyı gizli pencerede aç, hesap
+   oluştur — kişi doğrudan o lokasyona verdiğin rolle üye olmalı. Aynı kodu
+   ikinci kez kullanmayı dene: "Bu davet kodu kullanılmış" demeli.
+5. `Envanter` sekmesinde ekipman ekle: ad + garanti bitiş tarihi.
+6. Garanti rozeti doğru gün sayısını yazıyor mu?
+7. İkinci kullanıcıyla gir: aynı ekipmanı görüyor, üye ekleyemiyor.
+8. Üçüncü, hiçbir lokasyona üye olmayan kullanıcıyla gir: envanter boş.
 
 ## 7. Sonraki sürümde eklenecek dağıtım adımları
 

@@ -3,7 +3,9 @@ import { Badge, Group, Rows, Screen, ScreenHeader } from "@/components/ui";
 import { requireLocation } from "@/lib/access";
 import { ROLE_LABELS, type Role } from "@/lib/constants";
 import { canManageMembers } from "@/lib/permissions";
+import { inviteState } from "@/lib/invite";
 import { prisma } from "@/lib/prisma";
+import { InviteCodes, type InviteView } from "./InviteCodes";
 import { InviteMemberButton } from "./InviteMemberButton";
 import { MemberRow } from "./MemberRow";
 
@@ -22,6 +24,18 @@ export default async function UyelerPage({
     where: { id },
     select: {
       name: true,
+      invites: {
+        select: {
+          id: true,
+          code: true,
+          role: true,
+          expiresAt: true,
+          usedAt: true,
+          usedBy: { select: { name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      },
       members: {
         select: {
           id: true,
@@ -36,6 +50,22 @@ export default async function UyelerPage({
   if (!location) notFound();
 
   const isOwner = canManageMembers(access);
+  const dateFormat = new Intl.DateTimeFormat("tr-TR", {
+    day: "numeric",
+    month: "long",
+  });
+
+  // Davet kodları yalnız sahibe gider: istemciye giden veri zaten filtreli.
+  const invites: InviteView[] = isOwner
+    ? location.invites.map((invite) => ({
+        id: invite.id,
+        code: invite.code,
+        role: invite.role as Role,
+        state: inviteState(invite),
+        expiresAt: `${dateFormat.format(invite.expiresAt)} tarihine kadar`,
+        usedBy: invite.usedBy?.name ?? null,
+      }))
+    : [];
   const ownerCount = location.members.filter((m) => m.role === "OWNER").length;
 
   return (
@@ -76,7 +106,9 @@ export default async function UyelerPage({
         </Rows>
       </Group>
 
-      <p className="px-8 pt-4 text-footnote text-muted">
+      {isOwner ? <InviteCodes locationId={id} invites={invites} /> : null}
+
+      <p className="px-8 pt-6 text-footnote text-muted">
         Roller: {Object.values(ROLE_LABELS).join(" · ")}
       </p>
     </Screen>

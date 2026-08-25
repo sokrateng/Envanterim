@@ -18,6 +18,13 @@ export function useHistoryLayer(
   // Kapatmanın tüm yolları tek kanaldan geçsin diye kapanış bir kez çalışır.
   const closing = useRef(false);
 
+  // Kapatma geri çağrısı her render'da yeni bir kimlik alıyor. Efektin
+  // bağımlılığı olsaydı katman açıkken gelen her yeniden çizim (örn.
+  // router.refresh) efekti söküp kurar, sökme sırasındaki history.back()
+  // paneli kendiliğinden kapatırdı. En güncel işlevi ref'te tutuyoruz.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!open) return;
     closing.current = false;
@@ -29,7 +36,7 @@ export function useHistoryLayer(
       if (landed.__katman === id) return; // hâlâ bizim kaydımızdayız
       if (closing.current) return;
       closing.current = true;
-      onClose();
+      onCloseRef.current();
     };
 
     window.addEventListener("popstate", onPop);
@@ -42,5 +49,5 @@ export function useHistoryLayer(
         window.history.back();
       }
     };
-  }, [open, onClose, id]);
+  }, [open, id]);
 }

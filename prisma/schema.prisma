@@ -17,12 +17,14 @@ model User {
   username     String   @unique
   passwordHash String
   status       String   @default("ACTIVE") // PENDING | ACTIVE | FROZEN
-  inviteCode   String?  @unique
+  inviteCode   String?  @unique // hesabın hangi davet koduyla açıldığı
   createdAt    DateTime @default(now())
 
   memberships       LocationMember[]
   assignedEvents    ItemEvent[]        @relation("EventAssignee")
   pushSubscriptions PushSubscription[]
+  invitesCreated    LocationInvite[]   @relation("InviteCreator")
+  inviteUsed        LocationInvite?    @relation("InviteUser")
 }
 
 model Location {
@@ -35,6 +37,7 @@ model Location {
   items      Item[]
   categories Category[]
   vendors    Vendor[]
+  invites    LocationInvite[]
 }
 
 model LocationMember {
@@ -49,6 +52,26 @@ model LocationMember {
 
   @@unique([locationId, userId])
   @@index([userId])
+}
+
+// Davet kodu lokasyona ve role bağlıdır: kodla kayıt olan kişi doğrudan o
+// lokasyonun üyesi olur. Kod tek kullanımlık ve süreli.
+model LocationInvite {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  locationId  String
+  role        String // OWNER | EDITOR | VIEWER
+  createdById String
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+  usedAt      DateTime?
+  usedById    String?   @unique
+
+  location  Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  createdBy User     @relation("InviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  usedBy    User?    @relation("InviteUser", fields: [usedById], references: [id], onDelete: SetNull)
+
+  @@index([locationId])
 }
 
 model Category {
