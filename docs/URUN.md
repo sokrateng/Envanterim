@@ -85,6 +85,14 @@
 - [x] Kaydırma jestleri: envanter satırında hızlı işlem, zaman çizelgesinde
       geri alınabilir silme
 
+### v5 — olgunluk
+- [x] Uçtan uca testler repoda, tek komutla koşuyor
+- [x] Şifre değiştirme ve e-postayla şifre sıfırlama
+- [x] Lokasyon adı/ikonu düzenleme; boş lokasyonu kapatma
+- [x] Envanter listesinde sayfalama (süzme veritabanında)
+- [x] Çevrimdışı okuma (service worker); çıkışta önbellek temizleniyor
+- [x] JSON yedek ve denetim izi ("Hareketler")
+
 ### Sonra
 - [x] E-posta bildirimi
 - [x] Barkod/QR kamera ile okuma

@@ -56,6 +56,18 @@ export function verificationMail(code: string): Mail {
   };
 }
 
+/** Şifre sıfırlama kodu. Kod isteyen kişi ile adres sahibi aynı olmayabilir. */
+export function resetMail(code: string): Mail {
+  return {
+    subject: `Envanterim şifre sıfırlama kodu: ${code}`,
+    text:
+      `Envanterim şifreni sıfırlamak için kod:\n\n${code}\n\n` +
+      `Kod ${CODE_TTL_MINUTES} dakika geçerli. Bu isteği sen yapmadıysan ` +
+      `bu e-postayı yok say; şifren değişmez.` +
+      IMZA,
+  };
+}
+
 function itemLink(baseUrl: string | undefined | null, itemId: string): string {
   const base = normalizeBaseUrl(baseUrl);
   return base ? `${base}/envanter/${itemId}` : `/envanter/${itemId}`;

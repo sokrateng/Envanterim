@@ -1,3 +1,4 @@
+import { ServiceWorker } from "@/components/ServiceWorker";
 import { TabBar } from "@/components/TabBar";
 import { requireUser } from "@/lib/session";
 
@@ -13,6 +14,7 @@ export default async function UygulamaLayout({
     <>
       <main className="min-h-dvh">{children}</main>
       <TabBar />
+      <ServiceWorker />
     </>
   );
 }

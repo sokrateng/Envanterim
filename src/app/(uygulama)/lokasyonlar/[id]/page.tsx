@@ -3,6 +3,8 @@ import { Group, Row, Rows, Screen, ScreenHeader } from "@/components/ui";
 import { requireLocation } from "@/lib/access";
 import { ROLE_LABELS } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
+import { canManageMembers } from "@/lib/permissions";
+import { EditLocation } from "./EditLocation";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,16 @@ export default async function LokasyonPage({
       <ScreenHeader
         title={`${location.icon ?? "📍"} ${location.name}`}
         back={{ href: "/lokasyonlar", label: "Lokasyonlar" }}
+        action={
+          canManageMembers(access) ? (
+            <EditLocation
+              id={id}
+              name={location.name}
+              icon={location.icon}
+              itemCount={location._count.items}
+            />
+          ) : undefined
+        }
       />
 
       <Group>
@@ -68,10 +80,23 @@ export default async function LokasyonPage({
             subtitle="Dışa aktar, içe aktar"
           />
           <Row
+            href={`/api/lokasyonlar/${id}/yedek`}
+            title="Yedek al (JSON)"
+            subtitle="Tüm kayıtlar; dosyaların adresleri listede"
+          />
+          <Row
             href={`/lokasyonlar/${id}/etiketler`}
             title="QR etiketler"
             subtitle="Tüm ekipmanların etiketlerini yazdır"
           />
+          {/* Kimin ne sildiği, üyelik yönetimi kadar hassas: yalnız sahip. */}
+          {canManageMembers(access) ? (
+            <Row
+              href={`/lokasyonlar/${id}/hareketler`}
+              title="Hareketler"
+              subtitle="Kim neyi sildi, kimin yetkisi değişti"
+            />
+          ) : null}
           <Row
             href={`/lokasyonlar/${id}/uyeler`}
             title="Üyeler"

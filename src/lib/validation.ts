@@ -252,6 +252,23 @@ export const componentLinkSchema = z.object({
   parentId: z.union([trimmed, z.null()]).transform((value) => value || null),
 });
 
+/** Şifre değiştirme: mevcut şifre olmadan olmuyor. */
+export const passwordChangeSchema = z.object({
+  mevcut: z.string().min(1, "Mevcut şifre gerekli"),
+  yeni: z.string().min(8, "Yeni şifre en az 8 karakter"),
+});
+
+/** Şifre sıfırlama: önce kod istenir, sonra kodla yeni şifre konur. */
+export const resetRequestSchema = z.object({
+  username: trimmed.min(1, "Kullanıcı adı gerekli"),
+});
+
+export const resetConfirmSchema = z.object({
+  username: trimmed.min(1, "Kullanıcı adı gerekli"),
+  kod: trimmed.min(1, "Kod gerekli"),
+  yeni: z.string().min(8, "Yeni şifre en az 8 karakter"),
+});
+
 /** Zod hatasını kullanıcıya gösterilecek tek cümleye indirir. */
 export function firstError(error: z.ZodError): string {
   return error.issues[0]?.message ?? "Geçersiz veri";

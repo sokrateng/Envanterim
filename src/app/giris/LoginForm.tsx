@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 
-export function LoginForm() {
+export function LoginForm({ resetEnabled }: { resetEnabled: boolean }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +56,13 @@ export function LoginForm() {
       </Field>
       <FormError message={error} />
       <SubmitButton pending={pending}>Giriş yap</SubmitButton>
+      {resetEnabled ? (
+        <p className="pt-4 text-footnote text-muted">
+          <Link href="/sifre" className="text-blue">
+            Şifremi unuttum
+          </Link>
+        </p>
+      ) : null}
       <p className="pt-4 text-footnote text-muted">
         Davet kodun mu var?{" "}
         <Link href="/kayit" className="text-blue">

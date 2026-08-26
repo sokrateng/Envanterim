@@ -29,6 +29,12 @@ model User {
   emailCodeExpiresAt DateTime?
   emailCodeTries     Int       @default(0)
 
+  // Şifre sıfırlama kodu ayrı tutuluyor: adres doğrulama kodunu sıfırlamak
+  // için kullanmak, doğrulanmış adresi de sıfırlardı.
+  resetCodeHash      String?
+  resetCodeExpiresAt DateTime?
+  resetCodeTries     Int       @default(0)
+
   memberships       LocationMember[]
   assignedEvents    ItemEvent[]        @relation("EventAssignee")
   assignmentsHeld   ItemAssignment[]   @relation("AssignmentHolder")
@@ -38,6 +44,7 @@ model User {
   invitesCreated    LocationInvite[]   @relation("InviteCreator")
   shareLinks        ShareLink[]        @relation("ShareCreator")
   invoiceReads      InvoiceRead[]
+  auditLogs         AuditLog[]
   inviteUsed        LocationInvite?    @relation("InviteUser")
 }
 
@@ -52,6 +59,7 @@ model Location {
   categories Category[]
   vendors    Vendor[]
   invites    LocationInvite[]
+  auditLogs  AuditLog[]
 }
 
 model LocationMember {
@@ -337,6 +345,25 @@ model InvoiceRead {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+// Denetim izi: kim neyi sildi/değiştirdi. Silinen kaydın kendisi geri
+// gelmiyor ama izi kalıyor — paylaşılan bir envanterde "bu nereye gitti"
+// sorusunun tek cevabı bu.
+model AuditLog {
+  id         String   @id @default(cuid())
+  locationId String
+  userId     String? // kullanıcı silinse de iz kalsın
+  action     String // CREATE | UPDATE | DELETE
+  entity     String // ITEM | EVENT | PART | ATTACHMENT | MEMBER | CATEGORY | SHARE | LOCATION
+  entityId   String?
+  summary    String // Türkçe tek cümle: ekranda okunan şey bu
+  createdAt  DateTime @default(now())
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([locationId, createdAt])
 }
 
 // Web push aboneliği kullanıcı başına saklanır (MIMARI §4).

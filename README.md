@@ -46,6 +46,12 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   açmadan görür; tutarlar paylaşılmaz.
 - **Kaydırma jestleri.** Envanter satırını sola çekince hızlı işlem; zaman
   çizelgesinde silme "geri al" şeridiyle geliyor.
+- **Çevrimdışı okuma.** Gezdiğin sayfalar ağ yokken de açılıyor — depoda ya da
+  serviste envantere bakmak için bağlantı gerekmiyor. Çıkışta önbellek
+  siliniyor.
+- **Yedek ve denetim izi.** Lokasyonun tamamı tek JSON dosyasına iniyor;
+  kimin neyi sildiği "Hareketler" ekranında duruyor.
+- **Şifre yönetimi.** Şifre değiştirme ve e-postayla sıfırlama.
 
 Öncelik listesi ve sıradaki özellikler: [`docs/URUN.md`](docs/URUN.md).
 
@@ -80,6 +86,8 @@ fareyle bakmak yetmiyor.
 ```bash
 npm run dev              # geliştirme
 npm test                 # Vitest (saf mantık modülleri)
+npm run test:e2e         # Playwright (iPhone profilinde, sunucu ayakta olmalı)
+npm run seed:e2e         # testler için kullanıcı + lokasyon + ekipman
 npm run typecheck        # tsc --noEmit
 npm run build            # prisma generate + next build
 npm run db:migrate       # şema göçü (geliştirme)
@@ -88,7 +96,8 @@ npm run create-admin     # ilk hesap
 ```
 
 Commit öncesi üçü de temiz olmalı: `npm run typecheck`, `npm test`,
-`npm run build`.
+`npm run build`. Arayüzü değiştirdiysen ilgili uçtan uca testi de koştur —
+ayrıntı [`tests/e2e/README.md`](tests/e2e/README.md).
 
 ## Dağıtım
 
@@ -103,7 +112,7 @@ testi: [`DEPLOY.md`](DEPLOY.md).
 | [`docs/MIMARI.md`](docs/MIMARI.md) | Veri modeli, yetki deseni, dinamik alanlar, bildirimler, faturadan okuma |
 | [`docs/TASARIM.md`](docs/TASARIM.md) | iOS görünümü: tipografi, renk, dokunma hedefi, güvenli alan |
 | [`docs/URUN.md`](docs/URUN.md) | Benzer uygulamalar ve öncelikli özellik listesi |
-| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 46 hata ve çözümü |
+| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 48 hata ve çözümü |
 
 Kural `CLAUDE.md`'de, gerekçe `docs/`'ta durur: ajanın davranışını değiştiren
 şey bağlamda sürekli duran kısa kurallardır; uzun mimari yazısı bir kez okunur.
@@ -123,7 +132,8 @@ src/
 ├── components/              # iOS desenleri: liste, panel, form, sekme çubuğu
 └── lib/                     # saf mantık + testleri, yetki, depolama, Claude
 prisma/                      # şema ve göçler
-scripts/create-admin.ts
+tests/e2e/                   # Playwright senaryoları + sahte servisler
+scripts/create-admin.ts · seed-e2e.ts
 ```
 
 Saf mantık `src/lib/` içinde ve testli: garanti günü hesabı, para (kuruş),

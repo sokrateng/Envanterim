@@ -13,6 +13,8 @@ export function StatusFilter({ value }: { value: ItemStatus | null }) {
     const query = new URLSearchParams(params.toString());
     if (next) query.set("durum", next);
     else query.delete("durum");
+    // Filtre değişince sayfa başa dönsün.
+    query.delete("sayfa");
     router.replace(`${pathname}?${query.toString()}`);
   }
 

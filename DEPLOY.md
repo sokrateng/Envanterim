@@ -163,6 +163,15 @@ Anahtar 32 haneli, tahmin edilemez; iptal anında geçerliliğini yitirir.
 **QR etiketler** `NEXTAUTH_URL` adresini kullanır: etiket bu adrese gider.
 Alan adı değişirse eski etiketler eski adrese bakar — yeniden basılmalı.
 
+**Şifre sıfırlama** SMTP'ye bağlı: `SMTP_URL` tanımsızsa giriş ekranında
+"Şifremi unuttum" hiç görünmüyor ve uç 503 dönüyor. Kod yalnız **doğrulanmış**
+adrese gidiyor; adres doğrulanmamışsa hesabın sahibi olduğunu gösteren kanal
+yok demektir.
+
+**Çevrimdışı** için ek bir şey gerekmiyor: service worker `public/sw.js`'te ve
+uygulama açılınca kaydoluyor. Yeni sürüm çıkarken `SURUM` sabitini artır —
+eski önbellek o zaman siliniyor.
+
 **Kamerayla okutma** (`/tara`) ek bir değişken istemiyor ama iki şey gerekir:
 kod okuyucunun `.wasm` dosyası derlemede `public/zxing/` altına kopyalanır
 (`npm run build`in ilk adımı) ve tarayıcı kameraya yalnız güvenli kaynakta
@@ -194,7 +203,21 @@ ekran açılır ama kamera açılmaz.
    ekranda başka bir sitenin QR'ını okut — açılmamalı, "Envanterim etiketi
    değil" demeli.
 
-## 10. Sonraki sürümde eklenecek dağıtım adımları
+## 10. Yedek ve denetim
+
+Lokasyon ekranındaki **Yedek al (JSON)** tüm kayıtları tek dosyaya indiriyor:
+ekipmanlar, olaylar, parçalar, bakım kuralları, zimmet geçmişi, kategoriler ve
+dinamik alan tanımları. **Fotoğraf ve belgelerin kendisi pakete girmiyor** —
+sunucusuz fonksiyonun belleğine sığmaz; dosya adresleri listede, indirmek
+ayrı bir iş. Supabase kovasının kendi yedeğini almayı ihmal etme.
+
+Veritabanı yedeği Supabase tarafında: ücretsiz katmanda günlük yedek yok,
+düzenli `pg_dump` planla.
+
+**Hareketler** ekranı (yalnız sahip) son 100 silme ve yetki değişikliğini
+gösteriyor. Zimmet geçmişi ayrıca ekipmanın zaman çizelgesinde duruyor.
+
+## 11. Sonraki sürümde eklenecek dağıtım adımları
 
 - Şimdilik yok; yeni bir kanal ya da dış servis eklendiğinde buraya yazılır.
 

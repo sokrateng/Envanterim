@@ -262,3 +262,21 @@ olabiliyor (test koşuları, isim benzerliği). Ada göre seçen her kod — ara
 karşılaştırması — sessizce yanlış kişiyi buluyor ve hata "yetki çalışmıyor"
 gibi görünüyor. **Çözüm:** üye tarafında her yerde kimliğe bak; ad yalnız
 hesabı olmayan kişide veri. Testte de her koşuda ayrı ad üret.
+
+## Çevrimdışı
+
+**47. `context.setOffline` service worker'ın isteğini kesmiyor.** Playwright ile
+çevrimdışı davranışını test ederken sayfa `fetch`'i başarısız oluyor ama
+service worker'ın kendi `fetch`'i sunucuya ulaşıyor: test yeşil yanıyor, oysa
+hiçbir şey önbellekten gelmiyor. Ayırt etmesi zor, çünkü sonuç doğru görünüyor.
+**Çözüm:** ağı `context.route("**/*", (r) => r.abort())` ile kes; yönlendirme
+service worker isteklerini de kapsıyor. Bir kontrol daha: yanıtın gerçekten
+önbellekten geldiğini `caches.keys()` ile doğrula.
+
+**48. App Router'da yalnız HTML önbelleğe alınırsa uygulama içi gezinme
+çevrimdışı çalışmaz.** Kullanıcı bağlantıya dokununca tarayıcı belge değil
+**RSC yükü** çekiyor (`?_rsc=…`); service worker yalnız `mode === "navigate"`
+isteklerini saklıyorsa bu yük önbellekte olmuyor ve ağsızken tıklamalar boşa
+düşüyor — üstelik sayfayı elle yenileyince açıldığı için "çalışıyor" sanılıyor.
+**Çözüm:** RSC isteklerini de sakla; anahtar `_rsc` parametresi yönlendirici
+durumunu kodladığı için adres başına ayrı kayıt oluyor.

@@ -3,6 +3,7 @@ import { isEmailConfigured } from "@/lib/mailer";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { EmailSettings, type EmailState } from "./EmailSettings";
+import { PasswordChange } from "./PasswordChange";
 import { PushToggle } from "./PushToggle";
 import { SignOutButton } from "./SignOutButton";
 
@@ -34,6 +35,7 @@ export default async function HesapPage() {
       <Group title="Kullanıcı">
         <Rows>
           <Row title={user.name ?? user.username} subtitle={`@${user.username}`} />
+          <PasswordChange />
         </Rows>
       </Group>
       {vapidPublicKey || emailEnabled ? (

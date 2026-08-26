@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { isEmailConfigured } from "@/lib/mailer";
 import { currentUser } from "@/lib/session";
 import { LoginForm } from "./LoginForm";
 
@@ -14,7 +15,8 @@ export default async function GirisPage() {
       <p className="pt-1 text-subheadline text-muted">
         Ekipmanlarını, garantilerini ve servis geçmişini tek yerde tut.
       </p>
-      <LoginForm />
+      {/* Sıfırlama e-postaya bağlı; SMTP yoksa bağlantı hiç çıkmıyor. */}
+      <LoginForm resetEnabled={isEmailConfigured()} />
     </main>
   );
 }

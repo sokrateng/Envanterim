@@ -196,6 +196,25 @@ aynı hatırlatma iki kez gitmiyor. E-posta yalnız doğrulanmış adrese gider.
 push ve e-posta gidiyor, cevabı (kabul/red) atayana dönüyor. Damga yok, çünkü
 her atama tek seferlik bir olay.
 
+### Çevrimdışı
+
+Service worker uygulama açılınca kaydoluyor (bildirimden bağımsız). Gezinme
+istekleri önce ağdan, olmazsa o adresin son kopyasından, o da yoksa
+`/cevrimdisi`'nden karşılanıyor; App Router'ın RSC yükleri de saklanıyor,
+yoksa uygulama içinde tıklayarak gezinmek ağsız çalışmıyor (TUZAKLAR #48).
+`/api/*` hiç önbelleğe girmiyor.
+
+Önbellekte oturum açmış kullanıcının gördüğü sayfalar duruyor; çıkışta
+temizleniyor — ortak cihazda bir sonraki kullanıcı öncekinin envanterini
+görmesin.
+
+### Denetim izi
+
+`AuditLog`: kim neyi sildi, kimin yetkisi değişti. Ekipman silinmiyor ama
+olay, parça ve ek siliniyor; paylaşılan bir envanterde "bu nereye gitti"
+sorusunun tek cevabı bu. Yazmak sessizce başarısız oluyor — iz tutulamadı
+diye kullanıcının işlemi geri alınmaz. Ekran yalnız sahibe açık.
+
 ## 5. Dosya depolama
 
 Supabase Storage'a düz `fetch` ile yazılır, SDK eklenmez (soğuk başlangıç hafif

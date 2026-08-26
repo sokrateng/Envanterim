@@ -34,6 +34,8 @@ const TEMEL = [
   "paylasim",
   "zimmet",
   "kaydirma",
+  "hesap",
+  "cevrimdisi",
 ];
 
 /** Sahte servis ya da özel sunucu bayrağı isteyenler. */

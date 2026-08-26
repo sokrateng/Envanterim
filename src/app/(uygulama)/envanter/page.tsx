@@ -32,7 +32,11 @@ type Search = {
   lokasyon?: string;
   kategori?: string;
   zimmet?: string;
+  sayfa?: string;
 };
+
+/** Bir sayfada kaç ekipman. iPhone'da 50 satır kaydırmakla bitiyor. */
+const PAGE_SIZE = 50;
 
 const ZIMMET_FILTERS = ["bende", "bekleyen", "zimmetsiz"] as const;
 type ZimmetFilter = (typeof ZIMMET_FILTERS)[number];
@@ -127,25 +131,44 @@ export default async function EnvanterPage({
       ? requestedCategory
       : null;
 
+  // Süzme veritabanında yapılıyor: sayfa sınırından sonra elemek listeyi
+  // sessizce eksiltir — kullanıcı eksik listeye baktığını anlamaz.
+  const where = {
+    locationId: selectedLocation ? selectedLocation : { in: memberLocationIds },
+    ...(status ? { status } : {}),
+    ...(categoryFilter ? { categoryId: categoryFilter } : {}),
+    ...(query
+      ? {
+          OR: [
+            { name: { contains: query, mode: "insensitive" as const } },
+            { brand: { contains: query, mode: "insensitive" as const } },
+            { model: { contains: query, mode: "insensitive" as const } },
+            { serialNo: { contains: query, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+    // Zimmet durumu sütun değil, kapanmamış kayıt: koşul ilişkiye kuruluyor.
+    ...(assignmentFilter === "zimmetsiz"
+      ? { assignments: { none: { closedAt: null } } }
+      : {}),
+    ...(assignmentFilter === "bekleyen"
+      ? { assignments: { some: { closedAt: null, acceptedAt: null } } }
+      : {}),
+    ...(assignmentFilter === "bende"
+      ? { assignments: { some: { closedAt: null, holderUserId: user.id } } }
+      : {}),
+  };
+
+  const total = memberLocationIds.length
+    ? await prisma.item.count({ where })
+    : 0;
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(Math.max(1, Number(filters.sayfa) || 1), pageCount);
+
   const items = memberLocationIds.length
     ? await prisma.item.findMany({
-        where: {
-          locationId: selectedLocation
-            ? selectedLocation
-            : { in: memberLocationIds },
-          ...(status ? { status } : {}),
-          ...(categoryFilter ? { categoryId: categoryFilter } : {}),
-          ...(query
-            ? {
-                OR: [
-                  { name: { contains: query, mode: "insensitive" as const } },
-                  { brand: { contains: query, mode: "insensitive" as const } },
-                  { model: { contains: query, mode: "insensitive" as const } },
-                  { serialNo: { contains: query, mode: "insensitive" as const } },
-                ],
-              }
-            : {}),
-        },
+        where,
         select: {
           id: true,
           name: true,
@@ -174,12 +197,13 @@ export default async function EnvanterPage({
           },
         },
         orderBy: [{ updatedAt: "desc" }],
-        take: 200,
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
       })
     : [];
 
-  // Zimmet durumu kayıttan türetiliyor, sütun değil: süzme burada yapılıyor.
-  const withHolder = items.map((item) => {
+  // Görünen satırın sorumlusu: durum kayıttan türetiliyor, saklanmıyor.
+  const visible = items.map((item) => {
     const active = activeAssignment(item.assignments);
     return {
       ...item,
@@ -190,14 +214,17 @@ export default async function EnvanterPage({
     };
   });
 
-  const hasAssignments = withHolder.some((item) => item.active);
-
-  const visible = withHolder.filter((item) => {
-    if (!assignmentFilter) return true;
-    if (assignmentFilter === "zimmetsiz") return !item.active;
-    if (assignmentFilter === "bekleyen") return item.pending;
-    return item.active?.holderUserId === user.id;
-  });
+  // Zimmet çubuğu ancak özellik kullanılıyorsa çıksın; sayfadaki satırlara
+  // bakmak yetmiyor, ikinci sayfada zimmet olabilir.
+  const hasAssignments = memberLocationIds.length
+    ? (await prisma.itemAssignment.count({
+        where: {
+          closedAt: null,
+          item: { locationId: { in: memberLocationIds } },
+        },
+        take: 1,
+      })) > 0
+    : false;
 
   const vendors = memberLocationIds.length
     ? await prisma.vendor.findMany({
@@ -266,14 +293,14 @@ export default async function EnvanterPage({
       {locations.length > 1 ? (
         <div className="flex gap-2 overflow-x-auto px-4 pt-3">
           <Chip
-            href={buildHref({ ...filters, lokasyon: undefined })}
+            href={buildHref({ ...filters, lokasyon: undefined, sayfa: undefined })}
             label="Tüm lokasyonlar"
             active={!selectedLocation}
           />
           {locations.map((location) => (
             <Chip
               key={location.id}
-              href={buildHref({ ...filters, lokasyon: location.id })}
+              href={buildHref({ ...filters, lokasyon: location.id, sayfa: undefined })}
               label={`${location.icon ?? "📍"} ${location.name}`}
               active={selectedLocation === location.id}
             />
@@ -284,14 +311,14 @@ export default async function EnvanterPage({
       {filterCategories.length ? (
         <div className="flex gap-2 overflow-x-auto px-4 pt-3">
           <Chip
-            href={buildHref({ ...filters, kategori: undefined })}
+            href={buildHref({ ...filters, kategori: undefined, sayfa: undefined })}
             label="Tüm kategoriler"
             active={!categoryFilter}
           />
           {filterCategories.map((category) => (
             <Chip
               key={category.id}
-              href={buildHref({ ...filters, kategori: category.id })}
+              href={buildHref({ ...filters, kategori: category.id, sayfa: undefined })}
               label={`${category.icon ?? "🏷"} ${category.name}`}
               active={categoryFilter === category.id}
             />
@@ -304,14 +331,14 @@ export default async function EnvanterPage({
       {hasAssignments || assignmentFilter ? (
       <div className="flex gap-2 overflow-x-auto px-4 pt-3">
         <Chip
-          href={buildHref({ ...filters, zimmet: undefined })}
+          href={buildHref({ ...filters, zimmet: undefined, sayfa: undefined })}
           label="Tüm zimmetler"
           active={!assignmentFilter}
         />
         {ZIMMET_FILTERS.map((option) => (
           <Chip
             key={option}
-            href={buildHref({ ...filters, zimmet: option })}
+            href={buildHref({ ...filters, zimmet: option, sayfa: undefined })}
             label={ZIMMET_LABELS[option]}
             active={assignmentFilter === option}
           />
@@ -334,7 +361,13 @@ export default async function EnvanterPage({
           }
         />
       ) : (
-        <Group title={`${visible.length} ekipman`}>
+        <Group
+          title={
+            pageCount > 1
+              ? `${total} ekipman · sayfa ${page}/${pageCount}`
+              : `${total} ekipman`
+          }
+        >
           <Rows>
             {visible.map((item) => {
               const warranty = warrantyStatus(item.warrantyEndDate);
@@ -399,6 +432,26 @@ export default async function EnvanterPage({
           </Rows>
         </Group>
       )}
+
+      {pageCount > 1 ? (
+        <nav aria-label="Sayfalar" className="flex items-center justify-between gap-3 px-4 pt-4">
+          <PageLink
+            href={buildHref({ ...filters, sayfa: String(page - 1) })}
+            enabled={page > 1}
+          >
+            ‹ Önceki
+          </PageLink>
+          <span className="text-footnote text-muted">
+            {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} / {total}
+          </span>
+          <PageLink
+            href={buildHref({ ...filters, sayfa: String(page + 1) })}
+            enabled={page < pageCount}
+          >
+            Sonraki ›
+          </PageLink>
+        </nav>
+      ) : null}
     </Screen>
   );
 }
@@ -410,8 +463,33 @@ function buildHref(params: Search) {
   if (params.lokasyon) query.set("lokasyon", params.lokasyon);
   if (params.kategori) query.set("kategori", params.kategori);
   if (params.zimmet) query.set("zimmet", params.zimmet);
+  if (params.sayfa) query.set("sayfa", params.sayfa);
   const text = query.toString();
   return text ? `/envanter?${text}` : "/envanter";
+}
+
+/** Sayfa bağlantısı. Sınırdaki yön bağlantı değil, soluk bir etiket. */
+function PageLink({
+  href,
+  enabled,
+  children,
+}: {
+  href: string;
+  enabled: boolean;
+  children: React.ReactNode;
+}) {
+  if (!enabled) {
+    return (
+      <span className="min-h-touch px-2 py-2 text-body text-muted opacity-40">
+        {children}
+      </span>
+    );
+  }
+  return (
+    <Link href={href} className="min-h-touch px-2 py-2 text-body text-blue active:opacity-60">
+      {children}
+    </Link>
+  );
 }
 
 function Chip({

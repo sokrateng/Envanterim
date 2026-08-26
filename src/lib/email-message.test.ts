@@ -9,6 +9,7 @@ import {
   isValidCode,
   maintenanceMail,
   normalizeEmail,
+  resetMail,
   verificationMail,
   warrantyMail,
 } from "./email-message";
@@ -165,5 +166,14 @@ describe("assignmentMail", () => {
     const red = assignmentAnswerMail({ id: "i1", name: "AirPods" }, "Eylül", false);
     expect(red.subject).toContain("geri çevrildi");
     expect(red.text).toContain("havuza döndü");
+  });
+});
+
+describe("resetMail", () => {
+  it("kodu ve süreyi yazar, istemeyene ne olacağını söyler", () => {
+    const mail = resetMail("246810");
+    expect(mail.subject).toContain("246810");
+    expect(mail.text).toContain("15 dakika");
+    expect(mail.text).toContain("şifren değişmez");
   });
 });

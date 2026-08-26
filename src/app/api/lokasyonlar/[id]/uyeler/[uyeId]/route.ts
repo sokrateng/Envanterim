@@ -4,7 +4,8 @@ import { requireLocationOwner } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError, parseBody } from "@/lib/api";
 import { canChangeRole, canRemoveMember } from "@/lib/permissions";
 import { memberUpdateSchema } from "@/lib/validation";
-import type { Role } from "@/lib/constants";
+import { ROLE_LABELS, type Role } from "@/lib/constants";
+import { logAudit } from "@/lib/audit";
 
 type Params = { params: Promise<{ id: string; uyeId: string }> };
 
@@ -12,7 +13,7 @@ async function loadTarget(locationId: string, memberId: string) {
   const [target, ownerCount] = await Promise.all([
     prisma.locationMember.findFirst({
       where: { id: memberId, locationId },
-      select: { id: true, role: true, userId: true },
+      select: { id: true, role: true, userId: true, user: { select: { name: true } } },
     }),
     prisma.locationMember.count({ where: { locationId, role: "OWNER" } }),
   ]);
@@ -45,6 +46,17 @@ export async function PATCH(request: Request, { params }: Params) {
     select: { id: true, role: true },
   });
 
+  await logAudit({
+    locationId: id,
+    userId: access.userId,
+    action: "UPDATE",
+    entity: "MEMBER",
+    entityId: target.id,
+    summary:
+      `${target.user.name}: rol ${ROLE_LABELS[target.role as Role]} → ` +
+      `${ROLE_LABELS[updated.role as Role]}`,
+  });
+
   return NextResponse.json(updated);
 }
 
@@ -62,5 +74,14 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
 
   await prisma.locationMember.delete({ where: { id: target.id } });
+  await logAudit({
+    locationId: id,
+    userId: access.userId,
+    action: "DELETE",
+    entity: "MEMBER",
+    entityId: target.id,
+    summary: `${target.user.name} lokasyondan çıkarıldı`,
+  });
+
   return NextResponse.json({ silindi: true });
 }

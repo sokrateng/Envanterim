@@ -17,6 +17,8 @@ export function SearchField({ defaultValue }: { defaultValue: string }) {
       const next = new URLSearchParams(params.toString());
       if (value.trim()) next.set("q", value.trim());
       else next.delete("q");
+      // Yeni aramada üçüncü sayfada kalmak boş liste gösterir.
+      next.delete("sayfa");
       router.replace(`${pathname}?${next.toString()}`);
     }, 250);
 
