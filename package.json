@@ -17,6 +17,7 @@
     "@anthropic-ai/sdk": "^0.120.0",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^2.4.3",
+    "fast-xml-parser": "^5.11.0",
     "next": "^15.5.24",
     "next-auth": "^4.24.15",
     "qrcode": "^1.5.4",

@@ -48,6 +48,11 @@ export default async function LokasyonPage({
             trailing={String(location._count.categories)}
           />
           <Row
+            href={`/lokasyonlar/${id}/e-fatura`}
+            title="e-Fatura'dan ekle"
+            subtitle="e-Arşiv XML'inden ekipman oluştur"
+          />
+          <Row
             href={`/lokasyonlar/${id}/rapor`}
             title="Sigorta raporu"
             subtitle="Fotoğraflı döküm ve toplam değer"

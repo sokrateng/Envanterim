@@ -69,7 +69,7 @@
 - [x] CSV dışa/içe aktarma
 - [ ] Tekrarlayan bakım hatırlatması (sayaç okumasına bağlanabilir:
       "her 10.000 km'de servis")
-- [ ] **e-Arşiv/e-Fatura XML'inden ürün oluşturma** — modele hiç gitmeden,
+- [x] **e-Arşiv/e-Fatura XML'inden ürün oluşturma** — modele hiç gitmeden,
       deterministik ve kesin
 - [ ] Salt-okunur paylaşım linki
 
