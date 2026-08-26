@@ -34,6 +34,13 @@
 }
 
 html {
+  /*
+   * Alt sekme çubuğu sabit ve içeriğin üstünde duruyor. Tarayıcı bir öğeyi
+   * görünür alana kaydırırken (girdiye odaklanma, bağlantıya atlama) bunu
+   * bilmiyor ve öğeyi çubuğun altında bırakabiliyor; kaydırma dolgusu o
+   * yüksekliği ayırıyor.
+   */
+  scroll-padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
   /* SF Pro sistem yığınından gelir; web fontu indirilmez (docs/TASARIM.md). */
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui,
     "Segoe UI", Roboto, sans-serif;
