@@ -12,7 +12,9 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "create-admin": "tsx --env-file-if-exists=.env scripts/create-admin.ts",
-    "postinstall": "node scripts/copy-zxing.mjs"
+    "postinstall": "node scripts/copy-zxing.mjs",
+    "test:e2e": "node tests/e2e/kos.mjs",
+    "seed:e2e": "tsx --env-file-if-exists=.env scripts/seed-e2e.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
@@ -38,6 +40,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "@types/web-push": "^3.6.4",
+    "playwright": "^1.62.1",
     "postcss": "^8",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",

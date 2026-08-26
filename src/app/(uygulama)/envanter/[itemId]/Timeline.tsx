@@ -200,6 +200,16 @@ export function Timeline({
                     <div className="text-footnote text-muted">{summary}</div>
                   ) : null}
                 </div>
+                {/* Kaydırma kısayol; tek yol değil (docs/TASARIM.md). */}
+                {editable ? (
+                  <button
+                    type="button"
+                    onClick={() => askRemove(row.id)}
+                    className="min-h-touch px-2 text-subheadline text-red active:opacity-60"
+                  >
+                    Sil
+                  </button>
+                ) : null}
               </div>
             );
 

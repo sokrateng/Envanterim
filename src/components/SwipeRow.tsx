@@ -116,16 +116,17 @@ export function SwipeRow({
 
   return (
     <div ref={surface} className="relative overflow-hidden">
+      {/* Kapalıyken `inert`: düğmeler ne dokunuşa ne ekran okuyucuya görünüyor.
+          `aria-hidden` tek başına yetmiyor, öğe hâlâ tıklanabilir kalıyor. */}
       <div
         ref={panel}
-        aria-hidden={!open}
+        inert={!open}
         className="absolute inset-y-0 right-0 flex"
       >
         {actions.map((action) => (
           <button
             key={action.label}
             type="button"
-            tabIndex={open ? 0 : -1}
             aria-label={`${action.label}: ${label}`}
             onClick={() => run(action)}
             className={`min-h-touch w-20 px-2 text-subheadline text-white active:opacity-80 ${
