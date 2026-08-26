@@ -4,6 +4,7 @@ import { Readable } from "node:stream";
 import { prisma } from "@/lib/prisma";
 import { requireLocation } from "@/lib/access";
 import { NOT_MEMBER, apiError } from "@/lib/api";
+import { isValidToken, shareState } from "@/lib/share";
 import { localFilePath } from "@/lib/storage";
 
 /**
@@ -12,7 +13,7 @@ import { localFilePath } from "@/lib/storage";
  * lokasyonuna üyelik sorulur. Böylece yol uydurup dosya çekilemez.
  */
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ yol: string[] }> },
 ) {
   const { yol } = await params;
@@ -22,13 +23,33 @@ export async function GET(
     where: { path: objectPath },
     select: {
       mimeType: true,
+      itemId: true,
       item: { select: { locationId: true } },
     },
   });
   if (!attachment) return apiError("Dosya bulunamadı", 404);
 
-  const access = await requireLocation(attachment.item.locationId);
-  if (!access) return NOT_MEMBER();
+  // Salt-okunur paylaşım: geçerli bir bağlantı anahtarı, yalnız o ekipmanın
+  // dosyalarını açar. Anahtar yoksa üyelik sorulur.
+  const shareToken = new URL(request.url).searchParams.get("p");
+  if (shareToken) {
+    if (!isValidToken(shareToken)) return apiError("Dosya bulunamadı", 404);
+
+    const link = await prisma.shareLink.findUnique({
+      where: { token: shareToken },
+      select: { itemId: true, expiresAt: true, revokedAt: true },
+    });
+    if (
+      !link ||
+      link.itemId !== attachment.itemId ||
+      shareState(link) !== "valid"
+    ) {
+      return apiError("Dosya bulunamadı", 404);
+    }
+  } else {
+    const access = await requireLocation(attachment.item.locationId);
+    if (!access) return NOT_MEMBER();
+  }
 
   const filePath = localFilePath(objectPath);
   try {

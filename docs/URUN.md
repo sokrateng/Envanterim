@@ -71,7 +71,7 @@
       "her 10.000 km'de servis")
 - [x] **e-Arşiv/e-Fatura XML'inden ürün oluşturma** — modele hiç gitmeden,
       deterministik ve kesin
-- [ ] Salt-okunur paylaşım linki
+- [x] Salt-okunur paylaşım linki
 
 ### Sonra
 - [ ] E-posta bildirimi

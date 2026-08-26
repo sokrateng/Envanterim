@@ -148,6 +148,10 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 **iOS notu:** iPhone'da web push yalnız ana ekrana eklenmiş uygulamada
 çalışır. Hesap sekmesindeki anahtar bunu söyleyip kullanıcıyı yönlendirir.
 
+**Paylaşım linkleri** (`/p/<anahtar>`) girişsiz açılır: süreli, iptal
+edilebilir ve arama motorlarına kapalıdır (`noindex`). Tutarlar paylaşılmaz.
+Anahtar 32 haneli, tahmin edilemez; iptal anında geçerliliğini yitirir.
+
 **QR etiketler** `NEXTAUTH_URL` adresini kullanır: etiket bu adrese gider.
 Alan adı değişirse eski etiketler eski adrese bakar — yeniden basılmalı.
 

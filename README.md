@@ -23,6 +23,16 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   Fotoğraf yüklemeden önce istemcide küçültülüyor; PDF ayrı ele alınıyor.
 - **Faturadan otomatik doldurma.** Fatura PDF'i ya da fotoğrafı tek Claude
   çağrısıyla okunuyor, alanlar forma dolduruluyor — **kaydeden kullanıcı.**
+- **e-Arşiv/e-Fatura XML'i.** Veri faturanın kendisinden okunuyor; modele hiç
+  gidilmiyor.
+- **Zaman çizelgesi.** Servis, sayaç okuması, olay günlüğü ve zimmet tek
+  listede; sahip olma maliyeti (alış + servis + parça) hesaplanıyor.
+- **Bakım ve garanti hatırlatmaları.** "6 ayda bir" ya da "her 10.000 km'de";
+  garanti bitimine 30 ve 7 gün kala web push.
+- **QR etiket, sigorta raporu, CSV.** Etiketi cihaza yapıştır; sigortaya
+  fotoğraflı döküm ver; envanteri Excel'e aktar, düzenleyip geri yükle.
+- **Salt-okunur paylaşım linki.** Servise giderken teknisyen geçmişi hesap
+  açmadan görür; tutarlar paylaşılmaz.
 
 Öncelik listesi ve sıradaki özellikler: [`docs/URUN.md`](docs/URUN.md).
 
@@ -76,7 +86,7 @@ testi: [`DEPLOY.md`](DEPLOY.md).
 | [`docs/MIMARI.md`](docs/MIMARI.md) | Veri modeli, yetki deseni, dinamik alanlar, bildirimler, faturadan okuma |
 | [`docs/TASARIM.md`](docs/TASARIM.md) | iOS görünümü: tipografi, renk, dokunma hedefi, güvenli alan |
 | [`docs/URUN.md`](docs/URUN.md) | Benzer uygulamalar ve öncelikli özellik listesi |
-| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 40 hata ve çözümü |
+| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 41 hata ve çözümü |
 
 Kural `CLAUDE.md`'de, gerekçe `docs/`'ta durur: ajanın davranışını değiştiren
 şey bağlamda sürekli duran kısa kurallardır; uzun mimari yazısı bir kez okunur.
@@ -91,7 +101,7 @@ src/
 │   │   ├── lokasyonlar/     # lokasyon, üyeler, davetler, kategoriler
 │   │   └── hesap/
 │   ├── api/                 # route handler'lar — hepsi Zod'dan geçer
-│   ├── giris/ · kayit/
+│   ├── giris/ · kayit/ · p/   # p/: girişsiz salt-okunur paylaşım sayfası
 ├── components/              # iOS desenleri: liste, panel, form, sekme çubuğu
 └── lib/                     # saf mantık + testleri, yetki, depolama, Claude
 prisma/                      # şema ve göçler
@@ -100,4 +110,5 @@ scripts/create-admin.ts
 
 Saf mantık `src/lib/` içinde ve testli: garanti günü hesabı, para (kuruş),
 yetki kuralları, dinamik alan doğrulaması, davet kodu, yükleme kuralları,
-faturadan gelen alanların forma dönüşümü.
+faturadan gelen alanların forma dönüşümü, CSV, e-Fatura ayrıştırma, bakım
+kuralları, sigorta raporu özeti, QR ve paylaşım bağlantıları.

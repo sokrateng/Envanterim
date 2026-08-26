@@ -12,12 +12,14 @@ import { canEdit } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { ownershipCostMinor, type TimelineEvent } from "@/lib/events";
 import { ruleStatus, statusText } from "@/lib/maintenance";
+import { remainingText, shareState } from "@/lib/share";
 import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { warrantyStatus } from "@/lib/warranty";
 import type { CategoryOption } from "@/components/ItemFields";
 import { Attachments, type AttachmentView } from "./Attachments";
 import { Parts, type PartRow } from "./Parts";
 import { Maintenance, type MaintenanceRow } from "./Maintenance";
+import { ShareLinks, type ShareRow } from "./ShareLinks";
 import { Timeline, type TimelineRow } from "./Timeline";
 import { FillProvider } from "./fill-context";
 import { EditItemButton } from "./EditItemButton";
@@ -68,6 +70,17 @@ export default async function EkipmanPage({
       attachments: {
         select: { id: true, url: true, name: true, kind: true, mimeType: true },
         orderBy: { uploadedAt: "desc" },
+      },
+      shareLinks: {
+        select: {
+          id: true,
+          token: true,
+          expiresAt: true,
+          revokedAt: true,
+          viewCount: true,
+        },
+        orderBy: { createdAt: "desc" },
+        take: 10,
       },
       maintenance: {
         select: {
@@ -181,6 +194,14 @@ export default async function EkipmanPage({
         : `${rule.everyMonths} ayda bir`,
     };
   });
+
+  const shares: ShareRow[] = item.shareLinks.map((link) => ({
+    id: link.id,
+    token: link.token,
+    state: shareState(link),
+    remaining: remainingText(link),
+    viewCount: link.viewCount,
+  }));
 
   const parts: PartRow[] = item.parts.map((part) => ({
     id: part.id,
@@ -395,6 +416,8 @@ export default async function EkipmanPage({
         currency={item.currency}
         editable={editable}
       />
+
+      <ShareLinks itemId={item.id} links={shares} editable={editable} />
 
       <Attachments
         itemId={item.id}

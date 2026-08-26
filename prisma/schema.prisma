@@ -24,6 +24,7 @@ model User {
   assignedEvents    ItemEvent[]        @relation("EventAssignee")
   pushSubscriptions PushSubscription[]
   invitesCreated    LocationInvite[]   @relation("InviteCreator")
+  shareLinks        ShareLink[]        @relation("ShareCreator")
   invoiceReads      InvoiceRead[]
   inviteUsed        LocationInvite?    @relation("InviteUser")
 }
@@ -154,6 +155,7 @@ model Item {
   parts       Part[]
   reminders   ItemReminder[]
   maintenance MaintenanceRule[]
+  shareLinks  ShareLink[]
 
   @@index([locationId, status])
   @@index([locationId, categoryId])
@@ -176,6 +178,26 @@ model MaintenanceRule {
   createdAt         DateTime @default(now())
 
   item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+}
+
+// Salt-okunur paylaşım linki: servise giderken teknisyene geçmişi hesap
+// açtırmadan göstermek için. Süreli ve iptal edilebilir; tutarlar
+// paylaşılmıyor.
+model ShareLink {
+  id           String    @id @default(cuid())
+  token        String    @unique
+  itemId       String
+  createdById  String
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  viewCount    Int       @default(0)
+  lastViewedAt DateTime?
+
+  item      Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  createdBy User @relation("ShareCreator", fields: [createdById], references: [id], onDelete: Cascade)
 
   @@index([itemId])
 }
