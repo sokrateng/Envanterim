@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { MAX_QUERY_LENGTH, normalizePayload, readScan, scanSummary } from "./scan";
+import {
+  MAX_QUERY_LENGTH,
+  normalizePayload,
+  readScan,
+  scanSummary,
+  serialFromScan,
+} from "./scan";
 import { itemUrl } from "./qr";
 import { shareUrl } from "./share";
 
@@ -121,5 +127,35 @@ describe("scanSummary", () => {
     expect(scanSummary({ kind: "share", token: TOKEN })).toBe("Paylaşım bağlantısı");
     expect(scanSummary({ kind: "search", query: "SN-1" })).toBe("Kod: SN-1");
     expect(scanSummary({ kind: "unknown", text: "x" })).toBe("Tanınmayan kod");
+  });
+});
+
+describe("serialFromScan", () => {
+  it("cihaz barkodunu seri no olarak verir", () => {
+    expect(serialFromScan("  FD9901123456\r\n ")).toEqual({
+      ok: true,
+      serial: "FD9901123456",
+    });
+    expect(serialFromScan("8690842015267")).toEqual({
+      ok: true,
+      serial: "8690842015267",
+    });
+  });
+
+  it("kendi etiketimizi seri no saymaz", () => {
+    const sonuc = serialFromScan("https://envanterim.app/envanter/abcdefgh1234");
+    expect(sonuc.ok).toBe(false);
+    if (!sonuc.ok) expect(sonuc.message).toMatch(/etiketi/);
+  });
+
+  it("adresi ve boş kodu geri çevirir", () => {
+    expect(serialFromScan("https://ornek.com/urun").ok).toBe(false);
+    expect(serialFromScan("mailto:a@b.c").ok).toBe(false);
+    expect(serialFromScan("/envanter/abcdefgh1234").ok).toBe(false);
+    expect(serialFromScan("   ").ok).toBe(false);
+  });
+
+  it("çok uzun kodu geri çevirir", () => {
+    expect(serialFromScan("A".repeat(65)).ok).toBe(false);
   });
 });

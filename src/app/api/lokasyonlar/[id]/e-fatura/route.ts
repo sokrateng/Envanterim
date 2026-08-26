@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireLocationEditor } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError } from "@/lib/api";
+import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import { parseUblInvoice, unitCount } from "@/lib/einvoice";
 import { parseDateOnly, priceToMinor } from "@/lib/invoice";
 import { resolveVendor } from "@/lib/seller";
@@ -80,6 +81,12 @@ export async function POST(
     "seller",
   );
 
+  // e-Fatura'daki kod tanımadığımız bir birim olabilir; öyleyse varsayılan.
+  const rawCurrency = (invoice.currency ?? "").trim().toUpperCase();
+  const invoiceCurrency = (CURRENCIES as readonly string[]).includes(rawCurrency)
+    ? rawCurrency
+    : DEFAULT_CURRENCY;
+
   let created = 0;
   for (const index of parsedBody.data.secilen) {
     const line = invoice.lines[index];
@@ -97,7 +104,7 @@ export async function POST(
           model: line.model,
           purchaseDate,
           purchasePriceMinor: priceMinor,
-          currency: (invoice.currency ?? "TRY").slice(0, 3),
+          currency: invoiceCurrency,
           sellerId: vendor.ok ? vendor.vendorId : null,
           status: "IN_USE",
         },

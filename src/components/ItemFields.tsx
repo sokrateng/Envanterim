@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { Field, inputClass } from "@/components/form";
-import { ITEM_STATUS, ITEM_STATUS_LABELS } from "@/lib/constants";
+import { SerialScanButton } from "@/components/SerialScanButton";
+import {
+  CURRENCIES,
+  CURRENCY_LABELS,
+  DEFAULT_CURRENCY,
+  ITEM_STATUS,
+  ITEM_STATUS_LABELS,
+} from "@/lib/constants";
 import { visibleFields, type FieldDef } from "@/lib/custom-fields";
 
 export type CategoryOption = {
@@ -23,13 +30,17 @@ export type ItemDefaults = {
   purchaseDate?: string;
   warrantyEndDate?: string;
   purchasePrice?: string;
+  currency?: string;
   status?: string;
   categoryId?: string;
   sellerId?: string;
-  /** Yalnız faturadan doldurmada gelir; normal düzenlemede satıcı seçilir. */
+  /** Listede olmayan satıcının adı; faturadan da gelebiliyor. */
   sellerName?: string;
   customFields?: Record<string, unknown>;
 };
+
+/** Açılır listede "yeni satıcı" seçeneğinin değeri; kimlik değil, kip anahtarı. */
+const NEW_SELLER = "__yeni__";
 
 /** Dinamik alan girdilerinin ad öneki; toplarken bu önekle ayrılıyorlar. */
 export const CUSTOM_PREFIX = "ozel_";
@@ -56,6 +67,17 @@ export function ItemFields({
   const [categoryId, setCategoryId] = useState(defaults.categoryId ?? "");
   const selected = categories.find((category) => category.id === categoryId);
   const stored = defaults.customFields ?? {};
+
+  // Seri no barkoddan okunabildiği için denetimli: okunan değer alana yazılıyor.
+  const [serialNo, setSerialNo] = useState(defaults.serialNo ?? "");
+
+  // Satıcı tek alan gibi davranıyor: listeden seç ya da "yeni" deyip adını yaz.
+  // Faturadan bir ad geldiyse ya da lokasyonun hiç satıcısı yoksa doğrudan
+  // yazma kipinde açılıyor — boş bir açılır listeye bakıp "nereye yazacağım?"
+  // dememek için.
+  const [newSeller, setNewSeller] = useState(
+    Boolean(defaults.sellerName) || vendors.length === 0,
+  );
 
   return (
     <>
@@ -101,13 +123,18 @@ export function ItemFields({
         </Field>
       </div>
 
-      <Field label="Seri no">
-        <input
-          name="serialNo"
-          defaultValue={defaults.serialNo}
-          autoCapitalize="characters"
-          className={inputClass}
-        />
+      <Field label="Seri no" hint="Cihazın üstündeki barkoddan okutabilirsin.">
+        <div className="flex items-center gap-2">
+          <input
+            name="serialNo"
+            value={serialNo}
+            onChange={(event) => setSerialNo(event.target.value)}
+            autoCapitalize="characters"
+            autoCorrect="off"
+            className={inputClass}
+          />
+          <SerialScanButton onRead={setSerialNo} />
+        </div>
       </Field>
 
       <Field label="Yer" hint="Oda, raf, kat — serbest metin.">
@@ -138,39 +165,77 @@ export function ItemFields({
         </Field>
       </div>
 
-      <Field label="Satıcı" hint="Listede yoksa aşağıya adını yaz.">
-        <select
-          name="sellerId"
-          defaultValue={defaults.sellerId ?? ""}
-          className={inputClass}
-        >
-          <option value="">Seçilmedi</option>
-          {vendors.map((vendor) => (
-            <option key={vendor.id} value={vendor.id}>
-              {vendor.name}
-            </option>
-          ))}
-        </select>
+      <Field
+        label="Satıcı"
+        hint={
+          newSeller
+            ? "Yazdığın ad kaydedilir; sonraki ekipmanlarda listeden seçilir."
+            : "Nereden aldın? Listede yoksa yeni satıcı ekle."
+        }
+      >
+        {newSeller ? (
+          <div className="flex items-center gap-2">
+            <input
+              name="sellerName"
+              defaultValue={defaults.sellerName}
+              autoFocus={vendors.length > 0}
+              className={inputClass}
+              placeholder="Teknosa"
+            />
+            {vendors.length ? (
+              <button
+                type="button"
+                onClick={() => setNewSeller(false)}
+                className="min-h-touch shrink-0 px-2 text-body text-blue active:opacity-60"
+              >
+                Listeden
+              </button>
+            ) : null}
+          </div>
+        ) : (
+          <select
+            name="sellerId"
+            defaultValue={defaults.sellerId ?? ""}
+            onChange={(event) => {
+              if (event.target.value === NEW_SELLER) setNewSeller(true);
+            }}
+            className={inputClass}
+          >
+            <option value="">Seçilmedi</option>
+            {vendors.map((vendor) => (
+              <option key={vendor.id} value={vendor.id}>
+                {vendor.name}
+              </option>
+            ))}
+            <option value={NEW_SELLER}>+ Yeni satıcı…</option>
+          </select>
+        )}
       </Field>
 
-      <Field label="Yeni satıcı">
-        <input
-          name="sellerName"
-          defaultValue={defaults.sellerName}
-          className={inputClass}
-          placeholder="Teknosa"
-        />
-      </Field>
-
-      <Field label="Alış tutarı" hint="Örn. 18.400,50">
-        <input
-          name="purchasePrice"
-          inputMode="decimal"
-          defaultValue={defaults.purchasePrice}
-          className={inputClass}
-          placeholder="0,00"
-        />
-      </Field>
+      <div className="grid grid-cols-[1fr_auto] gap-3">
+        <Field label="Alış tutarı" hint="Örn. 18.400,50">
+          <input
+            name="purchasePrice"
+            inputMode="decimal"
+            defaultValue={defaults.purchasePrice}
+            className={inputClass}
+            placeholder="0,00"
+          />
+        </Field>
+        <Field label="Para birimi">
+          <select
+            name="currency"
+            defaultValue={defaults.currency ?? DEFAULT_CURRENCY}
+            className={inputClass}
+          >
+            {CURRENCIES.map((code) => (
+              <option key={code} value={code}>
+                {CURRENCY_LABELS[code] ?? code}
+              </option>
+            ))}
+          </select>
+        </Field>
+      </div>
 
       <Field label="Durum">
         <select

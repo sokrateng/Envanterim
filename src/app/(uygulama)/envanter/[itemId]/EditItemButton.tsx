@@ -65,6 +65,7 @@ export function EditItemButton({
         place: text("place"),
         purchaseDate: text("purchaseDate"),
         purchasePrice: text("purchasePrice"),
+        currency: text("currency") || "TRY",
         warrantyEndDate: text("warrantyEndDate"),
         status: text("status") || "IN_USE",
         customFields: collectCustomFields(form),

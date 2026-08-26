@@ -69,8 +69,6 @@ export default async function RaporPage({
   });
   if (!location) notFound();
 
-  const currency = location.items[0]?.currency ?? "TRY";
-
   const items: ReportItem[] = location.items.map((item) => ({
     id: item.id,
     name: item.name,
@@ -82,6 +80,7 @@ export default async function RaporPage({
     status: item.status,
     purchaseDate: item.purchaseDate,
     purchasePriceMinor: item.purchasePriceMinor,
+    currency: item.currency,
     warrantyEndDate: item.warrantyEndDate,
     photoUrl: item.attachments[0]?.url ?? null,
     events: item.events.map((event) => ({
@@ -122,34 +121,58 @@ export default async function RaporPage({
           </p>
         </header>
 
-        <section className="grid grid-cols-2 gap-2 py-3">
-          <Summary label="Toplam alış değeri" value={formatMoney(summary.purchaseTotalMinor, currency)} />
-          <Summary
-            label="Sahip olma maliyeti"
-            value={formatMoney(summary.ownershipTotalMinor, currency)}
-          />
+        {/* Toplamlar para birimi başına: farklı birimler toplanmıyor, kur
+            çevrilmiyor. Tek birimli envanterde tek blok çıkıyor. */}
+        {summary.byCurrency.map((group) => (
+          <div key={group.currency}>
+            <section className="grid grid-cols-2 gap-2 py-3">
+              <Summary
+                label={
+                  summary.byCurrency.length > 1
+                    ? `Toplam alış değeri (${group.currency})`
+                    : "Toplam alış değeri"
+                }
+                value={formatMoney(group.purchaseTotalMinor, group.currency)}
+              />
+              <Summary
+                label="Sahip olma maliyeti"
+                value={formatMoney(group.ownershipTotalMinor, group.currency)}
+              />
+              {summary.byCurrency.length > 1 ? (
+                <Summary label="Ekipman" value={`${group.itemCount} ekipman`} />
+              ) : null}
+            </section>
+
+            {group.byCategory.length ? (
+              <section className="pb-3">
+                <h3 className="text-footnote uppercase text-neutral-500">
+                  Kategoriye göre
+                  {summary.byCurrency.length > 1 ? ` · ${group.currency}` : ""}
+                </h3>
+                <table className="w-full text-footnote">
+                  <tbody>
+                    {group.byCategory.map((row) => (
+                      <tr key={row.name} className="border-b border-neutral-200">
+                        <td className="py-1">{row.name}</td>
+                        <td className="py-1 text-right text-neutral-600">
+                          {row.count} adet
+                        </td>
+                        <td className="py-1 text-right">
+                          {formatMoney(row.purchaseMinor, group.currency)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            ) : null}
+          </div>
+        ))}
+
+        <section className="grid grid-cols-2 gap-2 pb-3">
           <Summary label="Fotoğraflı" value={`${summary.withPhoto} / ${summary.itemCount}`} />
           <Summary label="Garantisi süren" value={`${summary.warrantyActive} ekipman`} />
         </section>
-
-        {summary.byCategory.length ? (
-          <section className="pb-3">
-            <h3 className="text-footnote uppercase text-neutral-500">Kategoriye göre</h3>
-            <table className="w-full text-footnote">
-              <tbody>
-                {summary.byCategory.map((row) => (
-                  <tr key={row.name} className="border-b border-neutral-200">
-                    <td className="py-1">{row.name}</td>
-                    <td className="py-1 text-right text-neutral-600">{row.count} adet</td>
-                    <td className="py-1 text-right">
-                      {formatMoney(row.purchaseMinor, currency)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        ) : null}
 
         <section>
           <h3 className="text-footnote uppercase text-neutral-500">Ekipmanlar</h3>
@@ -197,7 +220,7 @@ export default async function RaporPage({
                   <p className="shrink-0 text-subheadline">
                     {item.purchasePriceMinor == null
                       ? "—"
-                      : formatMoney(item.purchasePriceMinor, currency)}
+                      : formatMoney(item.purchasePriceMinor, item.currency)}
                   </p>
                 </li>
               );

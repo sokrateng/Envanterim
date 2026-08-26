@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { FIELD_TYPES, ITEM_STATUS, ROLES } from "@/lib/constants";
+import {
+  CURRENCIES,
+  DEFAULT_CURRENCY,
+  FIELD_TYPES,
+  ITEM_STATUS,
+  ROLES,
+} from "@/lib/constants";
 import { parseMoney } from "@/lib/money";
 import { normalizeInviteCode } from "@/lib/invite";
 
@@ -97,6 +103,10 @@ export const itemCreateSchema = z.object({
   place: emptyToUndefined(optionalText),
   purchaseDate: emptyToUndefined(dateOnly),
   purchasePrice: emptyToUndefined(moneyMinor),
+  // Tutar hangi birimde girildiyse o birimde duruyor; çeviri yok.
+  currency: z
+    .enum(CURRENCIES, { errorMap: () => ({ message: "Geçersiz para birimi" }) })
+    .default(DEFAULT_CURRENCY),
   warrantyEndDate: emptyToUndefined(dateOnly),
   status: z
     .enum(ITEM_STATUS, { errorMap: () => ({ message: "Geçersiz durum" }) })

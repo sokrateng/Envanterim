@@ -48,6 +48,7 @@ export async function POST(
       place: data.place,
       purchaseDate: data.purchaseDate,
       purchasePriceMinor: data.purchasePrice ?? null,
+      currency: data.currency,
       warrantyEndDate: data.warrantyEndDate,
       status: data.status,
       customFields: custom.values,

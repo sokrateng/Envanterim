@@ -1,4 +1,10 @@
-import { ITEM_STATUS, ITEM_STATUS_LABELS, type ItemStatus } from "@/lib/constants";
+import {
+  CURRENCIES,
+  DEFAULT_CURRENCY,
+  ITEM_STATUS,
+  ITEM_STATUS_LABELS,
+  type ItemStatus,
+} from "@/lib/constants";
 import { mapHeaders, normalizeHeader } from "@/lib/csv";
 import { formatMinor, parseMoney } from "@/lib/money";
 
@@ -212,11 +218,18 @@ export function parseImportRow(
       sellerName: orNull("sellerName"),
       purchaseDate,
       purchasePriceMinor,
-      // Para birimi yazılmadıysa lokasyonun varsayılanı kullanılır.
-      currency: (value("currency") || "TRY").toUpperCase().slice(0, 3),
+      // Tanımadığımız bir kod yazılmışsa varsayılana düşüyor: yanlış simgeyle
+      // görünen bir tutar, sessizce yanlış bir toplam demek.
+      currency: knownCurrency(value("currency")),
       warrantyEndDate,
     },
   };
+}
+
+/** Listedeki birimlerden biri mi; değilse varsayılan. */
+function knownCurrency(raw: string): string {
+  const code = raw.trim().toUpperCase();
+  return (CURRENCIES as readonly string[]).includes(code) ? code : DEFAULT_CURRENCY;
 }
 
 export type ImportPreview = {

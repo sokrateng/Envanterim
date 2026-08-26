@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import { formatMinor, parseMoney } from "@/lib/money";
 
 /**
@@ -169,6 +170,8 @@ export type InvoiceFormValues = {
   warrantyEndDate: string;
   purchasePrice: string;
   sellerName: string;
+  /** Faturada yazan para birimi; tanımadığımız bir kod gelirse TRY. */
+  currency: string;
 };
 
 /**
@@ -188,6 +191,8 @@ export function toFormValues(
       ? addMonths(purchaseDate, item.warrantyMonths)
       : null;
 
+  const currency = (invoice.currency ?? "").trim().toUpperCase();
+
   return {
     name: item.name.trim(),
     brand: item.brand?.trim() ?? "",
@@ -197,5 +202,8 @@ export function toFormValues(
     warrantyEndDate: toInputDate(warrantyEnd),
     purchasePrice: minor === null ? "" : formatMinor(minor),
     sellerName: invoice.sellerName?.trim() ?? "",
+    currency: (CURRENCIES as readonly string[]).includes(currency)
+      ? currency
+      : DEFAULT_CURRENCY,
   };
 }

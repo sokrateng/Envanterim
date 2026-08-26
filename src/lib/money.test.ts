@@ -52,7 +52,9 @@ describe("formatMinor / formatMoney", () => {
   it("simge ekler", () => {
     expect(formatMoney(123456)).toBe("1.234,56 ₺");
     expect(formatMoney(100, "USD")).toBe("1,00 $");
-    expect(formatMoney(100, "GBP")).toBe("1,00 GBP");
+    expect(formatMoney(100, "GBP")).toBe("1,00 £");
+    // Simgesini tanımadığımız birim kodun kendisiyle yazılır.
+    expect(formatMoney(100, "CHF")).toBe("1,00 CHF");
   });
 
   it("gidiş-dönüş bozulmaz", () => {

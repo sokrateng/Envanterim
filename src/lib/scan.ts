@@ -93,3 +93,35 @@ export function scanSummary(target: ScanTarget): string {
       return "Tanınmayan kod";
   }
 }
+
+export type SerialRead =
+  | { ok: true; serial: string }
+  | { ok: false; message: string };
+
+/**
+ * Okutulan kodu seri no alanına yazılabilir bir metne çevirir — saf ve testli.
+ *
+ * Cihazın üstündeki barkod seri no taşır; kendi QR etiketimiz taşımaz. Etiketi
+ * kazara okutan kullanıcının alanına ürün adresi yazılmamalı: alan sessizce
+ * yanlış dolmaktansa boş kalır ve sebebi söylenir.
+ */
+export function serialFromScan(raw: string): SerialRead {
+  const text = normalizePayload(raw);
+  if (!text) return { ok: false, message: "Kod okunamadı" };
+
+  const target = readScan(text);
+  if (target?.kind === "item" || target?.kind === "share") {
+    return {
+      ok: false,
+      message: "Bu Envanterim etiketi, seri no değil. Cihazın üstündeki barkodu okut.",
+    };
+  }
+  if (/^[a-z][a-z0-9+.-]*:/i.test(text) || text.startsWith("/")) {
+    return { ok: false, message: "Bu bir adres, seri no değil" };
+  }
+  if (text.length > MAX_QUERY_LENGTH) {
+    return { ok: false, message: "Kod seri no olamayacak kadar uzun" };
+  }
+
+  return { ok: true, serial: text };
+}

@@ -58,6 +58,7 @@ export async function PATCH(
       place: data.place ?? null,
       purchaseDate: data.purchaseDate ?? null,
       purchasePriceMinor: data.purchasePrice ?? null,
+      currency: data.currency,
       warrantyEndDate: data.warrantyEndDate ?? null,
       status: data.status,
       customFields: custom.values,

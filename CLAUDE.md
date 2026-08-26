@@ -33,7 +33,9 @@ npm run create-admin     # ilk hesap
 - **Paylaşımın birimi lokasyon.** Her ekipman bir lokasyona bağlı; lokasyona
   kimin eri­şeceği `LocationMember` ile belirlenir. Yetki kontrolü **her zaman**
   lokasyon üyeliğinden geçer, kullanıcı kimliğinden değil.
-- **Para tamsayı.** Tüm tutarlar kuruş cinsinden `Int`. Float para yok.
+- **Para tamsayı.** Tüm tutarlar kuruş cinsinden `Int`. Float para yok. Birim
+  ekipmanla birlikte duruyor (`Item.currency`, varsayılan TRY); **kur çevirisi
+  yok** — farklı birimler toplanmaz, ayrı gösterilir.
 - **Tarihler tarih, metin değil.** Garanti/alış tarihi `DateTime`; karşılaştırma
   ve hatırlatma sorguları buna bağlı.
 - **Sunucu bileşeni varsayılan.** `"use client"` yalnız form durumu, parmak

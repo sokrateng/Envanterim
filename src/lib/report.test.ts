@@ -21,6 +21,7 @@ const item = (over: Partial<ReportItem> = {}): ReportItem => ({
   status: "IN_USE",
   purchaseDate: new Date(2025, 0, 10),
   purchasePriceMinor: 100000,
+  currency: "TRY",
   warrantyEndDate: null,
   photoUrl: null,
   events: [],
@@ -52,7 +53,8 @@ describe("summarize", () => {
     );
     expect(summary.itemCount).toBe(3);
     expect(summary.pricedCount).toBe(2);
-    expect(summary.purchaseTotalMinor).toBe(1840050 + 2499990);
+    expect(summary.byCurrency).toHaveLength(1);
+    expect(summary.byCurrency[0].purchaseTotalMinor).toBe(1840050 + 2499990);
   });
 
   it("sahip olma maliyetine servis ve parçayı katar", () => {
@@ -69,7 +71,7 @@ describe("summarize", () => {
       ],
       now,
     );
-    expect(summary.ownershipTotalMinor).toBe(130000);
+    expect(summary.byCurrency[0].ownershipTotalMinor).toBe(130000);
   });
 
   it("kategoriye göre kırar ve değerliyi üste alır", () => {
@@ -82,12 +84,12 @@ describe("summarize", () => {
       ],
       now,
     );
-    expect(summary.byCategory.map((c) => c.name)).toEqual([
+    expect(summary.byCurrency[0].byCategory.map((c) => c.name)).toEqual([
       "Bilgisayar",
       "Beyaz eşya",
       UNCATEGORIZED,
     ]);
-    expect(summary.byCategory[1]).toEqual({
+    expect(summary.byCurrency[0].byCategory[1]).toEqual({
       name: "Beyaz eşya",
       count: 2,
       purchaseMinor: 600000,
@@ -109,12 +111,38 @@ describe("summarize", () => {
 
   it("boş listede sıfırlar", () => {
     const summary = summarize([], now);
-    expect(summary).toMatchObject({
-      itemCount: 0,
-      purchaseTotalMinor: 0,
-      ownershipTotalMinor: 0,
-      byCategory: [],
-    });
+    expect(summary).toMatchObject({ itemCount: 0, pricedCount: 0, byCurrency: [] });
+  });
+
+  it("para birimlerini ayrı toplar, karıştırmaz", () => {
+    const summary = summarize(
+      [
+        item({ currency: "TRY", purchasePriceMinor: 100000 }),
+        item({ currency: "USD", purchasePriceMinor: 50000 }),
+        item({ currency: "USD", purchasePriceMinor: 30000 }),
+      ],
+      now,
+    );
+
+    expect(summary.itemCount).toBe(3);
+    // Toplamı büyük birim üstte.
+    expect(summary.byCurrency.map((g) => [g.currency, g.purchaseTotalMinor])).toEqual([
+      ["TRY", 100000],
+      ["USD", 80000],
+    ]);
+  });
+
+  it("birden çok para birimi varsa kapsam notu düşer", () => {
+    const notes = coverageNotes(
+      summarize(
+        [
+          item({ currency: "TRY", photoUrl: "/a.jpg" }),
+          item({ currency: "EUR", photoUrl: "/b.jpg" }),
+        ],
+        now,
+      ),
+    );
+    expect(notes.some((note) => note.includes("kur çevirisi yapılmadı"))).toBe(true);
   });
 });
 

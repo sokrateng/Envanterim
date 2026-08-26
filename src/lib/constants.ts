@@ -51,6 +51,22 @@ export const ATTACHMENT_KIND_LABELS: Record<string, string> = {
   OTHER: "Diğer",
 };
 
+/**
+ * Seçilebilen para birimleri. Yurtdışından alınan ekipmanın tutarı kendi
+ * biriminde duruyor: kur çevirisi yapmıyoruz — kur alış anına ait, sonradan
+ * çevirmek uydurma bir sayı üretir.
+ */
+export const CURRENCIES = ["TRY", "USD", "EUR", "GBP"] as const;
+export type Currency = (typeof CURRENCIES)[number];
+export const DEFAULT_CURRENCY: Currency = "TRY";
+
+export const CURRENCY_LABELS: Record<string, string> = {
+  TRY: "₺ TRY",
+  USD: "$ USD",
+  EUR: "€ EUR",
+  GBP: "£ GBP",
+};
+
 /** Kullanıcı başına saatlik fatura okuma sınırı: açık bir uç faturayı şişirir (#37). */
 export const INVOICE_READ_HOURLY_LIMIT = 20;
 

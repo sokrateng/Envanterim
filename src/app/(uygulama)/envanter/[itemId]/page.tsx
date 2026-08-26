@@ -400,6 +400,7 @@ export default async function EkipmanPage({
                         "",
                       )
                     : "",
+                currency: item.currency,
                 status: item.status,
                 categoryId: item.categoryId ?? "",
                 sellerId: item.sellerId ?? "",

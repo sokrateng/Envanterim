@@ -48,6 +48,7 @@ const DIS_SERVIS = {
   bakim: "bildirim kanalı açık sunucu (VAPID ya da SMTP)",
   tara: "sahte kamera (y4m dosyası argümanla)",
   "tara-barkod": "sahte kamera (y4m dosyası argümanla)",
+  "seri-barkod": "sahte kamera (y4m dosyası argümanla)",
 };
 
 const secilen = process.argv.slice(2);

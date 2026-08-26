@@ -20,6 +20,10 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
 - **Arama ve filtre.** Ada/markaya/modele/seri numarasına göre arama; durum,
   lokasyon ve kategori filtresi; kalan garanti günü rozeti.
 - **Fotoğraf ve belge.** Ürün fotoğrafı, fatura, garanti belgesi, kılavuz.
+- **Para birimi.** Varsayılan TRY; yurtdışından alınan ekipman USD, EUR ya da
+  GBP olarak kaydedilir. Kur çevrilmiyor: raporda her birim ayrı toplanır.
+- **Barkodla seri no.** Seri no alanının yanındaki tarayıcı düğmesi cihazın
+  üstündeki barkodu okuyup alana yazar.
   Fotoğraf yüklemeden önce istemcide küçültülüyor; PDF ayrı ele alınıyor.
 - **Faturadan otomatik doldurma.** Fatura PDF'i ya da fotoğrafı tek model
   çağrısıyla okunuyor, alanlar forma dolduruluyor — **kaydeden kullanıcı.**

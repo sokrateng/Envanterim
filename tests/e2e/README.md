@@ -33,6 +33,7 @@ demeden koşmazlar.
 | `bildirim` | `node tests/e2e/sahte/mock-push.mjs` (TLS 5001), sunucuda VAPID anahtarları, sonra `node tests/e2e/sahte/push-hazirla.mjs` |
 | `eposta` | `node tests/e2e/sahte/mock-smtp.mjs` (2525) ve sunucuda `SMTP_URL=smtp://127.0.0.1:2525 SMTP_FROM=...` |
 | `tara`, `tara-barkod` | Önce `node tests/e2e/sahte/y4m.mjs qr "<ürün adresi>" /tmp/etiket.y4m`, sonra testi dosya yolu ve ürün kimliğiyle çağır |
+| `seri-barkod` | `node tests/e2e/sahte/y4m.mjs ean13 8690637123467 /tmp/seri.y4m`, sonra `node tests/e2e/seri-barkod.mjs /tmp/seri.y4m 8690637123467 [/tmp/etiket-qr.y4m]` |
 
 Sahte servisler gerçek protokolü konuşuyor: mock-anthropic isteğin şeklini
 (model kimliği, blok sırası, `output_config`) doğruluyor, mock-push VAPID

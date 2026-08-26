@@ -336,3 +336,18 @@ yönetilen kimlik var. Üretim için ya kaynak anahtarı ya da uygulama kaydı
 (tenant/client/secret) gerekiyor — bu ikisi ortam değişkeni olduğu için her
 yerde aynı çalışıyor.
 
+## Para birimi
+
+**56. Tek para birimi varsayımı toplamı sessizce bozuyor.** Rapor "ilk
+ekipmanın birimi" ile bütün toplamı yazıyordu; envantere bir USD kalem girince
+dolarla lirayı toplayıp sonuca ₺ koymaya başlıyor. Sayı yanlış olduğu belli
+olmuyor, çünkü biçim doğru. **Çözüm:** toplamlar para birimine göre gruplanıyor
+ve birden çoksa raporun kapsam notuna "kur çevirisi yapılmadı" düşüyor. Kur
+çevirisi yapmak da yanlış olurdu: kur alış anına ait, bugünkü kurla çevrilen
+tutar sigortaya verilen belgede uydurma bir sayı olur.
+
+**57. İki alanlı satıcı, boş listede çıkmaza sokuyor.** "Satıcı" açılır listesi
+ve altında "Yeni satıcı" kutusu vardı; yeni bir lokasyonda liste boş olduğu için
+kullanıcı "nereden dolduracağım?" diye takılıyordu. Alan tek: satıcı varsa liste
+(sonunda "+ Yeni satıcı…"), yoksa doğrudan ad kutusu.
+

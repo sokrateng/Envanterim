@@ -86,7 +86,14 @@ describe("toFormValues", () => {
       warrantyEndDate: "2028-03-14",
       purchasePrice: "18.400,50",
       sellerName: "Teknosa",
+      currency: "TRY",
     });
+  });
+
+  it("faturadaki para birimini taşır, tanımadığını TRY'ye düşürür", () => {
+    expect(toFormValues(invoice({ currency: "usd" }), item()).currency).toBe("USD");
+    expect(toFormValues(invoice({ currency: "XAU" }), item()).currency).toBe("TRY");
+    expect(toFormValues(invoice({ currency: null }), item()).currency).toBe("TRY");
   });
 
   it("garanti süresi yoksa bitiş tarihi boş kalır", () => {
