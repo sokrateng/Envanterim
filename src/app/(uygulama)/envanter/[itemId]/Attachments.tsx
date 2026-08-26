@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ImageViewer } from "@/components/ImageViewer";
 import { Sheet } from "@/components/Sheet";
 import { ATTACHMENT_KINDS, ATTACHMENT_KIND_LABELS } from "@/lib/constants";
 import { shrinkImage } from "@/lib/image-client";
@@ -44,6 +45,7 @@ export function Attachments({
   const [reading, setReading] = useState<string | null>(null);
   const [lines, setLines] = useState<ExtractedLine[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<AttachmentView | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [kind, setKind] = useState("PHOTO");
   const [busy, setBusy] = useState(false);
@@ -140,7 +142,14 @@ export function Attachments({
         <div className="grid grid-cols-3 gap-2 px-4">
           {photos.map((photo) => (
             <figure key={photo.id} className="relative">
-              <a href={photo.url} target="_blank" rel="noreferrer">
+              {/* Yeni sekme yerine kendi görüntüleyicimiz: ana ekrandan
+                  açılan uygulamada sayfa yakınlaştırması yok (TUZAKLAR #8). */}
+              <button
+                type="button"
+                onClick={() => setViewing(photo)}
+                className="block w-full active:opacity-80"
+                aria-label={`${photo.name} büyüt`}
+              >
                 {/* Ekler kimlik doğrulamalı uçtan gelebiliyor; next/image
                     yerine düz img: uzak yükleyici yapılandırması gerekmesin. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -149,7 +158,7 @@ export function Attachments({
                   alt={photo.name}
                   className="aspect-square w-full rounded-card object-cover"
                 />
-              </a>
+              </button>
               {editable ? (
                 <button
                   type="button"
@@ -263,6 +272,13 @@ export function Attachments({
           {error}
         </p>
       ) : null}
+
+      <ImageViewer
+        open={viewing !== null}
+        url={viewing?.url ?? ""}
+        name={viewing?.name ?? ""}
+        onClose={() => setViewing(null)}
+      />
 
       <Sheet
         open={lines !== null}

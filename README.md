@@ -1,66 +1,103 @@
-# Envanter Takip — başlangıç seti
+# Envanterim
 
-Yeni projeye kopyalanacak dosyalar. GeziPay'de kurulup çalıştırılmış mimariden
-türetildi, bu projenin gereksinimlerine göre yazıldı.
+Ev ve iş yerindeki ekipmanların envanterini tutan web uygulaması: bilgisayar,
+telefon, beyaz eşya, araç… Satın alma, garanti, seri no, fatura ve fotoğraflar
+tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
+
+**Hedef cihaz iPhone 14 (390×844), arayüz Türkçe, görünüm Apple HIG'e yakın.**
+
+## Neler var
+
+- **Lokasyon bazlı paylaşım.** Ekipman bir lokasyona bağlı; kimin ne göreceğine
+  lokasyon üyeliği karar veriyor. Roller: sahip, düzenleyen, görüntüleyen.
+- **Davet kodu.** Sahip tek kullanımlık, 7 gün geçerli bir kod üretiyor; kodla
+  kayıt olan kişi doğrudan o lokasyona üye oluyor.
+- **Kategoriler ve dinamik alanlar.** Her kategoriye özel alan tanımlanıyor
+  (ekran boyutu, yakıt tipi, şase no…). Değerler JSONB'de; doğrulama çalışma
+  anında tanımlardan üretilen Zod şemasıyla yapılıyor.
+- **Ekipman kaydı.** Ad, marka, model, seri no, yer, kategori, satıcı, alış
+  tarihi ve tutarı, garanti bitişi, yaşam döngüsü durumu.
+- **Arama ve filtre.** Ada/markaya/modele/seri numarasına göre arama; durum,
+  lokasyon ve kategori filtresi; kalan garanti günü rozeti.
+- **Fotoğraf ve belge.** Ürün fotoğrafı, fatura, garanti belgesi, kılavuz.
+  Fotoğraf yüklemeden önce istemcide küçültülüyor; PDF ayrı ele alınıyor.
+- **Faturadan otomatik doldurma.** Fatura PDF'i ya da fotoğrafı tek Claude
+  çağrısıyla okunuyor, alanlar forma dolduruluyor — **kaydeden kullanıcı.**
+
+Öncelik listesi ve sıradaki özellikler: [`docs/URUN.md`](docs/URUN.md).
+
+## Yığın
+
+Next.js 15 App Router · TypeScript · Tailwind · Prisma + PostgreSQL (Supabase) ·
+NextAuth (credentials) · Vitest + Playwright · Vercel · Claude API
+
+## Başlarken
+
+```bash
+cp .env.example .env      # iki veritabanı bağlantısı + NEXTAUTH_SECRET
+npm install
+npm run db:migrate        # şemayı kur
+npm run create-admin      # ilk hesap
+npm run dev               # http://localhost:3000
+```
+
+`NEXTAUTH_SECRET` için `openssl rand -base64 32`. Supabase ve Anthropic
+değişkenleri tanımsızken de çalışır: dosyalar yerel diske düşer, faturadan
+okuma özelliği arayüzde görünmez.
+
+Arayüzü tarayıcının iPhone profilinde (390×844, dokunmatik) aç — masaüstünde
+fareyle bakmak yetmiyor.
+
+## Komutlar
+
+```bash
+npm run dev              # geliştirme
+npm test                 # Vitest (saf mantık modülleri)
+npm run typecheck        # tsc --noEmit
+npm run build            # prisma generate + next build
+npm run db:migrate       # şema göçü (geliştirme)
+npm run db:deploy        # şema göçü (üretim)
+npm run create-admin     # ilk hesap
+```
+
+Commit öncesi üçü de temiz olmalı: `npm run typecheck`, `npm test`,
+`npm run build`.
+
+## Dağıtım
+
+Supabase + Vercel kurulumu, göç sırası, depolama kovası, ilk hesap ve duman
+testi: [`DEPLOY.md`](DEPLOY.md).
+
+## Mimari kararlar nerede
+
+| Dosya | İçerik |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | Değişmez kurallar — ajan her oturumda okur |
+| [`docs/MIMARI.md`](docs/MIMARI.md) | Veri modeli, yetki deseni, dinamik alanlar, bildirimler, faturadan okuma |
+| [`docs/TASARIM.md`](docs/TASARIM.md) | iOS görünümü: tipografi, renk, dokunma hedefi, güvenli alan |
+| [`docs/URUN.md`](docs/URUN.md) | Benzer uygulamalar ve öncelikli özellik listesi |
+| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 40 hata ve çözümü |
+
+Kural `CLAUDE.md`'de, gerekçe `docs/`'ta durur: ajanın davranışını değiştiren
+şey bağlamda sürekli duran kısa kurallardır; uzun mimari yazısı bir kez okunur.
 
 ## Yerleşim
 
 ```
-yeni-proje/
-├── CLAUDE.md              ← bu klasördeki CLAUDE.md (ajan her oturumda okur)
-└── docs/
-    ├── MIMARI.md          ← veri modeli, yetki, dinamik alanlar, bildirim
-    ├── TASARIM.md         ← iPhone 14 / Apple görünümü
-    ├── URUN.md            ← benzer uygulamalar + öncelikli özellik listesi
-    └── TUZAKLAR.md        ← bu yığında yaşanmış 30 hata ve çözümleri
+src/
+├── app/
+│   ├── (uygulama)/          # giriş isteyen ekranlar + alt sekme çubuğu
+│   │   ├── envanter/        # liste, ekipman detayı, düzenleme, ekler
+│   │   ├── lokasyonlar/     # lokasyon, üyeler, davetler, kategoriler
+│   │   └── hesap/
+│   ├── api/                 # route handler'lar — hepsi Zod'dan geçer
+│   ├── giris/ · kayit/
+├── components/              # iOS desenleri: liste, panel, form, sekme çubuğu
+└── lib/                     # saf mantık + testleri, yetki, depolama, Claude
+prisma/                      # şema ve göçler
+scripts/create-admin.ts
 ```
 
-Neden tek dosya değil: ajanın davranışını değiştiren şey bağlamda **sürekli
-duran** kısa kurallardır. Uzun bir mimari yazısı bir kez okunur; `CLAUDE.md`
-her oturumda yeniden yüklenir. Bu yüzden kural `CLAUDE.md`'de, gerekçe
-`docs/`'ta durur.
-
-## Açılış istemi
-
-Dört dosyayı yeni depoya koyduktan sonra ilk mesaj olarak:
-
-> Yeni bir proje kuruyoruz: **ev ve iş yerindeki elektronik ekipmanların
-> envanterini takip eden bir web uygulaması.** Hedef cihaz iPhone 14, arayüz
-> Türkçe, Apple görünümü.
->
-> Mimariyi sıfırdan tasarlama. `CLAUDE.md`, `docs/MIMARI.md`, `docs/TASARIM.md`,
-> `docs/URUN.md` ve `docs/TUZAKLAR.md` daha önce uçtan uca çalıştırılmış bir
-> projeden çıkarıldı — beşini de oku ve aynı desenleri uygula. `TUZAKLAR.md`
-> maddeleri gerçekten yaşanmış hatalardır; onlara tekrar düşme.
->
-> `docs/MIMARI.md` §8'deki kurulum sırasını uygula ve bana çalışan bir iskelet
-> ver: giriş, lokasyon oluşturma + üye davet etme, tek bir korumalı ekipman
-> listesi, bir saf modül + testi, ve `DEPLOY.md`. Özelliklere sonra
-> `docs/URUN.md` sırasıyla geçeceğiz.
->
-> Faturadan veri çıkarma Claude API ile tek çağrıda yapılacak (`MIMARI.md` §6);
-> ayrı bir OCR katmanı kurma. `ANTHROPIC_API_KEY` yalnız sunucuda kalsın.
-
-## GeziPay'den doğrudan kopyalanabilecek kod
-
-Prosa'dan iyisi çalışan kod. Şunlar projeden bağımsız, testleriyle birlikte taşınır:
-
-| Dosya | Bu projede ne işe yarar |
-|---|---|
-| `src/lib/money.ts` | Alış tutarı, servis ücreti, yedek parça fiyatı (kuruş tabanlı) |
-| `src/lib/storage.ts` | Fatura/fotoğraf yükleme — Supabase + yerel disk yedeği |
-| `src/lib/image-client.ts` | Yüklemeden önce istemcide küçültme |
-| `src/lib/access.ts` (desen) | `requireLocation` / `requireLocationEditor` şablonu |
-| `src/lib/request-cache.ts` | İstek başına sorgu tekilleştirme |
-| `src/lib/push.ts` + `push-message.ts` | Garanti bitimi web push bildirimi |
-| `src/lib/history-state.ts` | Katman açıkken geri tuşu (tuzak #17-18) |
-| `src/lib/zoom.ts` + `ImageViewer.tsx` | Fatura ve ürün fotoğrafını parmakla büyütme |
-| `src/lib/swipe.ts` + `SwipeRow.tsx` | Liste satırında kaydırarak eylem |
-| `DialogShell.tsx` + `useConfirm.tsx` | Onay diyaloğu / alttan açılan panel |
-| `useUnsavedChanges.tsx` | Form doldururken çıkışta uyarı |
-| `src/lib/hints.ts` + `Hint.tsx` | Görünmeyen özellikler için ilk kullanım ipucu |
-| `src/lib/export-csv.ts` | Envanter dışa aktarma |
-| `src/lib/receipt-review.ts` (desen) | Çıkarılan alanları kullanıcıya onaylatma adımı |
-| `scripts/create-admin.ts` | İlk hesap |
-
-Vitest testleri de repoda; **testleri birlikte taşı** — asıl değer onlarda.
+Saf mantık `src/lib/` içinde ve testli: garanti günü hesabı, para (kuruş),
+yetki kuralları, dinamik alan doğrulaması, davet kodu, yükleme kuralları,
+faturadan gelen alanların forma dönüşümü.
