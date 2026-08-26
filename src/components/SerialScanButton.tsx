@@ -50,8 +50,9 @@ export function SerialScanButton({ onRead }: { onRead: (serial: string) => void 
             onError={setNote}
           />
           <p className="pt-3 text-footnote text-muted">
-            Cihazın üstündeki barkodu çerçeveye al. Okunan kod seri no alanına
-            yazılır; kaydetmeden önce kontrol edersin.
+            Barkodu çerçeveye al; küçükse yakınlaştır. Okunan kod seri no
+            alanına yazılır, kaydetmeden önce kontrol edersin. Etiket parlıyorsa
+            telefonu hafif yan tut — parlama okumayı engelliyor.
           </p>
         </div>
       </Sheet>

@@ -351,3 +351,26 @@ ve altında "Yeni satıcı" kutusu vardı; yeni bir lokasyonda liste boş olduğ
 kullanıcı "nereden dolduracağım?" diye takılıyordu. Alan tek: satıcı varsa liste
 (sonunda "+ Yeni satıcı…"), yoksa doğrudan ad kutusu.
 
+## Kamera
+
+**58. Varsayılan kamera çözünürlüğü gerçek etiketi okutmuyor.** `getUserMedia`
+kısıtsız çağrıldığında 640×480 veriyor; üstüne kareyi 640 piksele indirip tüm
+sahneyi çözümlemeye verince ürünün üstündeki küçük barkod birkaç piksele
+düşüyor ve hiçbir okuyucu çözemiyor. Sahte kamerayla (kare boyu barkod) test
+geçtiği için sorun ancak gerçek üründe görülüyor. **Çözüm üç parçalı:**
+(1) `width/height: {ideal: 1920/1080}` ve `focusMode: continuous` isteniyor,
+(2) çözümleme tüm kare yerine kullanıcının gördüğü pencereye kırpılıyor,
+(3) yakınlaştırma pencereyi daraltıyor — sürücü `zoom` kısıtını desteklemiyorsa
+(iOS Safari desteklemiyor) kırpma zaten aynı işi görüyor.
+
+Ayrıca `tryHarder: false` yalnız kusursuz üretilmiş görüntülerde yeterliydi;
+gerçek etikette eğrilik ve parlama var, `tryHarder`/`tryRotate`/`tryInvert`
+açık olmalı. Biçim listesini daraltmak da okumayı kaçırıyordu: kullanıcı hangi
+kodu okutacağını önceden bilmiyor, `AllReadable` doğru varsayılan.
+
+**59. Işık (torch) iOS'ta yok.** `MediaStreamTrack.applyConstraints({torch})`
+Chrome/Android'de çalışıyor, iOS Safari'de yok — WebKit tabanlı olduğu için
+iPhone'daki tüm tarayıcılarda yok. Düğme `getCapabilities().torch` varsa
+gösteriliyor; olmayan yerde hiç çizilmiyor. Çalışmayan bir düğme, olmayan
+düğmeden kötü.
+

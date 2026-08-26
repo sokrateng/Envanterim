@@ -37,22 +37,43 @@ try {
   const kolonlar = csv.replace(/^﻿/, "").split("\r\n")[0].split(";");
   const durumIdx = kolonlar.indexOf("Durum");
   const tutarIdx = kolonlar.indexOf("Alış tutarı");
+  const birimIdx = kolonlar.indexOf("Para birimi");
+  // Rapor toplamları para birimine göre ayrı: farklı birimler toplanmıyor
+  // (TUZAKLAR #56). Beklenen toplamı da yalnız TRY satırlarından kuruyoruz.
   let beklenenToplam = 0;
   let sayilan = 0;
+  const birimler = new Set();
   for (const satir of satirlar) {
     // Basit ayrıştırma: bu veri kümesinde tırnaklı hücre yok
     const h = satir.split(";");
     if (!["Kullanımda", "Serviste"].includes(h[durumIdx])) continue;
     sayilan += 1;
+    const birim = (birimIdx >= 0 ? h[birimIdx] : "TRY") || "TRY";
+    birimler.add(birim);
     const t = h[tutarIdx];
-    if (t) beklenenToplam += Math.round(Number(t.replace(/\./g, "").replace(",", ".")) * 100);
+    if (t && birim === "TRY") {
+      beklenenToplam += Math.round(Number(t.replace(/\./g, "").replace(",", ".")) * 100);
+    }
   }
   const toplamMetni = beklenenToplam.toString();
   const beklenenBicim = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 2 }).format(beklenenToplam / 100);
   if (!govde.includes(beklenenBicim)) {
-    throw new Error(`toplam eşleşmedi: raporda yok → ${beklenenBicim} (${toplamMetni} kuruş)`);
+    throw new Error(`TRY toplamı eşleşmedi: raporda yok → ${beklenenBicim} (${toplamMetni} kuruş)`);
   }
-  log("toplam alış değeri CSV ile tutuyor:", beklenenBicim, "₺ ·", sayilan, "ekipman");
+  log("TRY toplamı CSV ile tutuyor:", beklenenBicim, "₺ ·", sayilan, "ekipman");
+
+  // Birden çok para birimi varsa toplamlar ayrı ve kapsam notu düşmüş olmalı.
+  if (birimler.size > 1) {
+    if (!govde.includes("kur çevirisi yapılmadı")) {
+      throw new Error("çok para birimli envanterde kapsam notu yok");
+    }
+    for (const birim of birimler) {
+      if (!govde.includes(`Toplam alış değeri (${birim})`)) {
+        throw new Error(`${birim} için ayrı toplam yok`);
+      }
+    }
+    log("para birimleri ayrı toplanmış:", [...birimler].join(", "));
+  }
 
   // Emekli ürün rapora girmemeli
   if (govde.includes("Emekli ürün")) throw new Error("emekli ekipman rapora girmiş");

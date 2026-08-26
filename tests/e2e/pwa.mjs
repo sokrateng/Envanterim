@@ -24,7 +24,12 @@ try {
   if (manifest.govde.display !== "standalone") throw new Error("display standalone değil");
   log("manifest:", manifest.govde.short_name, "·", manifest.govde.display, "·", manifest.govde.icons.length, "ikon");
 
-  const appleIcon = await page.locator('link[rel="apple-touch-icon"]').getAttribute("href");
+  // Yumuşak geçişte Next başlık etiketlerini yeniden basabiliyor; kısa bir an
+  // iki tane olabiliyor. Aranan şey "bir tane var mı", "kaç tane" değil.
+  const appleIcon = await page
+    .locator('link[rel="apple-touch-icon"]')
+    .first()
+    .getAttribute("href");
   const iconStatus = await page.evaluate(async (u) => (await fetch(u)).status, appleIcon);
   if (iconStatus !== 200) throw new Error("apple-touch-icon sunulmuyor");
   log("apple-touch-icon:", appleIcon, iconStatus);

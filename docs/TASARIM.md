@@ -129,3 +129,15 @@ matematiği `src/lib/swipe.ts`). Üç kural:
 
 Parmak kalkınca satır yarı yolda kalmaz: mesafe panelin %40'ını geçtiyse ya da
 fiske hızlıysa açık kalır, değilse kapanır.
+
+## Kod okuma ekranı
+
+- **Okuma penceresi çözümlemenin baktığı yerle aynı.** Süs çerçeve çizip tüm
+  kareyi çözümlemek kullanıcıyı yanıltıyor: "çerçeveye aldım, neden okumadı?"
+- **Kırmızı tarama çizgisi** okumaya çalışıldığını anlatıyor. Hareket
+  `prefers-reduced-motion` açıkken duruyor, çizgi kalıyor.
+- **Yakınlaştırma dokunma hedefi kadar düğmelerle** (1×–4×), kaydırıcıyla değil:
+  tek elle, bakmadan basılabiliyor.
+- **Işık düğmesi yalnız cihaz destekliyorsa.** iPhone'da görünmüyor (TUZAKLAR
+  #59); orada kullanıcıya ışığı ortamdan alması söyleniyor.
+

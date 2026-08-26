@@ -51,7 +51,6 @@ try {
   await page.tap('button[aria-label="Seri numarasını barkoddan oku"]');
   await page.waitForSelector('video[aria-label="Kamera görüntüsü"]');
   log("kamera paneli açıldı");
-  await page.screenshot({ path: `${out}/1-kamera.png` });
 
   await page.waitForFunction(
     (beklenen) =>
@@ -109,6 +108,18 @@ if (ETIKET_KAMERA) {
     await page.tap('button[aria-label="Ekipman ekle"]');
     await page.tap('button[aria-label="Seri numarasını barkoddan oku"]');
     await page.waitForSelector("text=Bu Envanterim etiketi", { timeout: 30_000 });
+
+    // Panel açık kalıyor (etiket seri no sayılmadı): tarama çizgisini ve
+    // yakınlaştırmayı burada görebiliyoruz — okuma başarılı olsaydı panel
+    // kapanırdı ve denetim yarışa girerdi.
+    await page.waitForSelector("[data-tarama-cizgisi]");
+    await page.tap('button[aria-label="2 kat yakınlaştır"]');
+    const basili = await page
+      .locator('button[aria-label="2 kat yakınlaştır"]')
+      .getAttribute("aria-pressed");
+    if (basili !== "true") throw new Error("yakınlaştırma seçilmedi");
+    log("kırmızı tarama çizgisi ve yakınlaştırma çalışıyor");
+    await page.screenshot({ path: `${out}/1-kamera.png` });
 
     const deger = await page.inputValue('input[name="serialNo"]');
     if (deger !== "") throw new Error(`etiket seri no alanına yazıldı: ${deger}`);

@@ -96,6 +96,23 @@ input[type="date"] {
   animation: sheet-in 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* Tarama çizgisi: okuma penceresinde aşağı yukarı süzülür. Kırmızı çizgi
+   okumaya çalışıldığını anlatıyor — kullanıcı "çalışıyor mu?" diye beklemesin.
+   prefers-reduced-motion açıkken yukarıdaki kural süreyi sıfırlıyor, çizgi
+   sabit duruyor. */
+@keyframes scan-line {
+  from {
+    transform: translateY(-46%);
+  }
+  to {
+    transform: translateY(46%);
+  }
+}
+
+.scan-line {
+  animation: scan-line 1.6s ease-in-out infinite alternate;
+}
+
 /* Yazdırma: etiketler kâğıda çıksın, uygulama kabuğu çıkmasın. */
 @media print {
   html,
