@@ -67,7 +67,7 @@
 - [x] Sahip olma maliyeti (ürün ve lokasyon bazında)
 - [x] Sigorta raporu: fotoğraflı PDF döküm + toplam değer
 - [x] CSV dışa/içe aktarma
-- [ ] Tekrarlayan bakım hatırlatması (sayaç okumasına bağlanabilir:
+- [x] Tekrarlayan bakım hatırlatması (sayaç okumasına bağlanabilir:
       "her 10.000 km'de servis")
 - [x] **e-Arşiv/e-Fatura XML'inden ürün oluşturma** — modele hiç gitmeden,
       deterministik ve kesin

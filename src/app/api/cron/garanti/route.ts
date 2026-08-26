@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import type { TimelineEvent } from "@/lib/events";
+import {
+  maintenancePushBody,
+  ruleStatus,
+  statusText,
+} from "@/lib/maintenance";
 import { isPushConfigured, sendToUsers } from "@/lib/push";
 import {
   planReminders,
@@ -116,11 +122,109 @@ export async function GET(request: Request) {
     removed += result.removed;
   }
 
+  const bakim = await sendMaintenance(now);
+
   return NextResponse.json({
     bakilan: items.length,
     planlanan: planned.length,
     gonderilen: sent,
     atlanan: skipped,
     silinenAbonelik: removed,
+    bakim,
   });
+}
+
+/**
+ * Tekrarlayan bakım hatırlatmaları. Zamanı gelen (ya da eşiğe giren) kural
+ * için bir bildirim gider.
+ *
+ * Aynı uyarının tekrar gitmemesi için `lastNotifiedCycle` damgalanıyor:
+ * zaman kuralında kaçıncı dönem, sayaç kuralında kaçıncı tur olduğunu
+ * tutuyor. Damga gönderimden **önce** yazılıyor (TUZAKLAR #28).
+ */
+async function sendMaintenance(now: Date) {
+  const rules = await prisma.maintenanceRule.findMany({
+    where: { item: { status: { in: ["IN_USE", "IN_REPAIR"] } } },
+    select: {
+      id: true,
+      name: true,
+      everyMonths: true,
+      everyReading: true,
+      readingUnit: true,
+      leadDays: true,
+      lastNotifiedCycle: true,
+      item: {
+        select: {
+          id: true,
+          name: true,
+          locationId: true,
+          purchaseDate: true,
+          events: { select: { kind: true, date: true, readingValue: true } },
+        },
+      },
+    },
+  });
+
+  let sent = 0;
+  let removed = 0;
+  let skipped = 0;
+
+  for (const rule of rules) {
+    const events = rule.item.events.map((event) => ({
+      kind: event.kind as TimelineEvent["kind"],
+      date: event.date,
+      readingValue: event.readingValue,
+    }));
+
+    const status = ruleStatus(rule, {
+      events,
+      purchaseDate: rule.item.purchaseDate,
+      now,
+    });
+
+    if (status.state !== "due" && status.state !== "soon") continue;
+
+    // Dönem numarası: sayaçta tur, zamanda son bakımdan bu yana geçen dönem.
+    const cycle =
+      status.kind === "reading"
+        ? (status.cycle ?? 0)
+        : status.dueDate
+          ? Math.floor(status.dueDate.getTime() / 86_400_000)
+          : 0;
+
+    if (rule.lastNotifiedCycle === cycle) {
+      skipped += 1;
+      continue;
+    }
+
+    const stamped = await prisma.maintenanceRule.updateMany({
+      where: { id: rule.id, lastNotifiedCycle: rule.lastNotifiedCycle },
+      data: { lastNotifiedCycle: cycle },
+    });
+    if (stamped.count === 0) {
+      skipped += 1;
+      continue;
+    }
+
+    const members = await prisma.locationMember.findMany({
+      where: { locationId: rule.item.locationId },
+      select: { userId: true },
+    });
+
+    const result = await sendToUsers(
+      members.map((member) => member.userId),
+      {
+        title: "Bakım zamanı",
+        body: maintenancePushBody(rule.item.name, rule, status),
+        url: `/envanter/${rule.item.id}`,
+        tag: `bakim-${rule.id}-${cycle}`,
+      },
+    );
+    sent += result.sent;
+    removed += result.removed;
+    // statusText yalnız metin üretiyor; burada çağırmak günlüğe yazmak için.
+    console.log("bakım bildirimi", rule.item.name, statusText(rule, status));
+  }
+
+  return { kural: rules.length, gonderilen: sent, atlanan: skipped, silinenAbonelik: removed };
 }

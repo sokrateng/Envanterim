@@ -131,8 +131,9 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 2. `vercel.json` cron'u tanımlı: `/api/cron/garanti` her gün 06:00 UTC'de
    çalışır. Vercel isteği `Authorization: Bearer $CRON_SECRET` ile gönderir;
    `CRON_SECRET` tanımlıysa uç başka isteği kabul etmez.
-3. Uç, garanti bitimine **30 ve 7 gün** kalan (kullanımda ya da serviste olan)
-   ekipmanları bulur, o lokasyonun üyelerine push gönderir.
+3. Uç iki iş yapar: garanti bitimine **30 ve 7 gün** kalan ekipmanlar için
+   uyarı, bir de zamanı gelen **tekrarlayan bakım** kuralları için. İkisi de
+   yalnız kullanımda ya da serviste olan ekipmanlara bakar.
 4. Damga gönderimden **önce** yazılır: cron aynı işi yeniden tetiklerse
    kullanıcı aynı uyarıyı iki kez almaz (docs/TUZAKLAR.md #28).
 5. `410 Gone` dönen abonelik silinir (#29).
@@ -142,7 +143,7 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
    curl -H "Authorization: Bearer $CRON_SECRET" https://<proje>.vercel.app/api/cron/garanti
    ```
 
-   Yanıt: `{"bakilan":…,"planlanan":…,"gonderilen":…,"atlanan":…}`.
+   Yanıt: `{"bakilan":…,"planlanan":…,"gonderilen":…,"atlanan":…,"bakim":{…}}`.
 
 **iOS notu:** iPhone'da web push yalnız ana ekrana eklenmiş uygulamada
 çalışır. Hesap sekmesindeki anahtar bunu söyleyip kullanıcıyı yönlendirir.

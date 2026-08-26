@@ -11,11 +11,13 @@ import { formatMoney } from "@/lib/money";
 import { canEdit } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { ownershipCostMinor, type TimelineEvent } from "@/lib/events";
+import { ruleStatus, statusText } from "@/lib/maintenance";
 import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { warrantyStatus } from "@/lib/warranty";
 import type { CategoryOption } from "@/components/ItemFields";
 import { Attachments, type AttachmentView } from "./Attachments";
 import { Parts, type PartRow } from "./Parts";
+import { Maintenance, type MaintenanceRow } from "./Maintenance";
 import { Timeline, type TimelineRow } from "./Timeline";
 import { FillProvider } from "./fill-context";
 import { EditItemButton } from "./EditItemButton";
@@ -66,6 +68,17 @@ export default async function EkipmanPage({
       attachments: {
         select: { id: true, url: true, name: true, kind: true, mimeType: true },
         orderBy: { uploadedAt: "desc" },
+      },
+      maintenance: {
+        select: {
+          id: true,
+          name: true,
+          everyMonths: true,
+          everyReading: true,
+          readingUnit: true,
+          leadDays: true,
+        },
+        orderBy: { createdAt: "asc" },
       },
       parts: {
         select: {
@@ -144,6 +157,30 @@ export default async function EkipmanPage({
     assignedToName: event.assignedToUser?.name ?? null,
     assignedPlace: event.assignedPlace,
   }));
+
+  // Bakım durumu sunucuda hesaplanıyor: kayıtlar zaten burada, istemciye
+  // yalnız sonuç gidiyor.
+  const maintenanceEvents = item.events.map((event) => ({
+    kind: event.kind as TimelineEvent["kind"],
+    date: event.date,
+    readingValue: event.readingValue,
+  }));
+
+  const maintenanceRows: MaintenanceRow[] = item.maintenance.map((rule) => {
+    const status = ruleStatus(rule, {
+      events: maintenanceEvents,
+      purchaseDate: item.purchaseDate,
+    });
+    return {
+      id: rule.id,
+      name: rule.name,
+      state: status.state,
+      text: statusText(rule, status),
+      every: rule.everyReading
+        ? `Her ${rule.everyReading.toLocaleString("tr-TR")}${rule.readingUnit ? ` ${rule.readingUnit}` : ""}`
+        : `${rule.everyMonths} ayda bir`,
+    };
+  });
 
   const parts: PartRow[] = item.parts.map((part) => ({
     id: part.id,
@@ -342,6 +379,12 @@ export default async function EkipmanPage({
         vendors={vendors}
         members={members.map((member) => member.user)}
         currency={item.currency}
+        editable={editable}
+      />
+
+      <Maintenance
+        itemId={item.id}
+        rules={maintenanceRows}
         editable={editable}
       />
 

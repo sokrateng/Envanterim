@@ -194,6 +194,31 @@ export const partCreateSchema = z.object({
   ),
 });
 
+export const maintenanceRuleSchema = z
+  .object({
+    name: trimmed.min(1, "Bakım adı gerekli").max(60, "En çok 60 karakter"),
+    everyMonths: emptyToUndefined(
+      z.coerce
+        .number({ invalid_type_error: "Ay sayı olmalı" })
+        .int("Ay tam sayı olmalı")
+        .min(1, "En az 1 ay")
+        .max(240, "En çok 240 ay"),
+    ),
+    everyReading: emptyToUndefined(
+      z.coerce
+        .number({ invalid_type_error: "Sayaç aralığı sayı olmalı" })
+        .positive("Sayaç aralığı sıfırdan büyük olmalı")
+        .max(10_000_000, "Sayaç aralığı çok büyük"),
+    ),
+    readingUnit: emptyToUndefined(trimmed.max(12, "En çok 12 karakter")),
+    leadDays: z.coerce.number().int().min(0).max(90).default(7),
+  })
+  // Kuralın neye göre tekrarladığı belli olmalı; ikisi de boşsa hiç
+  // hatırlatılamaz.
+  .refine((rule) => rule.everyMonths || rule.everyReading, {
+    message: "Ay ya da sayaç aralığından biri gerekli",
+  });
+
 export const itemStatusSchema = z.object({
   status: z.enum(ITEM_STATUS, {
     errorMap: () => ({ message: "Geçersiz durum" }),
