@@ -1,4 +1,4 @@
-import { mkdir, writeFile, unlink } from "node:fs/promises";
+import { mkdir, readFile, writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 
 /**
@@ -83,6 +83,30 @@ export async function removeFile(objectPath: string): Promise<void> {
   }).catch(() => {
     // Depolamada kalan artık dosya, kaydı silmemek için sebep değil.
   });
+}
+
+/** Depolanan dosyayı sunucuda okur — faturadan veri çıkarma bunu kullanır. */
+export async function fetchFile(objectPath: string): Promise<ArrayBuffer | null> {
+  const config = supabaseConfig();
+
+  if (!config) {
+    try {
+      const buffer = await readFile(localFilePath(objectPath));
+      return buffer.buffer.slice(
+        buffer.byteOffset,
+        buffer.byteOffset + buffer.byteLength,
+      ) as ArrayBuffer;
+    } catch {
+      return null;
+    }
+  }
+
+  const response = await fetch(
+    `${config.url}/storage/v1/object/${BUCKET}/${objectPath}`,
+    { headers: { apikey: config.key, Authorization: `Bearer ${config.key}` } },
+  );
+  if (!response.ok) return null;
+  return response.arrayBuffer();
 }
 
 /** Yerel yedek için okuma yolu; uç dosyayı buradan sunar. */

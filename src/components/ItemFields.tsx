@@ -26,6 +26,8 @@ export type ItemDefaults = {
   status?: string;
   categoryId?: string;
   sellerId?: string;
+  /** Yalnız faturadan doldurmada gelir; normal düzenlemede satıcı seçilir. */
+  sellerName?: string;
   customFields?: Record<string, unknown>;
 };
 
@@ -152,7 +154,12 @@ export function ItemFields({
       </Field>
 
       <Field label="Yeni satıcı">
-        <input name="sellerName" className={inputClass} placeholder="Teknosa" />
+        <input
+          name="sellerName"
+          defaultValue={defaults.sellerName}
+          className={inputClass}
+          placeholder="Teknosa"
+        />
       </Field>
 
       <Field label="Alış tutarı" hint="Örn. 18.400,50">

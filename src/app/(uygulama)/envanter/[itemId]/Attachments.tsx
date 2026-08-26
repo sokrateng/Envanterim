@@ -2,9 +2,11 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Sheet } from "@/components/Sheet";
 import { ATTACHMENT_KINDS, ATTACHMENT_KIND_LABELS } from "@/lib/constants";
 import { shrinkImage } from "@/lib/image-client";
 import { isImage } from "@/lib/upload-rules";
+import { useFill } from "./fill-context";
 
 export type AttachmentView = {
   id: string;
@@ -14,16 +16,34 @@ export type AttachmentView = {
   mimeType: string | null;
 };
 
+/** Faturadan çıkarılan bir kalemin forma gidecek hâli. */
+type ExtractedLine = {
+  name: string;
+  brand: string;
+  model: string;
+  serialNo: string;
+  purchaseDate: string;
+  warrantyEndDate: string;
+  purchasePrice: string;
+  sellerName: string;
+};
+
 export function Attachments({
   itemId,
   attachments,
   editable,
+  extractionEnabled,
 }: {
   itemId: string;
   attachments: AttachmentView[];
   editable: boolean;
+  extractionEnabled: boolean;
 }) {
   const router = useRouter();
+  const { setPrefill } = useFill();
+  const [reading, setReading] = useState<string | null>(null);
+  const [lines, setLines] = useState<ExtractedLine[] | null>(null);
+  const [note, setNote] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [kind, setKind] = useState("PHOTO");
   const [busy, setBusy] = useState(false);
@@ -66,6 +86,47 @@ export function Attachments({
     router.refresh();
   }
 
+  async function readInvoice(attachmentId: string) {
+    setReading(attachmentId);
+    setError(null);
+
+    const response = await fetch(`/api/ekipman/${itemId}/fatura-oku`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ attachmentId }),
+    });
+    setReading(null);
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setError(payload.hata ?? "Fatura okunamadı");
+      return;
+    }
+
+    const payload = (await response.json()) as {
+      kalemler: ExtractedLine[];
+      not: string | null;
+    };
+    setNote(payload.not);
+
+    if (payload.kalemler.length === 0) {
+      setError("Faturada ekipman kalemi bulunamadı");
+      return;
+    }
+    // Tek kalem varsa seçtirmeye gerek yok; forma doğrudan doldur.
+    if (payload.kalemler.length === 1) {
+      setPrefill(payload.kalemler[0]);
+      return;
+    }
+    setLines(payload.kalemler);
+  }
+
+  /** Fatura okunabilen ek: PDF ya da HEIC olmayan görsel. */
+  function canRead(attachment: AttachmentView): boolean {
+    const type = attachment.mimeType ?? "";
+    return type === "application/pdf" || (isImage(type) && type !== "image/heic");
+  }
+
   const photos = attachments.filter((a) => isImage(a.mimeType ?? ""));
   const documents = attachments.filter((a) => !isImage(a.mimeType ?? ""));
 
@@ -100,6 +161,16 @@ export function Attachments({
                   ✕
                 </button>
               ) : null}
+              {editable && extractionEnabled && photo.kind === "INVOICE" && canRead(photo) ? (
+                <button
+                  type="button"
+                  disabled={reading !== null}
+                  onClick={() => readInvoice(photo.id)}
+                  className="mt-1 w-full text-caption text-blue active:opacity-60 disabled:opacity-50"
+                >
+                  {reading === photo.id ? "Okunuyor…" : "Faturadan doldur"}
+                </button>
+              ) : null}
             </figure>
           ))}
         </div>
@@ -120,6 +191,16 @@ export function Attachments({
                   {ATTACHMENT_KIND_LABELS[document.kind] ?? document.kind} · PDF
                 </span>
               </a>
+              {editable && extractionEnabled && canRead(document) ? (
+                <button
+                  type="button"
+                  disabled={reading !== null}
+                  onClick={() => readInvoice(document.id)}
+                  className="min-h-touch px-2 text-subheadline text-blue active:opacity-60 disabled:opacity-50"
+                >
+                  {reading === document.id ? "Okunuyor…" : "Faturadan doldur"}
+                </button>
+              ) : null}
               {editable ? (
                 <button
                   type="button"
@@ -182,6 +263,40 @@ export function Attachments({
           {error}
         </p>
       ) : null}
+
+      <Sheet
+        open={lines !== null}
+        onClose={() => setLines(null)}
+        title="Faturadaki kalemler"
+      >
+        <p className="pt-2 text-footnote text-muted">
+          Faturada birden fazla kalem var. Bu ekipman hangisi? Seçtiğin kalem
+          forma doldurulur, kaydetmeden önce kontrol edersin.
+        </p>
+        {note ? (
+          <p className="pt-2 text-footnote text-orange">Model notu: {note}</p>
+        ) : null}
+        <ul className="mt-3 divide-y divide-separator overflow-hidden rounded-card bg-bg">
+          {(lines ?? []).map((line, index) => (
+            <li key={`${line.name}-${index}`}>
+              <button
+                type="button"
+                onClick={() => {
+                  setPrefill(line);
+                  setLines(null);
+                }}
+                className="flex min-h-touch w-full flex-col items-start px-3 py-2 text-left active:bg-surface-pressed"
+              >
+                <span className="text-headline">{line.name}</span>
+                <span className="text-footnote text-muted">
+                  {[line.brand, line.model, line.purchasePrice].filter(Boolean).join(" · ") ||
+                    "Ayrıntı okunamadı"}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Sheet>
     </section>
   );
 }

@@ -46,6 +46,7 @@ bakmak yetmiyor (docs/TASARIM.md).
    | `NEXT_PUBLIC_SUPABASE_URL` | Supabase proje adresi |
    | `SUPABASE_SERVICE_ROLE_KEY` | service_role anahtarı — **yalnız sunucu** |
    | `SUPABASE_BUCKET` | `ekler` |
+   | `ANTHROPIC_API_KEY` | faturadan okuma için — **yalnız sunucu** |
 
 3. Build komutu `npm run build` — içinde `prisma generate` var, ayrıca
    ayarlamana gerek yok.
@@ -94,7 +95,28 @@ Supabase'e yazarken `apikey` başlığı da gönderiliyor (docs/TUZAKLAR.md #5).
 DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uzun-bir-sifre"
 ```
 
-## 7. Duman testi (dağıtımdan sonra)
+## 7. Faturadan otomatik doldurma
+
+`ANTHROPIC_API_KEY` tanımlıysa ekipman sayfasındaki fatura eklerinde
+"Faturadan doldur" düğmesi çıkar; tanımsızsa özellik arayüzde hiç görünmez.
+
+- Model `claude-opus-5`, tek çağrı, ayrı OCR katmanı yok (docs/MIMARI.md §6).
+- Maliyet: tek sayfalık fatura kabaca 2.500 girdi + 400 çıktı token →
+  **fatura başına ~$0,02**.
+- Kullanıcı başına saatte 20 okuma sınırı var; her okuma `InvoiceRead`
+  tablosuna yazılıyor, harcamayı buradan görebilirsin:
+
+  ```sql
+  select date_trunc('day', "createdAt") gun, count(*), sum("inputTokens"), sum("outputTokens")
+  from "InvoiceRead" group by 1 order by 1 desc;
+  ```
+
+- Route'ta `maxDuration = 60`; Vercel planının fonksiyon süresi üst sınırını
+  doğrula (docs/TUZAKLAR.md #32).
+- Çıkarılan alanlar **kaydedilmiyor**: forma doldurulup kullanıcıya
+  onaylatılıyor (#36).
+
+## 8. Duman testi (dağıtımdan sonra)
 
 1. `/giris` → ilk hesapla gir.
 2. Lokasyon oluştur → listede görünüyor mu?
@@ -107,13 +129,14 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 7. İkinci kullanıcıyla gir: aynı ekipmanı görüyor, üye ekleyemiyor.
 8. Ekipmana bir fotoğraf ve bir fatura PDF'i ekle; fotoğraf ızgarada,
    PDF belge listesinde çıkmalı.
-9. Üçüncü, hiçbir lokasyona üye olmayan kullanıcıyla gir: envanter boş;
+9. Bir fatura ekinde "Faturadan doldur"a bas: alanlar forma dolmalı, sen
+   kaydetmeden ekipman değişmemeli.
+10. Üçüncü, hiçbir lokasyona üye olmayan kullanıcıyla gir: envanter boş;
    diğerinin ek dosyasının adresine gitmeyi dene — 404 dönmeli.
 
-## 8. Sonraki sürümde eklenecek dağıtım adımları
+## 9. Sonraki sürümde eklenecek dağıtım adımları
 
 - **Vercel Cron** garanti uyarısı için günde bir; `ItemReminder.sentAt`
   damgası gönderimden **önce** yazılır (#28).
 - **VAPID anahtarları** web push için.
-- **`ANTHROPIC_API_KEY`** fatura okuma ucu için; route'ta
-  `export const maxDuration = 60` (#32).
+

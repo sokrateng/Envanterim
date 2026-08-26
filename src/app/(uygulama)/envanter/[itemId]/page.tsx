@@ -10,9 +10,11 @@ import { readCustomFields, type FieldDef } from "@/lib/custom-fields";
 import { formatMoney } from "@/lib/money";
 import { canEdit } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { warrantyStatus } from "@/lib/warranty";
 import type { CategoryOption } from "@/components/ItemFields";
 import { Attachments, type AttachmentView } from "./Attachments";
+import { FillProvider } from "./fill-context";
 import { EditItemButton } from "./EditItemButton";
 import { StatusPicker } from "./StatusPicker";
 
@@ -147,6 +149,7 @@ export default async function EkipmanPage({
   }));
 
   return (
+    <FillProvider>
     <Screen>
       <ScreenHeader
         title={item.name}
@@ -255,6 +258,7 @@ export default async function EkipmanPage({
       <Attachments
         itemId={item.id}
         editable={editable}
+        extractionEnabled={isExtractionConfigured()}
         attachments={item.attachments as AttachmentView[]}
       />
 
@@ -262,5 +266,6 @@ export default async function EkipmanPage({
         <StatusPicker itemId={item.id} status={item.status as ItemStatus} />
       ) : null}
     </Screen>
+    </FillProvider>
   );
 }

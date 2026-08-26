@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sheet } from "@/components/Sheet";
 import { useCloseAndRefresh } from "@/lib/history-layer";
+import { useFill } from "./fill-context";
 import { FormError, SubmitButton } from "@/components/form";
 import {
   ItemFields,
@@ -24,9 +25,23 @@ export function EditItemButton({
   defaults: ItemDefaults;
 }) {
   const closeAndRefresh = useCloseAndRefresh();
+  const { prefill, setPrefill } = useFill();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Faturadan alan gelince panel kendiliğinden açılır; kullanıcı gördüğü
+  // değerleri onaylayıp kaydeder.
+  useEffect(() => {
+    if (prefill) setOpen(true);
+  }, [prefill]);
+
+  function close() {
+    setOpen(false);
+    setPrefill(null);
+  }
+
+  const values = prefill ? { ...defaults, ...prefill } : defaults;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -63,7 +78,7 @@ export function EditItemButton({
       return;
     }
 
-    closeAndRefresh(() => setOpen(false));
+    closeAndRefresh(close);
   }
 
   return (
@@ -76,12 +91,25 @@ export function EditItemButton({
         Düzenle
       </button>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Ekipmanı düzenle">
+      <Sheet
+        open={open}
+        onClose={close}
+        title={prefill ? "Faturadan gelenler" : "Ekipmanı düzenle"}
+      >
+        {prefill ? (
+          <p className="pt-2 text-footnote text-muted">
+            Alanlar faturadan okundu; hiçbiri kaydedilmedi. Kontrol edip
+            kaydedince geçerli olur.
+          </p>
+        ) : null}
         <form onSubmit={onSubmit} className="max-h-[70dvh] overflow-y-auto pb-2">
+          {/* Girdiler kontrolsüz: faturadan gelen değerler ancak yeniden
+              bağlanınca görünür, o yüzden anahtar değişiyor. */}
           <ItemFields
+            key={prefill ? "faturadan" : "normal"}
             categories={categories}
             vendors={vendors}
-            defaults={defaults}
+            defaults={values}
           />
           <FormError message={error} />
           <SubmitButton pending={pending}>Kaydet</SubmitButton>

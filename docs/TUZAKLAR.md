@@ -172,3 +172,38 @@ seri no ile model kodunu karıştırabilir. Forma doldur, kullanıcı onaylasın
 
 **37. Anahtarı ve maliyeti koru.** Yükleme ucu kimlik doğrulamalı olmalı ve
 kullanıcı başına hız sınırı taşımalı; yoksa açık bir uç faturayı şişirir.
+
+## Next.js 15 App Router (bu projede yaşandı)
+
+**38. `node:` şemalı içe aktarma istemci paketini kırar.** Sunucu için yazılmış
+bir yardımcı modül (`node:crypto`) bir istemci bileşeni tarafından da içe
+aktarılınca webpack `UnhandledSchemeError: Reading from "node:crypto" is not
+handled by plugins` diyor ve sayfa 500 dönüyor. Modülün kendisi masum;
+sorun paylaşılıyor olması. **Çözüm:** iki tarafın da kullandığı modülde Web
+Crypto (`crypto.getRandomValues`) gibi izomorfik API kullan; sunucuya özel
+şeyi ayrı dosyada tut. Rastgele değeri alfabeye indirirken kalanla eşleme
+sapma yaratır (`256 % 31 ≠ 0`) — sınırın üstündeki baytı at.
+
+**39. Efektin bağımlılığı her render'da kimliği değişen bir işlev olmasın.**
+Panel açıkken gelen bir `router.refresh()` bileşeni yeniden çizince, `onClose`
+gibi gövdede tanımlanmış bir işlev yeni kimlik alıyor; efekt sökülüp yeniden
+kuruluyor ve sökme sırasındaki `history.back()` paneli **kendiliğinden
+kapatıyor**. Kullanıcı formu kaydediyor, panel bir anda kayboluyor. Bu,
+TUZAKLAR #18'deki karışmanın React tarafındaki hâli. **Çözüm:** en güncel
+geri çağrıyı bir `ref`te tut, efekti yalnız `[open, id]`ye bağla.
+
+**40. Panel kapanırken yapılan `router.refresh()` etkisiz kalır.** Katman
+`history.back()` ile kapanıyor; yönlendirici o geçmiş kaydını **kendi eski RSC
+anlık görüntüsüyle** geri kuruyor ve kapanıştan önce istenen yenilemeyi
+siliyor. Yeni kaydedilen kayıt listede görünmüyor, kullanıcı "kaydedilmedi"
+sanıyor. Kendi `pushState`'inde yönlendiricinin durumunu koruman da yetmiyor.
+**Çözüm:** sırayı tersine çevir — önce kaydı temizle, yenilemeyi `popstate`
+sonrasına al:
+
+```ts
+const finish = () => { window.removeEventListener("popstate", finish); router.refresh(); };
+window.addEventListener("popstate", finish);
+close();                       // efekt temizliği history.back() çağırır
+```
+
+Kayıt bir şekilde yoksa `popstate` hiç gelmez; kısa bir zamanlayıcıyı yedek bırak.

@@ -43,24 +43,24 @@
 ## Öncelikli özellik listesi
 
 ### v1 — çalışan iskelet
-- [ ] Giriş (kullanıcı adı + şifre), ilk hesap betiği
-- [ ] Lokasyon oluşturma, üye davet etme, rol verme (OWNER/EDITOR/VIEWER)
-- [ ] Kategori tanımlama + kategoriye dinamik alan ekleme
-- [ ] Ekipman ekleme/düzenleme: ad, marka, model, seri no, kategori, yer
-- [ ] Satın alma: satıcı, tarih, tutar, garanti bitiş tarihi
-- [ ] Fotoğraf ve belge ekleme (fatura, garanti belgesi, kılavuz)
-- [ ] Liste + arama (seri no, marka, model) + kategori/durum filtresi
-- [ ] Garanti durumu rozeti: kalan gün, bitmişse gri
+- [x] Giriş (kullanıcı adı + şifre), ilk hesap betiği
+- [x] Lokasyon oluşturma, üye davet etme, rol verme (OWNER/EDITOR/VIEWER)
+- [x] Kategori tanımlama + kategoriye dinamik alan ekleme
+- [x] Ekipman ekleme/düzenleme: ad, marka, model, seri no, kategori, yer
+- [x] Satın alma: satıcı, tarih, tutar, garanti bitiş tarihi
+- [x] Fotoğraf ve belge ekleme (fatura, garanti belgesi, kılavuz)
+- [x] Liste + arama (seri no, marka, model) + kategori/durum filtresi
+- [x] Garanti durumu rozeti: kalan gün, bitmişse gri
 
 ### v2 — takip
 - [ ] Servis kaydı (tarih, servis veren, yapılan iş, tutar)
 - [ ] Yedek parça listesi ve temin ücretleri
 - [ ] Ürün zaman çizelgesi — dört olay türü de: sayaç okuması, olay günlüğü,
       zimmet geçmişi, servis/maliyet
-- [ ] **Faturadan otomatik doldurma** (Claude ile PDF + fotoğraf, tek çağrı;
+- [x] **Faturadan otomatik doldurma** (Claude ile PDF + fotoğraf, tek çağrı;
       kullanıcı onaylayıp kaydeder)
 - [ ] Web push: garanti bitimine 30 ve 7 gün kala
-- [ ] Yaşam döngüsü durumu
+- [x] Yaşam döngüsü durumu
 - [ ] **QR etiket** üretme ve yazdırma
 
 ### v3 — rapor ve kolaylık
