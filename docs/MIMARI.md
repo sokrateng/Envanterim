@@ -249,11 +249,23 @@ alışlarının çoğu e-Arşiv faturasıyla geliyor.
 
 ### Akış
 
+İki giriş noktası var, ikisi de aynı çıkarma katmanını kullanıyor
+(`src/lib/invoice-read.ts`: tür denetimi, saatlik sınır, sayaç, yanıt biçimi):
+
 ```
-dosya → Supabase Storage → sunucu tarafında oku
-      → Claude (document|image + output_config.format)
-      → JSON → forma doldur → KULLANICI ONAYLAR → kaydet
+Var olan ekipmanın ekinden:
+  ek → Supabase Storage → sunucu okur → model → JSON → forma doldur
+     → KULLANICI ONAYLAR → kaydet
+
+Yeni ekipman formundan (ekipman henüz yok):
+  dosya → doğrudan gövdede sunucuya → model → JSON → forma doldur
+        → KULLANICI ONAYLAR → ekipman açılır → aynı dosya ek olarak yüklenir
 ```
+
+İkincisinde dosya depoya yazılmıyor: bağlanacağı ekipman henüz yok ve okuma
+hiçbir şey kaydetmiyor. Yetki lokasyon üyeliğinden geçiyor (CLAUDE.md) — okuma
+bir lokasyonun kotasını harcıyor. `InvoiceRead.itemId` bu yüzden boş
+bırakılabiliyor.
 
 **Kullanıcı onayı adımı atlanamaz.** Fotoğraftan okuma hiçbir zaman %100 kesin
 olamaz — bu OCR'ın değil problemin doğası. Alanları forma doldurup kullanıcıya

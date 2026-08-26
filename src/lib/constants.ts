@@ -51,6 +51,9 @@ export const ATTACHMENT_KIND_LABELS: Record<string, string> = {
   OTHER: "Diğer",
 };
 
+/** Kullanıcı başına saatlik fatura okuma sınırı: açık bir uç faturayı şişirir (#37). */
+export const INVOICE_READ_HOURLY_LIMIT = 20;
+
 export const EVENT_KINDS = ["READING", "SERVICE", "LOG", "ASSIGNMENT"] as const;
 export type EventKind = (typeof EVENT_KINDS)[number];
 

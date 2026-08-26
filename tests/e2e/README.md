@@ -29,7 +29,7 @@ demeden koşmazlar.
 
 | Test | Gereken |
 |---|---|
-| `fatura`, `fatura-foto` | `node tests/e2e/sahte/mock-anthropic.mjs` (4999) ve sunucuyu `ANTHROPIC_API_KEY=deneme ANTHROPIC_BASE_URL=http://127.0.0.1:4999` ile başlat |
+| `fatura`, `fatura-foto`, `fatura-yeni` | `node tests/e2e/sahte/mock-anthropic.mjs` (4999) ve sunucuyu `ANTHROPIC_API_KEY=deneme ANTHROPIC_BASE_URL=http://127.0.0.1:4999` ile başlat |
 | `bildirim` | `node tests/e2e/sahte/mock-push.mjs` (TLS 5001), sunucuda VAPID anahtarları, sonra `node tests/e2e/sahte/push-hazirla.mjs` |
 | `eposta` | `node tests/e2e/sahte/mock-smtp.mjs` (2525) ve sunucuda `SMTP_URL=smtp://127.0.0.1:2525 SMTP_FROM=...` |
 | `tara`, `tara-barkod` | Önce `node tests/e2e/sahte/y4m.mjs qr "<ürün adresi>" /tmp/etiket.y4m`, sonra testi dosya yolu ve ürün kimliğiyle çağır |

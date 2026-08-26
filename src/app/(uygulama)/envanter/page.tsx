@@ -27,6 +27,7 @@ import {
   isOverdue,
 } from "@/lib/assignment";
 import { ItemSwipe } from "./ItemSwipe";
+import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { NewItemButton } from "./NewItemButton";
 import { SearchField } from "./SearchField";
 import { StatusFilter } from "./StatusFilter";
@@ -290,6 +291,7 @@ export default async function EnvanterPage({
               defaultLocationId={selectedLocation ?? editableLocations[0].id}
               categoriesByLocation={categoriesByLocation}
               vendorsByLocation={vendorsByLocation}
+              extractionEnabled={isExtractionConfigured()}
             />
           ) : undefined
         }

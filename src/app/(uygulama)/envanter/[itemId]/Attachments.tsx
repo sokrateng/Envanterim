@@ -3,10 +3,11 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageViewer } from "@/components/ImageViewer";
-import { Sheet } from "@/components/Sheet";
+import { InvoiceLines } from "@/components/InvoiceLines";
 import { ATTACHMENT_KINDS, ATTACHMENT_KIND_LABELS } from "@/lib/constants";
 import { shrinkImage } from "@/lib/image-client";
 import { isImage } from "@/lib/upload-rules";
+import type { InvoiceFormValues } from "@/lib/invoice";
 import { useFill } from "./fill-context";
 
 export type AttachmentView = {
@@ -15,18 +16,6 @@ export type AttachmentView = {
   name: string;
   kind: string;
   mimeType: string | null;
-};
-
-/** Faturadan çıkarılan bir kalemin forma gidecek hâli. */
-type ExtractedLine = {
-  name: string;
-  brand: string;
-  model: string;
-  serialNo: string;
-  purchaseDate: string;
-  warrantyEndDate: string;
-  purchasePrice: string;
-  sellerName: string;
 };
 
 export function Attachments({
@@ -43,7 +32,7 @@ export function Attachments({
   const router = useRouter();
   const { setPrefill } = useFill();
   const [reading, setReading] = useState<string | null>(null);
-  const [lines, setLines] = useState<ExtractedLine[] | null>(null);
+  const [lines, setLines] = useState<InvoiceFormValues[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [viewing, setViewing] = useState<AttachmentView | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -106,7 +95,7 @@ export function Attachments({
     }
 
     const payload = (await response.json()) as {
-      kalemler: ExtractedLine[];
+      kalemler: InvoiceFormValues[];
       not: string | null;
     };
     setNote(payload.not);
@@ -280,39 +269,15 @@ export function Attachments({
         onClose={() => setViewing(null)}
       />
 
-      <Sheet
-        open={lines !== null}
+      <InvoiceLines
+        lines={lines}
+        note={note}
+        onPick={(line) => {
+          setPrefill(line);
+          setLines(null);
+        }}
         onClose={() => setLines(null)}
-        title="Faturadaki kalemler"
-      >
-        <p className="pt-2 text-footnote text-muted">
-          Faturada birden fazla kalem var. Bu ekipman hangisi? Seçtiğin kalem
-          forma doldurulur, kaydetmeden önce kontrol edersin.
-        </p>
-        {note ? (
-          <p className="pt-2 text-footnote text-orange">Model notu: {note}</p>
-        ) : null}
-        <ul className="mt-3 divide-y divide-separator overflow-hidden rounded-card bg-bg">
-          {(lines ?? []).map((line, index) => (
-            <li key={`${line.name}-${index}`}>
-              <button
-                type="button"
-                onClick={() => {
-                  setPrefill(line);
-                  setLines(null);
-                }}
-                className="flex min-h-touch w-full flex-col items-start px-3 py-2 text-left active:bg-surface-pressed"
-              >
-                <span className="text-headline">{line.name}</span>
-                <span className="text-footnote text-muted">
-                  {[line.brand, line.model, line.purchasePrice].filter(Boolean).join(" · ") ||
-                    "Ayrıntı okunamadı"}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </Sheet>
+      />
     </section>
   );
 }

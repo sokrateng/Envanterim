@@ -113,9 +113,9 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 
 ## 7. Faturadan otomatik doldurma
 
-Sağlayıcılardan biri tanımlıysa ekipman sayfasındaki fatura eklerinde
-"Faturadan doldur" düğmesi çıkar; ikisi de tanımsızsa özellik arayüzde hiç
-görünmez. `ANTHROPIC_API_KEY` varsa o kullanılır, yoksa Azure dağıtımı.
+Sağlayıcılardan biri tanımlıysa "Faturadan doldur" düğmesi iki yerde çıkar:
+yeni ekipman panelinde (fatura elindeyken) ve ekipman sayfasındaki fatura
+eklerinde. İkisi de tanımsızsa özellik arayüzde hiç görünmez. `ANTHROPIC_API_KEY` varsa o kullanılır, yoksa Azure dağıtımı.
 
 **Azure AI Foundry ile:**
 

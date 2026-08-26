@@ -41,6 +41,7 @@ const TEMEL = [
 /** Sahte servis ya da özel sunucu bayrağı isteyenler. */
 const DIS_SERVIS = {
   fatura: "sahte Anthropic (ANTHROPIC_BASE_URL)",
+  "fatura-yeni": "sahte Anthropic (ANTHROPIC_BASE_URL)",
   "fatura-foto": "sahte Anthropic (ANTHROPIC_BASE_URL)",
   bildirim: "sahte push sunucusu + VAPID",
   eposta: "sahte SMTP (SMTP_URL)",

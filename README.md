@@ -21,8 +21,11 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   lokasyon ve kategori filtresi; kalan garanti günü rozeti.
 - **Fotoğraf ve belge.** Ürün fotoğrafı, fatura, garanti belgesi, kılavuz.
   Fotoğraf yüklemeden önce istemcide küçültülüyor; PDF ayrı ele alınıyor.
-- **Faturadan otomatik doldurma.** Fatura PDF'i ya da fotoğrafı tek Claude
+- **Faturadan otomatik doldurma.** Fatura PDF'i ya da fotoğrafı tek model
   çağrısıyla okunuyor, alanlar forma dolduruluyor — **kaydeden kullanıcı.**
+  Hem yeni ekipman açarken (fatura elindeyken) hem sonradan ekten yapılabiliyor;
+  yeni ekipmanda kaydedince fatura belge olarak da ekleniyor. Sağlayıcı
+  Anthropic ya da Azure AI Foundry'deki OpenAI uyumlu bir dağıtım.
 - **e-Arşiv/e-Fatura XML'i.** Veri faturanın kendisinden okunuyor; modele hiç
   gidilmiyor.
 - **Zimmet — teslim–tesellüm.** Ekipman bir kişiye zimmetlenir; kişi "üzerime
