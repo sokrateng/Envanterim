@@ -61,7 +61,7 @@
       kullanıcı onaylayıp kaydeder)
 - [x] Web push: garanti bitimine 30 ve 7 gün kala
 - [x] Yaşam döngüsü durumu
-- [ ] **QR etiket** üretme ve yazdırma
+- [x] **QR etiket** üretme ve yazdırma
 
 ### v3 — rapor ve kolaylık
 - [x] Sahip olma maliyeti (ürün bazında; lokasyon toplamı bekliyor)

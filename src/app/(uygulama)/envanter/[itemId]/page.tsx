@@ -289,6 +289,11 @@ export default async function EkipmanPage({
           {item.serialNo ? <Row title="Seri no" trailing={item.serialNo} /> : null}
           {item.place ? <Row title="Yer" trailing={item.place} /> : null}
           <Row title="Lokasyon" trailing={item.location.name} />
+          <Row
+            href={`/envanter/${item.id}/etiket`}
+            title="QR etiket"
+            subtitle="Yazdır, cihazın üstüne yapıştır"
+          />
         </Rows>
       </Group>
 

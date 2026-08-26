@@ -147,6 +147,9 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 **iOS notu:** iPhone'da web push yalnız ana ekrana eklenmiş uygulamada
 çalışır. Hesap sekmesindeki anahtar bunu söyleyip kullanıcıyı yönlendirir.
 
+**QR etiketler** `NEXTAUTH_URL` adresini kullanır: etiket bu adrese gider.
+Alan adı değişirse eski etiketler eski adrese bakar — yeniden basılmalı.
+
 ## 9. Duman testi (dağıtımdan sonra)
 
 1. `/giris` → ilk hesapla gir.

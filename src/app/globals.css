@@ -88,3 +88,22 @@ input[type="date"] {
 .sheet-in {
   animation: sheet-in 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+
+/* Yazdırma: etiketler kâğıda çıksın, uygulama kabuğu çıkmasın. */
+@media print {
+  html,
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  nav,
+  header {
+    display: none !important;
+  }
+
+  /* Etiket kutusu sayfa sonunda ikiye bölünmesin. */
+  .rounded-card {
+    break-inside: avoid;
+  }
+}
