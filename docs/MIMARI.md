@@ -293,6 +293,37 @@ Fotoğraf için `document` yerine `{ type: "image", source: { type: "url", url }
 > `output_format` parametresi kullanımdan kalktı. `client.messages.parse()`
 > yanıtı şemaya göre doğrular — tercih edilen yol.
 
+### İkinci sağlayıcı: Azure AI Foundry
+
+Anthropic anahtarı olmayan kurulumlar için OpenAI uyumlu bir dağıtım da
+kullanılabiliyor (`AZURE_AI_ENDPOINT`, `AZURE_AI_DEPLOYMENT`). `ANTHROPIC_API_KEY`
+varsa o öncelikli; yoksa Azure yolu devreye giriyor. Seçim `extractionProvider()`
+içinde tek yerde.
+
+Sözleşme farklı ama **şema aynı**: `INVOICE_JSON_SCHEMA` iki sağlayıcıya da
+gidiyor, dönen JSON iki durumda da `extractedInvoiceSchema` ile doğrulanıyor.
+Böylece uygulamanın gördüğü tip sağlayıcıdan bağımsız.
+
+```ts
+// src/lib/openai-responses.ts — saf: gövde kurma + yanıt okuma (testli)
+// src/lib/azure-llm.ts        — ağ: yapılandırma, jeton, fetch
+{
+  model: "gpt-5.6-sol",              // Azure'da DAĞITIM adı (TUZAKLAR #54)
+  instructions: SYSTEM,
+  input: [{ role: "user", content: [
+    { type: "input_file", filename: "fatura.pdf",
+      file_data: "data:application/pdf;base64,…" },   // dosya bloğu ÖNCE (#33)
+    { type: "input_text", text: "Bu faturadan ekipman bilgilerini çıkar." },
+  ]}],
+  text: { format: { type: "json_schema", name: "fatura", strict: true, schema } },
+}
+```
+
+Yanıtta metin `output` dizisinin ilk elemanı değil: akıl yürüten dağıtımlarda
+önce `reasoning` bloğu geliyor (TUZAKLAR #53). Kimlik ya kaynak anahtarı ya da
+Entra ID uygulama kaydı; `DefaultAzureCredential` sunucusuzda çalışmıyor (#55).
+`npm run llm:test` üç denemeyle erişimi, şemayı ve belge okumayı ölçüyor.
+
 ### Maliyet
 
 Claude Opus 5: girdi $5/1M, çıktı $25/1M token. Tek sayfalık bir fatura kabaca
@@ -309,8 +340,8 @@ olarak düşürmüyorum.
   küçültme (GeziPay'deki `image-client.ts`) yine de ilk savunma.
 - **Fonksiyon süresi.** Çıkarma çağrısı saniyeler sürer; route'ta
   `export const maxDuration = 60` ayarla ve planının sınırını doğrula.
-- **API anahtarı yalnız sunucuda.** `ANTHROPIC_API_KEY` asla `NEXT_PUBLIC_`
-  olmaz, istemciden çağrı yapılmaz.
+- **API anahtarı yalnız sunucuda.** Ne `ANTHROPIC_API_KEY` ne `AZURE_AI_*`
+  değerleri `NEXT_PUBLIC_` olur; istemciden çağrı yapılmaz.
 - **Kullanıcı başına hız sınırı koy.** Yükleme ucu kimlik doğrulamalı olmalı ve
   makul bir sayıda çağrıyla sınırlanmalı.
 - Claude belge girdisi sınırı: istek başına 32 MB, 600 sayfa.

@@ -48,9 +48,11 @@ npm run create-admin     # ilk hesap
 - **Faturadan çıkarılan veri kullanıcıya onaylatılır.** Claude'un döndürdüğü
   alanlar doğrudan kaydedilmez; forma doldurulur, kullanıcı görüp kaydeder.
   Fotoğraftan okuma hiçbir zaman %100 kesin değildir.
-- **LLM çağrısı yalnız sunucuda.** `ANTHROPIC_API_KEY` asla `NEXT_PUBLIC_`
-  olmaz. Model `claude-opus-5`; yapılandırılmış çıktı için `output_config.format`
-  (eski `output_format` değil).
+- **LLM çağrısı yalnız sunucuda.** Hiçbir model anahtarı `NEXT_PUBLIC_` olmaz.
+  Anthropic yolunda model `claude-opus-5`, yapılandırılmış çıktı için
+  `output_config.format` (eski `output_format` değil). Azure yolunda OpenAI
+  Responses sözleşmesi ve `text.format` kullanılır; iki sağlayıcı **aynı** JSON
+  şemasını paylaşır, dönen veri her hâlde kendi zod şemamızdan geçer.
 - **Sır istemciye sızmaz.** Supabase `service_role` yalnız sunucuda.
 - **Yorum "neden"i anlatır.**
 

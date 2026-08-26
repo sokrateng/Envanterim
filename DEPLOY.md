@@ -53,7 +53,10 @@ tek bölge seçtiriyor.
    | `NEXT_PUBLIC_SUPABASE_URL` | Supabase proje adresi |
    | `SUPABASE_SERVICE_ROLE_KEY` | service_role anahtarı — **yalnız sunucu** |
    | `SUPABASE_BUCKET` | `ekler` |
-   | `ANTHROPIC_API_KEY` | faturadan okuma için — **yalnız sunucu** |
+   | `ANTHROPIC_API_KEY` | faturadan okuma, Anthropic yolu — **yalnız sunucu** |
+   | `AZURE_AI_ENDPOINT` | faturadan okuma, Azure yolu (`…/openai/v1`) |
+   | `AZURE_AI_DEPLOYMENT` | Azure'daki dağıtımın adı |
+   | `AZURE_AI_API_KEY` | Azure kaynak anahtarı — **yalnız sunucu** |
    | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | garanti bildirimi (açık anahtar) |
    | `VAPID_PRIVATE_KEY` | garanti bildirimi — **yalnız sunucu** |
    | `VAPID_SUBJECT` | `mailto:sen@example.com` |
@@ -110,10 +113,36 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 
 ## 7. Faturadan otomatik doldurma
 
-`ANTHROPIC_API_KEY` tanımlıysa ekipman sayfasındaki fatura eklerinde
-"Faturadan doldur" düğmesi çıkar; tanımsızsa özellik arayüzde hiç görünmez.
+Sağlayıcılardan biri tanımlıysa ekipman sayfasındaki fatura eklerinde
+"Faturadan doldur" düğmesi çıkar; ikisi de tanımsızsa özellik arayüzde hiç
+görünmez. `ANTHROPIC_API_KEY` varsa o kullanılır, yoksa Azure dağıtımı.
 
-- Model `claude-opus-5`, tek çağrı, ayrı OCR katmanı yok (docs/MIMARI.md §6).
+**Azure AI Foundry ile:**
+
+1. Foundry portalında kaynağı aç → **Deployments**; kullanacağın modelin
+   dağıtım adını not et (`AZURE_AI_DEPLOYMENT`). Model adı değil, *dağıtım* adı.
+2. Uç adresi: `https://<kaynak>.services.ai.azure.com/openai/v1`
+   (`AZURE_AI_ENDPOINT`). Sondaki `/openai/v1` şart — betik eksikse tamamlıyor.
+3. Kimlik, iki yoldan biri:
+   - **Kaynak anahtarı** (`AZURE_AI_API_KEY`) — portalda kaynağın *Keys and
+     Endpoint* bölümünde. Vercel'de de çalışır, en kolay yol.
+   - **Entra ID uygulama kaydı** (`AZURE_TENANT_ID`, `AZURE_CLIENT_ID`,
+     `AZURE_CLIENT_SECRET`) — kaynakta yerel kimlik kapalıysa gerekir. Kayda,
+     kaynak üzerinde **Cognitive Services OpenAI User** rolü verilmeli.
+     Python'daki `DefaultAzureCredential` yerel makinede `az login` oturumunu
+     kullanıyor; Vercel'de böyle bir oturum yok, bu yüzden uygulama kaydı şart.
+4. Dağıtmadan önce sına:
+
+   ```bash
+   npm run llm:test                 # erişim, şema ve PDF okuma
+   npm run llm:test -- fatura.pdf   # gerçek bir faturayla
+   ```
+
+   Üç deneme üç ayrı yeteneği ölçüyor; hangisi düşerse eksik ayar odur.
+
+**Anthropic ile:** `ANTHROPIC_API_KEY` yeter.
+
+- Tek çağrı, ayrı OCR katmanı yok (docs/MIMARI.md §6).
 - Maliyet: tek sayfalık fatura kabaca 2.500 girdi + 400 çıktı token →
   **fatura başına ~$0,02**.
 - Kullanıcı başına saatte 20 okuma sınırı var; her okuma `InvoiceRead`

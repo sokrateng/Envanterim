@@ -314,3 +314,25 @@ asıl iş kullanıcıya döner.
 **52. `VAPID_SUBJECT` bir adres, etiket değil.** `mailto:sen@ornek.com` ya da
 `https://alan-adin`. Bildirimin kimden geldiğini push servisine söyleyen alan;
 konu başlığı sanıp metin yazmak kolay (`.env.example`'da örnek var).
+
+## İkinci LLM sağlayıcısı
+
+**53. `response.output[0]` metin değil.** OpenAI Responses API'sinde akıl yürüten
+dağıtımlar diziye önce bir `reasoning` bloğu koyuyor; ilk elemanı okuyan kod
+(Azure örneklerindeki `print(response.output[0])` dahil) boş ya da anlamsız
+sonuç veriyor. Doğrusu: `type === "message"` olan blokları süzüp içlerindeki
+`output_text` parçalarını birleştirmek. Metin boş çıktıysa sebebi de yanıtta
+duruyor — `incomplete_details.reason === "max_output_tokens"` demek "akıl
+yürütme bütçeyi yedi, sınırı artır" demek; "model çalışmıyor" değil.
+
+**54. Azure'da model adı değil dağıtım adı çağrılıyor.** `model` alanına
+`gpt-5.6` yazmak 404 veriyor; kaynağa açtığın dağıtımın adı (`gpt-5.6-sol`)
+yazılmalı. Uç adresi de `/openai/v1` ile bitmeli — eksikse yine 404, ve 404
+"model yok" gibi okunduğu için yanlış yerde aranıyor.
+
+**55. `DefaultAzureCredential` sunucusuzda çalışmıyor.** Yerelde `az login`
+oturumunu bulduğu için "çalışıyor" sanılıyor; Vercel'de ne CLI oturumu ne
+yönetilen kimlik var. Üretim için ya kaynak anahtarı ya da uygulama kaydı
+(tenant/client/secret) gerekiyor — bu ikisi ortam değişkeni olduğu için her
+yerde aynı çalışıyor.
+

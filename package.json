@@ -15,7 +15,8 @@
     "postinstall": "node scripts/copy-zxing.mjs",
     "test:e2e": "node tests/e2e/kos.mjs",
     "seed:e2e": "tsx --env-file-if-exists=.env scripts/seed-e2e.ts",
-    "mail:test": "tsx --env-file-if-exists=.env scripts/test-mail.ts"
+    "mail:test": "tsx --env-file-if-exists=.env scripts/test-mail.ts",
+    "llm:test": "tsx --env-file-if-exists=.env scripts/test-llm.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

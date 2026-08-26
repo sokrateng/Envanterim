@@ -4,7 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { requireLocationEditor } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError, parseBody } from "@/lib/api";
 import { toFormValues } from "@/lib/invoice";
-import { extractInvoice, isExtractionConfigured } from "@/lib/invoice-extract";
+import {
+  EXTRACTION_OFF,
+  extractInvoice,
+  isExtractionConfigured,
+} from "@/lib/invoice-extract";
 import { fetchFile } from "@/lib/storage";
 import { isImage } from "@/lib/upload-rules";
 
@@ -24,12 +28,7 @@ export async function POST(
 ) {
   const { id } = await params;
 
-  if (!isExtractionConfigured()) {
-    return apiError(
-      "Faturadan okuma kapalı: sunucuda ANTHROPIC_API_KEY tanımlı değil",
-      503,
-    );
-  }
+  if (!isExtractionConfigured()) return apiError(EXTRACTION_OFF, 503);
 
   const item = await prisma.item.findUnique({
     where: { id },

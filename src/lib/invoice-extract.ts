@@ -2,6 +2,8 @@ import "server-only";
 
 import Anthropic from "@anthropic-ai/sdk";
 import { jsonSchemaOutputFormat } from "@anthropic-ai/sdk/helpers/json-schema";
+import { azureRespond, isAzureConfigured } from "@/lib/azure-llm";
+import { readOutputText, readUsage } from "@/lib/openai-responses";
 import {
   INVOICE_JSON_SCHEMA,
   extractedInvoiceSchema,
@@ -9,13 +11,17 @@ import {
 } from "@/lib/invoice";
 
 /**
- * Faturadan ekipman bilgisi çıkarma — tek Claude çağrısı, ayrı OCR katmanı yok
- * (MIMARI §6). PDF `document`, fotoğraf `image` bloğu olarak gider; yanıt
+ * Faturadan ekipman bilgisi çıkarma — tek model çağrısı, ayrı OCR katmanı yok
+ * (MIMARI §6). PDF belge, fotoğraf görsel bloğu olarak gider; yanıt
  * yapılandırılmış çıktı ile şemaya uyar.
  *
- * Çağrı yalnız sunucuda: `ANTHROPIC_API_KEY` asla `NEXT_PUBLIC_` olmaz
- * (CLAUDE.md). Bu modül `server-only` ile işaretli, istemciden içe aktarılırsa
- * derleme kırılır.
+ * İki sağlayıcı destekleniyor ve *aynı* şemayı kullanıyorlar: `ANTHROPIC_API_KEY`
+ * varsa Claude, yoksa Azure AI Foundry üzerindeki OpenAI uyumlu dağıtım. Hangisi
+ * olursa olsun dönen veri kaydedilmiyor, forma doldurulup kullanıcıya
+ * onaylatılıyor (CLAUDE.md, TUZAKLAR #36).
+ *
+ * Çağrı yalnız sunucuda: anahtarların hiçbiri `NEXT_PUBLIC_` değil (CLAUDE.md).
+ * Bu modül `server-only` ile işaretli, istemciden içe aktarılırsa derleme kırılır.
  */
 
 const SYSTEM = `Türkiye'de kesilmiş satın alma faturalarından ev ve iş yeri
@@ -49,20 +55,74 @@ function createClient(): Anthropic | null {
   return new Anthropic();
 }
 
-export function isExtractionConfigured(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+export type ExtractionProvider = "anthropic" | "azure";
+
+/** Hangi sağlayıcı açık; hiçbiri değilse null (özellik arayüzde görünmez). */
+export function extractionProvider(): ExtractionProvider | null {
+  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  if (isAzureConfigured()) return "azure";
+  return null;
 }
 
-export async function extractInvoice(
+export function isExtractionConfigured(): boolean {
+  return extractionProvider() !== null;
+}
+
+export const EXTRACTION_OFF =
+  "Faturadan okuma kapalı: sunucuda model anahtarı tanımlı değil";
+
+export async function extractInvoice(source: ExtractSource): Promise<ExtractResult> {
+  const provider = extractionProvider();
+  if (provider === "azure") return extractWithAzure(source);
+  if (provider === "anthropic") return extractWithClaude(source);
+  return { ok: false, message: EXTRACTION_OFF };
+}
+
+/** Azure AI Foundry: OpenAI Responses sözleşmesi, aynı JSON şeması. */
+async function extractWithAzure(source: ExtractSource): Promise<ExtractResult> {
+  const sonuc = await azureRespond({
+    system: SYSTEM,
+    prompt: PROMPT,
+    file:
+      source.kind === "pdf"
+        ? { kind: "pdf", base64: source.base64, filename: "fatura.pdf" }
+        : { kind: "image", mediaType: source.mediaType, base64: source.base64 },
+    schema: { name: "fatura", schema: INVOICE_JSON_SCHEMA },
+    maxOutputTokens: 16000,
+  });
+
+  if (!sonuc.ok) return { ok: false, message: sonuc.message };
+
+  const okundu = readOutputText(sonuc.payload);
+  if (!okundu.ok) return { ok: false, message: okundu.message };
+
+  // Şema *şekli* garanti eder, *doğruluğu* değil; kendi zod şemamızdan geçiyor.
+  let ham: unknown;
+  try {
+    ham = JSON.parse(okundu.text);
+  } catch {
+    return { ok: false, message: "Fatura okunamadı, yanıt JSON değil" };
+  }
+
+  const parsed = extractedInvoiceSchema.safeParse(ham);
+  if (!parsed.success) {
+    return { ok: false, message: "Fatura okunamadı, yanıt şemaya uymadı" };
+  }
+
+  const usage = readUsage(sonuc.payload);
+  return {
+    ok: true,
+    data: parsed.data,
+    inputTokens: usage.inputTokens,
+    outputTokens: usage.outputTokens,
+  };
+}
+
+async function extractWithClaude(
   source: ExtractSource,
   client: Anthropic | null = createClient(),
 ): Promise<ExtractResult> {
-  if (!client) {
-    return {
-      ok: false,
-      message: "Faturadan okuma kapalı: sunucuda ANTHROPIC_API_KEY tanımlı değil",
-    };
-  }
+  if (!client) return { ok: false, message: EXTRACTION_OFF };
 
   // Belge/görsel bloğu metin bloğundan ÖNCE gelmeli (TUZAKLAR #33).
   const fileBlock: Anthropic.ContentBlockParam =
