@@ -190,7 +190,7 @@ export function NewItemButton({
         + Yeni
       </button>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni ekipman">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni ekipman" guardUnsaved>
         {savedWarning ? (
           <div className="pb-2">
             <p role="alert" className="py-2 text-body text-orange">

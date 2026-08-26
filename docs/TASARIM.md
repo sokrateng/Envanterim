@@ -141,3 +141,26 @@ fiske hızlıysa açık kalır, değilse kapanır.
 - **Işık düğmesi yalnız cihaz destekliyorsa.** iPhone'da görünmüyor (TUZAKLAR
   #59); orada kullanıcıya ışığı ortamdan alması söyleniyor.
 
+## Liste ve detay
+
+- **Satırın solunda ürün fotoğrafı** (44px), yoksa kategori simgesi. Fotoğrafsız
+  satır da aynı yeri kaplıyor: liste hizası bozulmuyor.
+- **Filtreler tek düğmenin arkasında.** Dört çip sırası 390 pikselde ekranın
+  yarısını yiyordu. Düğmedeki sayı kaç filtrenin açık olduğunu söylüyor; açık
+  filtreler listenin üstünde tek satırda, dokununca kalkıyor.
+- **Ad alanı sabit yükseklikte** (82px), punto ada göre küçülüyor
+  (`src/lib/typography.ts`). Uzun adlar sayfayı aşağı itmiyor.
+- **Durum tek satır**, seçenekler panelde: yılda bir iki kez değişen bir şey
+  için dört satır ayırmıyoruz.
+
+## Onay kutusu
+
+Tarayıcının `confirm()` kutusu kullanılmıyor: masaüstü görünümlü, adres
+çubuğuna yapışık ve biçimlendirilemiyor. Yerine `ConfirmDialog` — ortada, iki
+düğmeli, yıkıcı olan kırmızı, dışına dokunmak "vazgeç".
+
+Veri girilen paneller `guardUnsaved` ile açılıyor: bir alana dokunulmuşsa ✕,
+Esc, boşluğa dokunma ve donanım "geri"si önce soruyor. Geri tuşundan gelen
+istek iptal edilirse panelin geçmiş kaydı geri konuyor, yoksa ikinci geri tuşu
+sayfayı kapatırdı.
+

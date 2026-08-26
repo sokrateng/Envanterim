@@ -36,6 +36,8 @@ import { Timeline, type TimelineRow } from "./Timeline";
 import { FillProvider } from "./fill-context";
 import { EditItemButton } from "./EditItemButton";
 import { StatusPicker } from "./StatusPicker";
+import { Thumb } from "@/components/Thumb";
+import { titleClass } from "@/lib/typography";
 
 export const dynamic = "force-dynamic";
 
@@ -189,6 +191,9 @@ export default async function EkipmanPage({
   const access = await requireLocation(item.locationId);
   if (!access) notFound();
   const editable = canEdit(access);
+
+  // Başlıktaki küçük görsel: ekipmanın ilk fotoğrafı.
+  const photo = item.attachments.find((file) => file.kind === "PHOTO") ?? null;
 
   const fieldDefs: FieldDef[] = (item.category?.fields ?? []).map((field) => ({
     key: field.key,
@@ -378,6 +383,16 @@ export default async function EkipmanPage({
     <Screen>
       <ScreenHeader
         title={item.name}
+        titleClassName={titleClass(item.name)}
+        fixedTitle
+        leading={
+          <Thumb
+            size="lg"
+            url={photo?.url ?? null}
+            alt={item.name}
+            icon={item.category?.icon ?? null}
+          />
+        }
         back={{ href: "/envanter", label: "Envanter" }}
         action={
           editable ? (

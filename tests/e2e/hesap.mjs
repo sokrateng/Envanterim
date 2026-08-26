@@ -112,7 +112,9 @@ try {
     log("ikinci sayfa açıldı");
 
     // Filtre değişince sayfa başa dönmeli
-    await page.tap('button[role="tab"]:has-text("Kullanımda")');
+    await page.tap('button[aria-label="Filtreler"]');
+    await page.tap('button[aria-label="Durum: Kullanımda"]');
+    await page.getByRole("button", { name: "Uygula", exact: true }).tap();
     await page.waitForFunction(() => !location.search.includes("sayfa="));
     log("filtre değişince sayfa başa döndü");
   } else {

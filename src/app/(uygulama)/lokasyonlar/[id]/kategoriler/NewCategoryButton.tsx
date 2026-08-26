@@ -48,7 +48,7 @@ export function NewCategoryButton({ locationId }: { locationId: string }) {
         + Yeni
       </button>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni kategori">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni kategori" guardUnsaved>
         <form onSubmit={onSubmit}>
           <Field label="Ad">
             <input

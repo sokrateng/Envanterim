@@ -108,7 +108,10 @@ try {
   log("arama çalışıyor");
   await page.fill('input[type="search"]', "");
   await page.waitForTimeout(700);
-  await page.tap('button[role="tab"]:has-text("Serviste")');
+  // Filtreler tek düğmenin arkasında: aç, seç, uygula.
+  await page.tap('button[aria-label="Filtreler"]');
+  await page.tap('button[aria-label="Durum: Serviste"]');
+  await page.getByRole("button", { name: "Uygula", exact: true }).tap();
   await page.waitForURL(/durum=IN_REPAIR/);
   await page.waitForTimeout(600);
   // Kullanımdaki ekipman "Serviste" filtresinde görünmemeli. Listenin tümüyle
@@ -119,14 +122,50 @@ try {
   log("durum filtresi çalışıyor");
   await page.screenshot({ path: `${out}/7-filtre.png` });
 
-  // Panel açıkken geri tuşu paneli kapatmalı, sayfadan atmamalı (TUZAKLAR #17)
-  await page.tap('button[role="tab"]:has-text("Tümü")');
+  // Etkin filtre çipine dokunmak filtreyi kaldırıyor.
+  await page.tap('a[aria-label="Serviste filtresini kaldır"]');
+  await page.waitForURL((url) => !url.searchParams.has("durum"));
+  log("etkin filtre çipiyle kaldırıldı");
+
+  // Panel açıkken geri tuşu paneli kapatmalı, sayfadan atmamalı (TUZAKLAR #17).
+  // Boş formda soru sorulmuyor: kaybolacak bir şey yok.
   await page.tap('button[aria-label="Ekipman ekle"]');
   await page.waitForSelector('role=dialog');
   await page.goBack();
   await page.waitForSelector('role=dialog', { state: "detached", timeout: 5000 });
   if (!page.url().includes("/envanter")) throw new Error(`geri tuşu sayfadan attı: ${page.url()}`);
   log("geri tuşu paneli kapattı, sayfa yerinde");
+
+  // Yazdıktan sonra çıkmak isteyince kendi onay kutumuz çıkıyor; tarayıcının
+  // confirm() kutusu değil (o Playwright'ta dialog olayı olurdu).
+  let tarayiciKutusu = false;
+  page.on("dialog", async (d) => { tarayiciKutusu = true; await d.dismiss(); });
+
+  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.waitForSelector('role=dialog');
+  await page.fill('input[name="name"]', "Yarım kalan kayıt");
+  await page.goBack();
+  await page.waitForSelector("text=Kaydedilmemiş değişiklikler", { timeout: 5000 });
+  if (tarayiciKutusu) throw new Error("tarayıcının confirm kutusu açıldı");
+  await page.screenshot({ path: `${out}/8-onay.png` });
+
+  // "Kalmaya devam et": panel açık kalıyor ve yazdığımız duruyor.
+  await page.getByRole("button", { name: "Kalmaya devam et", exact: true }).tap();
+  await page.waitForSelector("text=Kaydedilmemiş değişiklikler", { state: "detached" });
+  if ((await page.inputValue('input[name="name"]')) !== "Yarım kalan kayıt") {
+    throw new Error("vazgeçince form sıfırlandı");
+  }
+
+  // Geçmiş kaydı geri konmuş olmalı: ikinci geri tuşu yine paneli kapatmalı.
+  await page.goBack();
+  await page.waitForSelector("text=Kaydedilmemiş değişiklikler", { timeout: 5000 });
+  await page.getByRole("button", { name: "Çık", exact: true }).tap();
+  await page.waitForSelector('role=dialog', { state: "detached", timeout: 5000 });
+  if (!page.url().includes("/envanter")) throw new Error(`onaydan sonra sayfadan attı: ${page.url()}`);
+  if (await page.locator('a:has-text("Yarım kalan kayıt")').count()) {
+    throw new Error("kaydedilmemiş form yine de kaydedilmiş");
+  }
+  log("kaydedilmemiş çıkış kendi onay kutumuzla soruldu");
 
   // --- 2. EDITOR: görüyor, üye ekleyemiyor ---
   const editorCtx = await browser.newContext(iphone);

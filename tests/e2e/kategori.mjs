@@ -78,11 +78,14 @@ try {
   log("detay sayfası değerleri gösteriyor");
   await page.screenshot({ path: `${out}/3-detay.png` });
 
-  // Durum değişimi
+  // Durum değişimi: tek satır açılıyor, seçenekler panelde.
   // Sabit sekme çubuğu sayfanın en altını örtüyor; önce dibe kaydır.
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await page.waitForTimeout(300);
+  await page.getByRole("button", { name: /^Durum/ }).click();
+  await page.waitForSelector('[role="dialog"][aria-label="Durum"]');
   await page.getByRole("button", { name: "Serviste", exact: true }).click();
+  await page.waitForSelector('[role="dialog"][aria-label="Durum"]', { state: "detached" });
   await page.waitForTimeout(800);
   await page.waitForTimeout(1000);
   // Düzenleme: sayı alanını değiştir
@@ -129,9 +132,11 @@ try {
   if (!restored.includes("A++")) throw new Error("gizlenen alanın değeri kaybolmuş");
   log("gizlenen alanın değeri korunmuş (TUZAKLAR #26)");
 
-  // Kategori filtresi
+  // Kategori filtresi — filtreler tek düğmenin arkasında.
   await page.goto(`${BASE}/envanter`);
-  await page.locator(`a:has-text("${KAT}")`).first().click();
+  await page.tap('button[aria-label="Filtreler"]');
+  await page.getByRole("button", { name: `Kategori: 🧺 ${KAT}`, exact: true }).tap();
+  await page.getByRole("button", { name: "Uygula", exact: true }).tap();
   await page.waitForURL(/kategori=/);
   await page.waitForSelector(`text=${URUN}`);
   await page.waitForTimeout(500);

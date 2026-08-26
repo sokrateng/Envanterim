@@ -4,6 +4,9 @@ const config: Config = {
   content: [
     "./src/components/**/*.{ts,tsx}",
     "./src/app/**/*.{ts,tsx}",
+    // Sınıf adı üreten saf modüller de taranmalı: taranmayan dosyadaki sınıf
+    // üretimden sessizce siliniyor (TUZAKLAR #61).
+    "./src/lib/**/*.{ts,tsx}",
   ],
   theme: {
     extend: {

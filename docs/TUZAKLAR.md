@@ -374,3 +374,21 @@ iPhone'daki tüm tarayıcılarda yok. Düğme `getCapabilities().torch` varsa
 gösteriliyor; olmayan yerde hiç çizilmiyor. Çalışmayan bir düğme, olmayan
 düğmeden kötü.
 
+## Panel ve yönlendirme
+
+**60. Panel kapanırken yapılan adres değişikliği geri alınıyor.** Filtre paneli
+`router.replace(...)` deyip hemen kapanıyordu; panelin geçmiş kaydı
+`history.back()` ile düşürülünce adres eski hâline dönüyor ve filtre hiç
+uygulanmamış görünüyordu. Aynı tuzağın yenileme hâli #49'da yaşanmıştı. Kural
+tek: **panelin işi kapanış tamamlandıktan sonra yapılır** — `useCloseThen`
+(kapat, popstate'i bekle, sonra çalıştır).
+
+## Yapılandırma (devam)
+
+**61. Tailwind taranmayan dosyadaki sınıfı siliyor.** `content` listesinde
+yalnız `src/app` ve `src/components` vardı; başlık puntosunu seçen saf modül
+`src/lib`'de olduğu için ürettiği `text-title`, `line-clamp-2` gibi sınıflar
+üretim CSS'ine hiç girmedi. Hata görünmüyor: sınıf HTML'de duruyor, karşılığı
+yok, her şey varsayılan puntoda çiziliyor. Sınıf adı üreten her dosya `content`
+listesinde olmalı.
+

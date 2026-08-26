@@ -142,7 +142,7 @@ export function Parts({
         </p>
       ) : null}
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni parça">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni parça" guardUnsaved>
         <form onSubmit={create} className="max-h-[70dvh] overflow-y-auto pb-2">
           <Field label="Ad">
             <input name="name" required autoFocus className={inputClass} placeholder="Su filtresi" />

@@ -67,7 +67,7 @@ export function EditCategory({
         Düzenle
       </button>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Kategori">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Kategori" guardUnsaved>
         <form onSubmit={save}>
           <Field label="Ad">
             <input

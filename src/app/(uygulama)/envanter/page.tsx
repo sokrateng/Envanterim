@@ -26,11 +26,12 @@ import {
   holderSummary,
   isOverdue,
 } from "@/lib/assignment";
+import { Thumb } from "@/components/Thumb";
 import { ItemSwipe } from "./ItemSwipe";
 import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { NewItemButton } from "./NewItemButton";
 import { SearchField } from "./SearchField";
-import { StatusFilter } from "./StatusFilter";
+import { Filters, type FilterGroup } from "./Filters";
 
 export const metadata = { title: "Envanter — Envanterim" };
 export const dynamic = "force-dynamic";
@@ -163,6 +164,13 @@ export default async function EnvanterPage({
             currency: true,
             location: { select: { id: true, name: true, icon: true } },
             category: { select: { name: true, icon: true } },
+            // Listedeki küçük görsel: ilk fotoğraf yeter, tümünü çekmiyoruz.
+            attachments: {
+              where: { kind: "PHOTO" },
+              select: { url: true },
+              orderBy: { uploadedAt: "asc" },
+              take: 1,
+            },
             parentId: true,
             assignments: {
               where: { closedAt: null },
@@ -277,6 +285,66 @@ export default async function EnvanterPage({
     (l) => l.role === "OWNER" || l.role === "EDITOR",
   );
 
+  // Filtre paneli: boş grup hiç çizilmiyor (tek lokasyonlu kullanıcıya
+  // "lokasyon" başlığı gereksiz), zimmet grubu ancak özellik kullanılıyorsa.
+  const filterGroups: FilterGroup[] = [
+    {
+      key: "durum",
+      title: "Durum",
+      anyLabel: "Tümü",
+      options: ITEM_STATUS.map((option) => ({
+        value: option,
+        label: ITEM_STATUS_LABELS[option],
+      })),
+    },
+    ...(locations.length > 1
+      ? [
+          {
+            key: "lokasyon",
+            title: "Lokasyon",
+            anyLabel: "Tüm lokasyonlar",
+            options: locations.map((location) => ({
+              value: location.id,
+              label: `${location.icon ?? "📍"} ${location.name}`,
+            })),
+          },
+        ]
+      : []),
+    ...(filterCategories.length
+      ? [
+          {
+            key: "kategori",
+            title: "Kategori",
+            anyLabel: "Tüm kategoriler",
+            options: filterCategories.map((category) => ({
+              value: category.id,
+              label: `${category.icon ?? "🏷"} ${category.name}`,
+            })),
+          },
+        ]
+      : []),
+    ...(hasAssignments || assignmentFilter
+      ? [
+          {
+            key: "zimmet",
+            title: "Zimmet",
+            anyLabel: "Tüm zimmetler",
+            options: ZIMMET_FILTERS.map((option) => ({
+              value: option,
+              label: ZIMMET_LABELS[option],
+            })),
+          },
+        ]
+      : []),
+  ];
+
+  /** Açık filtrelerin okunur adı; listenin üstünde tek satırda duruyor. */
+  const activeFilters = filterGroups.flatMap((group) => {
+    const value = filters[group.key as keyof Search];
+    const option = group.options.find((candidate) => candidate.value === value);
+    return option ? [{ key: group.key, label: option.label }] : [];
+  });
+
   return (
     <Screen>
       <ScreenHeader
@@ -299,6 +367,7 @@ export default async function EnvanterPage({
 
       <div className="flex items-center gap-2 px-4 pt-3">
         <SearchField defaultValue={query} />
+        <Filters groups={filterGroups} current={filters} />
         <Link
           href="/tara"
           aria-label="Kod tara"
@@ -318,82 +387,20 @@ export default async function EnvanterPage({
           </svg>
         </Link>
       </div>
-      <div className="px-4 pt-3">
-        <StatusFilter value={status} />
-      </div>
-
-      {locations.length > 1 ? (
+      {/* Etkin filtreler tek satırda ve kaldırılabilir: panelin açık olduğunu
+          hatırlamak kullanıcının işi olmasın. */}
+      {activeFilters.length ? (
         <div className="flex gap-2 overflow-x-auto px-4 pt-3">
-          <Chip
-            href={buildHref({
-              ...filters,
-              lokasyon: undefined,
-              sayfa: undefined,
-            })}
-            label="Tüm lokasyonlar"
-            active={!selectedLocation}
-          />
-          {locations.map((location) => (
-            <Chip
-              key={location.id}
-              href={buildHref({
-                ...filters,
-                lokasyon: location.id,
-                sayfa: undefined,
-              })}
-              label={`${location.icon ?? "📍"} ${location.name}`}
-              active={selectedLocation === location.id}
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {filterCategories.length ? (
-        <div className="flex gap-2 overflow-x-auto px-4 pt-3">
-          <Chip
-            href={buildHref({
-              ...filters,
-              kategori: undefined,
-              sayfa: undefined,
-            })}
-            label="Tüm kategoriler"
-            active={!categoryFilter}
-          />
-          {filterCategories.map((category) => (
-            <Chip
-              key={category.id}
-              href={buildHref({
-                ...filters,
-                kategori: category.id,
-                sayfa: undefined,
-              })}
-              label={`${category.icon ?? "🏷"} ${category.name}`}
-              active={categoryFilter === category.id}
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {/* Zimmet çubuğu ancak kullanılıyorsa çıkıyor: 390 pikselde üçüncü çip
-          sırası listeyi ekranın dışına itiyor. */}
-      {hasAssignments || assignmentFilter ? (
-        <div className="flex gap-2 overflow-x-auto px-4 pt-3">
-          <Chip
-            href={buildHref({
-              ...filters,
-              zimmet: undefined,
-              sayfa: undefined,
-            })}
-            label="Tüm zimmetler"
-            active={!assignmentFilter}
-          />
-          {ZIMMET_FILTERS.map((option) => (
-            <Chip
-              key={option}
-              href={buildHref({ ...filters, zimmet: option, sayfa: undefined })}
-              label={ZIMMET_LABELS[option]}
-              active={assignmentFilter === option}
-            />
+          {activeFilters.map((active) => (
+            <Link
+              key={active.key}
+              href={buildHref({ ...filters, [active.key]: undefined, sayfa: undefined })}
+              aria-label={`${active.label} filtresini kaldır`}
+              className="flex min-h-touch shrink-0 items-center gap-1 whitespace-nowrap rounded-card bg-blue px-3 text-footnote text-white active:opacity-60"
+            >
+              {active.label}
+              <span aria-hidden>✕</span>
+            </Link>
           ))}
         </div>
       ) : null}
@@ -452,6 +459,13 @@ export default async function EnvanterPage({
                   <Row
                     badgesBelow
                     href={`/envanter/${item.id}`}
+                    leading={
+                      <Thumb
+                        url={item.attachments[0]?.url ?? null}
+                        alt={item.name}
+                        icon={item.category?.icon ?? null}
+                      />
+                    }
                     title={item.name}
                     subtitle={details || "Ayrıntı girilmemiş"}
                     badge={
@@ -476,12 +490,14 @@ export default async function EnvanterPage({
                         >
                           {warranty.label}
                         </Badge>
+                        {/* Tutar da rozet sırasında: sağda dururken uzun
+                            adları erkenden kırpıyordu. */}
+                        {item.purchasePriceMinor != null ? (
+                          <span className="text-footnote text-muted">
+                            {formatMoney(item.purchasePriceMinor, item.currency)}
+                          </span>
+                        ) : null}
                       </>
-                    }
-                    trailing={
-                      item.purchasePriceMinor != null
-                        ? formatMoney(item.purchasePriceMinor, item.currency)
-                        : undefined
                     }
                   />
                 </ItemSwipe>
@@ -557,23 +573,3 @@ function PageLink({
   );
 }
 
-function Chip({
-  href,
-  label,
-  active,
-}: {
-  href: string;
-  label: string;
-  active: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`min-h-touch shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-subheadline active:opacity-60 ${
-        active ? "bg-blue text-white" : "bg-surface text-ink"
-      }`}
-    >
-      {label}
-    </Link>
-  );
-}

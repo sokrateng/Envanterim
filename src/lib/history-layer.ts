@@ -15,9 +15,11 @@ export function useHistoryLayer(
   open: boolean,
   onClose: () => void,
   id: string,
-) {
+): { restore: () => void } {
   // Kapatmanın tüm yolları tek kanaldan geçsin diye kapanış bir kez çalışır.
   const closing = useRef(false);
+  /** Katman kaydı yaşarken dolu; geri koyma bunun varlığına bakıyor. */
+  const live = useRef(false);
 
   // Kapatma geri çağrısı her render'da yeni bir kimlik alıyor. Efektin
   // bağımlılığı olsaydı katman açıkken gelen her yeniden çizim (örn.
@@ -47,8 +49,10 @@ export function useHistoryLayer(
       onCloseRef.current();
     };
 
+    live.current = true;
     window.addEventListener("popstate", onPop);
     return () => {
+      live.current = false;
       window.removeEventListener("popstate", onPop);
       // ✕ / Esc / boşluk ile kapandıysa bıraktığımız kaydı temizle.
       const current = (window.history.state ?? {}) as LayerState;
@@ -58,39 +62,61 @@ export function useHistoryLayer(
       }
     };
   }, [open, id]);
+
+  /**
+   * Geri tuşuyla gelen kapatma isteği iptal edilirse (kaydedilmemiş değişiklik
+   * uyarısı gibi) katmanın geçmiş kaydını geri koyar. Kayıt geri konmazsa
+   * sonraki geri tuşu paneli değil sayfayı kapatır; `closing` de sıfırlanmalı,
+   * yoksa gelen popstate "zaten kapanıyoruz" diye yutulur.
+   */
+  const restore = useCallback(() => {
+    if (!live.current) return;
+    closing.current = false;
+    window.history.pushState(
+      { ...(window.history.state ?? {}), __katman: id } satisfies LayerState,
+      "",
+    );
+  }, [id]);
+
+  return { restore };
 }
 
 /**
  * Katmanı kapatır ve panelin bıraktığı geçmiş kaydı temizlendikten **sonra**
- * sayfayı yeniler.
+ * verilen işi yapar.
  *
- * Sıra önemli: kapanış `history.back()` ile oluyor ve yönlendirici o kaydı
- * kendi eski RSC anlık görüntüsüyle geri kuruyor. Kapanıştan önce yapılan
- * `router.refresh()` bu yüzden iptal oluyor — yeni kaydettiğin kayıt listede
- * görünmüyordu.
+ * Sıra önemli: kapanış `history.back()` ile oluyor. Kapanıştan önce yapılan
+ * `router.refresh()` iptal oluyordu (yeni kayıt listede görünmüyordu); aynı
+ * şekilde kapanıştan önce yapılan `router.replace()` de geri alınıyor —
+ * adres çubuğu eski hâline dönüyor (TUZAKLAR #60).
  */
+export function useCloseThen() {
+  return useCallback((close: () => void, after: () => void) => {
+    let done = false;
+    let timer = 0;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      window.removeEventListener("popstate", finish);
+      window.clearTimeout(timer);
+      after();
+    };
+
+    // Katmanın kaydı bir şekilde yoksa popstate hiç gelmez; iş yine de yapılsın.
+    timer = window.setTimeout(finish, 400);
+    window.addEventListener("popstate", finish);
+    close();
+  }, []);
+}
+
+/** Kapanış sonrası sayfayı yenileyen yaygın hâli. */
 export function useCloseAndRefresh() {
   const router = useRouter();
+  const closeThen = useCloseThen();
 
   return useCallback(
-    (close: () => void) => {
-      let done = false;
-      let timer = 0;
-
-      const finish = () => {
-        if (done) return;
-        done = true;
-        window.removeEventListener("popstate", finish);
-        window.clearTimeout(timer);
-        router.refresh();
-      };
-
-      // Katmanın kaydı bir şekilde yoksa popstate hiç gelmez; yenileme yine de
-      // yapılsın.
-      timer = window.setTimeout(finish, 400);
-      window.addEventListener("popstate", finish);
-      close();
-    },
-    [router],
+    (close: () => void) => closeThen(close, () => router.refresh()),
+    [closeThen, router],
   );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TITLE_BOX } from "@/lib/typography";
 import type { ReactNode } from "react";
 
 /**
@@ -14,10 +15,19 @@ export function ScreenHeader({
   title,
   action,
   back,
+  leading,
+  titleClassName = "text-large-title tracking-tight",
+  fixedTitle = false,
 }: {
   title: string;
   action?: ReactNode;
   back?: { href: string; label: string };
+  /** Başlığın solundaki görsel (ekipman fotoğrafı). */
+  leading?: ReactNode;
+  /** Uzun adlarda küçülen punto; src/lib/typography.ts'ten geliyor. */
+  titleClassName?: string;
+  /** Ad alanı sabit yükseklikte: uzun ad sayfayı aşağı itmesin. */
+  fixedTitle?: boolean;
 }) {
   return (
     <header className="px-4 pt-[calc(env(safe-area-inset-top)+12px)]">
@@ -31,7 +41,14 @@ export function ScreenHeader({
         </Link>
       ) : null}
       <div className="flex items-end justify-between gap-3">
-        <h1 className="text-large-title tracking-tight">{title}</h1>
+        <div
+          className={`flex min-w-0 flex-1 items-center gap-3 ${
+            fixedTitle ? TITLE_BOX : ""
+          }`}
+        >
+          {leading}
+          <h1 className={`min-w-0 break-words ${titleClassName}`}>{title}</h1>
+        </div>
         {action}
       </div>
     </header>
@@ -74,6 +91,7 @@ export function Row({
   trailing,
   badge,
   badgesBelow = false,
+  leading,
 }: {
   href?: string;
   title: ReactNode;
@@ -82,9 +100,12 @@ export function Row({
   badge?: ReactNode;
   /** Rozetler adın yanına sığmıyorsa alt satıra alınır — ad kırpılmasın. */
   badgesBelow?: boolean;
+  /** Satırın solundaki görsel (küçük fotoğraf, simge). */
+  leading?: ReactNode;
 }) {
   const inner = (
     <div className="flex min-h-touch items-center gap-3 py-2.5 pr-4">
+      {leading}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="truncate text-headline">{title}</span>

@@ -59,7 +59,7 @@ export function PasswordChange() {
         </p>
       ) : null}
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Şifre değiştir">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Şifre değiştir" guardUnsaved>
         <form onSubmit={save} className="max-h-[70dvh] overflow-y-auto pb-2">
           <Field label="Mevcut şifre">
             <input

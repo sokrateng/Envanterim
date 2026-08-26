@@ -243,7 +243,7 @@ export function Timeline({
         </p>
       ) : null}
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni kayıt">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni kayıt" guardUnsaved>
         <form onSubmit={create} className="max-h-[70dvh] overflow-y-auto pb-2">
           <Field label="Tür">
             <select

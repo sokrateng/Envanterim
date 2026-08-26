@@ -190,6 +190,7 @@ export function Assignment({
         open={open}
         onClose={() => setOpen(false)}
         title={active ? "Devret" : "Zimmet ver"}
+        guardUnsaved
       >
         <form onSubmit={assign} className="max-h-[70dvh] overflow-y-auto pb-2">
           {members.length ? (

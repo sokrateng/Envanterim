@@ -168,7 +168,7 @@ export function CategoryFields({
         </p>
       ) : null}
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni alan">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni alan" guardUnsaved>
         <form onSubmit={create} className="max-h-[70dvh] overflow-y-auto pb-2">
           <Field label="Alan adı">
             <input name="label" required autoFocus className={inputClass} placeholder="Ekran boyutu" />
@@ -210,6 +210,7 @@ export function CategoryFields({
         open={editing !== null}
         onClose={() => setEditing(null)}
         title="Alanı düzenle"
+        guardUnsaved
       >
         {editing ? (
           <form onSubmit={saveField} className="max-h-[70dvh] overflow-y-auto pb-2">

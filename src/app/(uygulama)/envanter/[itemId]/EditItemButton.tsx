@@ -96,6 +96,7 @@ export function EditItemButton({
         open={open}
         onClose={close}
         title={prefill ? "Faturadan gelenler" : "Ekipmanı düzenle"}
+        guardUnsaved
       >
         {prefill ? (
           <p className="pt-2 text-footnote text-muted">

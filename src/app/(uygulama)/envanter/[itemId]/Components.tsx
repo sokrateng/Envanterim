@@ -142,7 +142,7 @@ export function Components({
         </p>
       ) : null}
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Bileşen bağla">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Bileşen bağla" guardUnsaved>
         <form onSubmit={add} className="max-h-[70dvh] overflow-y-auto pb-2">
           <Field
             label="Ekipman"

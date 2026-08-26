@@ -49,7 +49,7 @@ export function NewLocationButton() {
         + Yeni
       </button>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni lokasyon">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni lokasyon" guardUnsaved>
         <form onSubmit={onSubmit}>
           <Field label="Ad">
             <input

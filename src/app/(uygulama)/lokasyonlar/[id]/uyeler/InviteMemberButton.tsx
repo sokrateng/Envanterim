@@ -47,7 +47,7 @@ export function InviteMemberButton({ locationId }: { locationId: string }) {
         + Üye
       </button>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Üye ekle">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Üye ekle" guardUnsaved>
         <form onSubmit={onSubmit}>
           <Field
             label="Kullanıcı adı"

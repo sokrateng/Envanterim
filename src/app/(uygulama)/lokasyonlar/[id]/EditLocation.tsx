@@ -82,7 +82,7 @@ export function EditLocation({
         Düzenle
       </button>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Lokasyon">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Lokasyon" guardUnsaved>
         <form onSubmit={save} className="max-h-[70dvh] overflow-y-auto pb-2">
           <Field label="Ad">
             <input
