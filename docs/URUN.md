@@ -66,7 +66,7 @@
 ### v3 — rapor ve kolaylık
 - [x] Sahip olma maliyeti (ürün bazında; lokasyon toplamı bekliyor)
 - [ ] Sigorta raporu: fotoğraflı PDF döküm + toplam değer
-- [ ] CSV dışa/içe aktarma
+- [x] CSV dışa/içe aktarma
 - [ ] Tekrarlayan bakım hatırlatması (sayaç okumasına bağlanabilir:
       "her 10.000 km'de servis")
 - [ ] **e-Arşiv/e-Fatura XML'inden ürün oluşturma** — modele hiç gitmeden,

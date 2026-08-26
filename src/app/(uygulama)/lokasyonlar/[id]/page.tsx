@@ -48,6 +48,11 @@ export default async function LokasyonPage({
             trailing={String(location._count.categories)}
           />
           <Row
+            href={`/lokasyonlar/${id}/csv`}
+            title="CSV"
+            subtitle="Dışa aktar, içe aktar"
+          />
+          <Row
             href={`/lokasyonlar/${id}/etiketler`}
             title="QR etiketler"
             subtitle="Tüm ekipmanların etiketlerini yazdır"
