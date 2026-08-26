@@ -54,12 +54,12 @@
 
 ### v2 — takip
 - [x] Servis kaydı (tarih, servis veren, yapılan iş, tutar)
-- [ ] Yedek parça listesi ve temin ücretleri
+- [x] Yedek parça listesi ve temin ücretleri
 - [x] Ürün zaman çizelgesi — dört olay türü de: sayaç okuması, olay günlüğü,
       zimmet geçmişi, servis/maliyet
 - [x] **Faturadan otomatik doldurma** (Claude ile PDF + fotoğraf, tek çağrı;
       kullanıcı onaylayıp kaydeder)
-- [ ] Web push: garanti bitimine 30 ve 7 gün kala
+- [x] Web push: garanti bitimine 30 ve 7 gün kala
 - [x] Yaşam döngüsü durumu
 - [ ] **QR etiket** üretme ve yazdırma
 

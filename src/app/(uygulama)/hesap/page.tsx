@@ -1,11 +1,14 @@
 import { Group, Row, Rows, Screen, ScreenHeader } from "@/components/ui";
 import { requireUser } from "@/lib/session";
+import { PushToggle } from "./PushToggle";
 import { SignOutButton } from "./SignOutButton";
 
 export const metadata = { title: "Hesap — Envanterim" };
 
 export default async function HesapPage() {
   const user = await requireUser();
+  // Anahtar yoksa bildirim bölümü hiç görünmüyor.
+  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
 
   return (
     <Screen>
@@ -15,6 +18,12 @@ export default async function HesapPage() {
           <Row title={user.name ?? user.username} subtitle={`@${user.username}`} />
         </Rows>
       </Group>
+      {vapidPublicKey ? (
+        <Group title="Bildirimler">
+          <PushToggle publicKey={vapidPublicKey} />
+        </Group>
+      ) : null}
+
       <Group>
         <SignOutButton />
       </Group>

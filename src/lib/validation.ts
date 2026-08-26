@@ -179,6 +179,21 @@ export const eventCreateSchema = z.discriminatedUnion("kind", [
   }),
 ]);
 
+export const partCreateSchema = z.object({
+  name: trimmed.min(1, "Parça adı gerekli").max(80, "En çok 80 karakter"),
+  partNo: emptyToUndefined(trimmed.max(60, "En çok 60 karakter")),
+  price: emptyToUndefined(moneyMinor),
+  vendorId: emptyToUndefined(trimmed),
+  vendorName: emptyToUndefined(trimmed.max(80, "En çok 80 karakter")),
+  stock: emptyToUndefined(
+    z.coerce
+      .number({ invalid_type_error: "Stok sayı olmalı" })
+      .int("Stok tam sayı olmalı")
+      .min(0, "Stok eksi olamaz")
+      .max(100000, "Stok çok büyük"),
+  ),
+});
+
 export const itemStatusSchema = z.object({
   status: z.enum(ITEM_STATUS, {
     errorMap: () => ({ message: "Geçersiz durum" }),

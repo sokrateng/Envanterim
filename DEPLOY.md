@@ -47,6 +47,10 @@ bakmak yetmiyor (docs/TASARIM.md).
    | `SUPABASE_SERVICE_ROLE_KEY` | service_role anahtarı — **yalnız sunucu** |
    | `SUPABASE_BUCKET` | `ekler` |
    | `ANTHROPIC_API_KEY` | faturadan okuma için — **yalnız sunucu** |
+   | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | garanti bildirimi (açık anahtar) |
+   | `VAPID_PRIVATE_KEY` | garanti bildirimi — **yalnız sunucu** |
+   | `VAPID_SUBJECT` | `mailto:sen@example.com` |
+   | `CRON_SECRET` | cron ucunu korur |
 
 3. Build komutu `npm run build` — içinde `prisma generate` var, ayrıca
    ayarlamana gerek yok.
@@ -116,7 +120,34 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 - Çıkarılan alanlar **kaydedilmiyor**: forma doldurulup kullanıcıya
   onaylatılıyor (#36).
 
-## 8. Duman testi (dağıtımdan sonra)
+## 8. Garanti bildirimi (web push + cron)
+
+1. Anahtarları üret ve ortam değişkenlerine koy:
+
+   ```bash
+   npx web-push generate-vapid-keys
+   ```
+
+2. `vercel.json` cron'u tanımlı: `/api/cron/garanti` her gün 06:00 UTC'de
+   çalışır. Vercel isteği `Authorization: Bearer $CRON_SECRET` ile gönderir;
+   `CRON_SECRET` tanımlıysa uç başka isteği kabul etmez.
+3. Uç, garanti bitimine **30 ve 7 gün** kalan (kullanımda ya da serviste olan)
+   ekipmanları bulur, o lokasyonun üyelerine push gönderir.
+4. Damga gönderimden **önce** yazılır: cron aynı işi yeniden tetiklerse
+   kullanıcı aynı uyarıyı iki kez almaz (docs/TUZAKLAR.md #28).
+5. `410 Gone` dönen abonelik silinir (#29).
+6. Elle denemek için:
+
+   ```bash
+   curl -H "Authorization: Bearer $CRON_SECRET" https://<proje>.vercel.app/api/cron/garanti
+   ```
+
+   Yanıt: `{"bakilan":…,"planlanan":…,"gonderilen":…,"atlanan":…}`.
+
+**iOS notu:** iPhone'da web push yalnız ana ekrana eklenmiş uygulamada
+çalışır. Hesap sekmesindeki anahtar bunu söyleyip kullanıcıyı yönlendirir.
+
+## 9. Duman testi (dağıtımdan sonra)
 
 1. `/giris` → ilk hesapla gir.
 2. Lokasyon oluştur → listede görünüyor mu?
@@ -134,9 +165,8 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 10. Üçüncü, hiçbir lokasyona üye olmayan kullanıcıyla gir: envanter boş;
    diğerinin ek dosyasının adresine gitmeyi dene — 404 dönmeli.
 
-## 9. Sonraki sürümde eklenecek dağıtım adımları
+## 10. Sonraki sürümde eklenecek dağıtım adımları
 
-- **Vercel Cron** garanti uyarısı için günde bir; `ItemReminder.sentAt`
-  damgası gönderimden **önce** yazılır (#28).
-- **VAPID anahtarları** web push için.
+- **E-posta bildirimi** (SMTP) — `ItemReminder` kanaldan bağımsız, şema
+  değişmeden eklenir.
 

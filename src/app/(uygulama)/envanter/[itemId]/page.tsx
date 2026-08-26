@@ -15,6 +15,7 @@ import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { warrantyStatus } from "@/lib/warranty";
 import type { CategoryOption } from "@/components/ItemFields";
 import { Attachments, type AttachmentView } from "./Attachments";
+import { Parts, type PartRow } from "./Parts";
 import { Timeline, type TimelineRow } from "./Timeline";
 import { FillProvider } from "./fill-context";
 import { EditItemButton } from "./EditItemButton";
@@ -65,6 +66,17 @@ export default async function EkipmanPage({
       attachments: {
         select: { id: true, url: true, name: true, kind: true, mimeType: true },
         orderBy: { uploadedAt: "desc" },
+      },
+      parts: {
+        select: {
+          id: true,
+          name: true,
+          partNo: true,
+          priceMinor: true,
+          stock: true,
+          vendor: { select: { name: true } },
+        },
+        orderBy: { name: "asc" },
       },
       events: {
         select: {
@@ -133,6 +145,15 @@ export default async function EkipmanPage({
     assignedPlace: event.assignedPlace,
   }));
 
+  const parts: PartRow[] = item.parts.map((part) => ({
+    id: part.id,
+    name: part.name,
+    partNo: part.partNo,
+    priceMinor: part.priceMinor,
+    stock: part.stock,
+    vendorName: part.vendor?.name ?? null,
+  }));
+
   // Türetilmiş değer saklanmıyor, hesaplanıyor (CLAUDE.md).
   const totalCost = ownershipCostMinor(
     item.purchasePriceMinor,
@@ -140,6 +161,7 @@ export default async function EkipmanPage({
       kind: event.kind as TimelineEvent["kind"],
       costMinor: event.costMinor,
     })),
+    item.parts.map((part) => part.priceMinor),
   );
 
   const members = editable
@@ -287,7 +309,7 @@ export default async function EkipmanPage({
           />
           <Row
             title="Sahip olma maliyeti"
-            subtitle="Alış + servis"
+            subtitle="Alış + servis + parça"
             trailing={formatMoney(totalCost, item.currency)}
           />
           <Row
@@ -314,6 +336,14 @@ export default async function EkipmanPage({
         events={timeline}
         vendors={vendors}
         members={members.map((member) => member.user)}
+        currency={item.currency}
+        editable={editable}
+      />
+
+      <Parts
+        itemId={item.id}
+        parts={parts}
+        vendors={vendors}
         currency={item.currency}
         editable={editable}
       />
