@@ -111,3 +111,21 @@ Sabit üst başlık ve alt çubuk bunları hesaba katmalı. Yatay çevrildiğind
 
 Geçişler 200–300ms, `cubic-bezier(0.2, 0.8, 0.2, 1)`. Uzun ve gösterişli
 animasyon iOS'ta yabancı durur. `prefers-reduced-motion` açıksa süreleri sıfırla.
+
+## Kaydırma jesti
+
+Liste satırında sola kaydırınca işlem düğmeleri çıkar (`src/components/SwipeRow.tsx`,
+matematiği `src/lib/swipe.ts`). Üç kural:
+
+- **Jest dikey kaydırmayı çalmaz.** Yön ilk 8 pikselde bir kez seçilir ve jest
+  bitene kadar değişmez; eşitlikte dikey kazanır. Sürüklenen yüzeyde
+  `touch-action: pan-y` durur (TUZAKLAR #45).
+- **Kısayol, tek yol değildir.** Kaydırmadan çıkan her işlem ekipman
+  sayfasında da var; jesti bilmeyen hiçbir şey kaybetmez. Düğmeler kapalıyken
+  `tabindex="-1"`, açıkken erişilebilir.
+- **Yıkıcı işlem tek dokunuşta bitmez.** Silme hemen gitmez: satır listeden
+  kalkar, "Geri al" şeridi çıkar, süre dolunca istek gider. Sayfadan çıkılırsa
+  istek hiç gitmez — yanlış yön kayıp değildir.
+
+Parmak kalkınca satır yarı yolda kalmaz: mesafe panelin %40'ını geçtiyse ya da
+fiske hızlıysa açık kalır, değilse kapanır.

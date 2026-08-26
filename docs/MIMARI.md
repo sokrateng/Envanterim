@@ -96,7 +96,14 @@ Item                id, locationId, categoryId?, name, brand?, model?, serialNo?
                     warrantyEndDate?
                     status: IN_USE | IN_REPAIR | RETIRED | SOLD
                     customFields Json    // CategoryField'lara göre değerler
-                    attachments[], events[], parts[], reminders[]
+                    parentId?        // bileşense ana ekipman → Item
+                    attachments[], events[], parts[], reminders[], assignments[]
+
+ItemAssignment      id, itemId, assignedById, assignedAt, note?
+                    holderUserId? | holderName?   // üye ya da hesapsız kişi
+                    acceptedAt?, acceptedById?
+                    closedAt?, closedById?, closedReason: RETURN|TRANSFER|DECLINE
+                    ↳ durum alanı yok: tarihlerden türetiliyor
 
 Attachment          id, itemId, url, name, uploadedAt
                     kind: PHOTO | INVOICE | WARRANTY | MANUAL | OTHER
@@ -111,6 +118,39 @@ Part                id, itemId, name, partNo?, priceMinor?, vendorId?, stock?
 
 ItemReminder        id, itemId, kind (WARRANTY|MAINTENANCE), dueDate, leadDays, sentAt?
 ```
+
+### Zimmet: teslim–tesellüm
+
+Ekipmanın "şu anki sorumlusu" bir sütun değil, **kapanmamış `ItemAssignment`
+kaydı**. Durum (bekliyor / üzerinde / iade / devir / red) tarihlerden
+türetiliyor; türetilmiş değer saklanmıyor.
+
+Atama tek başına teslim sayılmıyor. Karşı taraf "üzerine alana" kadar kayıt
+`PENDING` kalıyor ve raporda duruyor — teslim–tesellümün bütün değeri bu
+onayda. Onayı ya kişinin kendisi veriyor ya da hesabı olmayan biri için
+sahibi/düzenleyen onun adına işaretliyor; **kimin işaretlediği** `acceptedById`
+/ `closedById` ile kayıtta.
+
+Sorumlu iki türlü olabilir: lokasyonun bir üyesi (`holderUserId` — kendi
+onayını verir, bildirim alır) ya da hesabı olmayan bir kişi (`holderName` —
+ev halkının tamamının hesabı olmuyor). Ad kimlik değildir: iki kişi aynı adı
+taşıyabilir, bu yüzden üye tarafında her zaman kimliğe bakılıyor
+(TUZAKLAR #46).
+
+Devir ayrı bir uç değil: açık zimmet varken yeni zimmet açmak devirdir, eskisi
+`TRANSFER` ile kapanır. Bileşenler varsayılan olarak ana ekipmanla birlikte
+gider — telefon el değiştirirken lisansı elde kalmasın.
+
+### Alt ekipman
+
+`Item.parentId` ile kendine ilişki. Alt ekipman **tam bir ekipman**: kendi
+garantisi, faturası, QR'ı ve maliyeti var; ana ekipmana bağlı olması yalnız
+"bunlar birlikte gezer" demek. Ayrı bir tablo açmak, lisansı da hoparlörü de
+ikinci sınıf bir kayda düşürürdü.
+
+Kurallar saf modülde (`src/lib/components.ts`): çember yok, aynı lokasyon
+zorunlu, zincir en çok üç kademe. Maliyet lokasyon toplamında her ekipmanı bir
+kez sayıyor; "bileşenlerle birlikte" toplamı yalnız ekipman sayfasında.
 
 ### Neden tek `ItemEvent` tablosu
 
@@ -148,8 +188,13 @@ lokasyonun üyelerine web push gönderilir. Gönderilen uyarı `ItemReminder.sen
 ile damgalanır — yoksa her gün tekrar gider.
 
 Web push VAPID ile; abonelik kullanıcı başına saklanır. **Bildirimi mutlaka
-`await` et** (TUZAKLAR #1). E-posta sonraki sürüme bırakıldı; `Reminder`
-modeli kanaldan bağımsız olduğu için şema değişmeden eklenir.
+`await` et** (TUZAKLAR #1). E-posta ikinci kanal olarak eklendi: `Reminder`
+modeli kanaldan bağımsız olduğu için aynı damga ikisini birden kapsıyor ve
+aynı hatırlatma iki kez gitmiyor. E-posta yalnız doğrulanmış adrese gider.
+
+**Zimmet bildirimi** hatırlatma değil, bir istekten haber vermek: atanan kişiye
+push ve e-posta gidiyor, cevabı (kabul/red) atayana dönüyor. Damga yok, çünkü
+her atama tek seferlik bir olay.
 
 ## 5. Dosya depolama
 

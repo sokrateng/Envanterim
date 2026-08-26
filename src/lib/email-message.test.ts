@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  assignmentAnswerMail,
+  assignmentMail,
   CODE_LENGTH,
   CODE_TTL_MINUTES,
   codeExpiry,
@@ -138,5 +140,30 @@ describe("maintenanceMail", () => {
     expect(mail.text).toContain("Klima bakımı");
     expect(mail.text).toContain("gün gecikti");
     expect(mail.text).toContain("https://envanter.app/envanter/i1");
+  });
+});
+
+describe("assignmentMail", () => {
+  it("ne yapılacağını söyler, bilgi vermekle kalmaz", () => {
+    const mail = assignmentMail(
+      { id: "i1", name: "AirPods" },
+      "Engin Çoban",
+      "https://envanter.app",
+    );
+    expect(mail.subject).toBe("Zimmet: AirPods");
+    expect(mail.text).toContain("Engin Çoban");
+    expect(mail.text).toContain("Üzerime al");
+    expect(mail.text).toContain("Bende değil");
+    expect(mail.text).toContain("https://envanter.app/envanter/i1");
+  });
+
+  it("cevabı atayana bildirir", () => {
+    const kabul = assignmentAnswerMail({ id: "i1", name: "AirPods" }, "Eylül", true);
+    expect(kabul.subject).toContain("kabul edildi");
+    expect(kabul.text).toContain("üzerine aldı");
+
+    const red = assignmentAnswerMail({ id: "i1", name: "AirPods" }, "Eylül", false);
+    expect(red.subject).toContain("geri çevrildi");
+    expect(red.text).toContain("havuza döndü");
   });
 });

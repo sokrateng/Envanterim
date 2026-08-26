@@ -59,3 +59,28 @@ export type ReminderKind = (typeof REMINDER_KINDS)[number];
 
 /** Garanti bitimine kaç gün kala uyarı gider (MIMARI §4). */
 export const WARRANTY_LEAD_DAYS = [30, 7] as const;
+
+/**
+ * Zimmet durumu. Kayıtta durum alanı yok; bu değerler tarih alanlarından
+ * türetiliyor (src/lib/assignment.ts) — türetilmiş değer saklanmıyor.
+ */
+export const ASSIGNMENT_STATES = ["PENDING", "HELD", "RETURNED", "TRANSFERRED", "DECLINED"] as const;
+export type AssignmentState = (typeof ASSIGNMENT_STATES)[number];
+
+export const ASSIGNMENT_STATE_LABELS: Record<AssignmentState, string> = {
+  PENDING: "Teslim bekliyor",
+  HELD: "Üzerinde",
+  RETURNED: "İade edildi",
+  TRANSFERRED: "Devredildi",
+  DECLINED: "Kabul edilmedi",
+};
+
+/** Zimmetin nasıl kapandığı. */
+export const ASSIGNMENT_CLOSE_REASONS = ["RETURN", "TRANSFER", "DECLINE"] as const;
+export type AssignmentCloseReason = (typeof ASSIGNMENT_CLOSE_REASONS)[number];
+
+/** Bu kadar gün kabul edilmeyen zimmet raporda geciken sayılır. */
+export const ASSIGNMENT_OVERDUE_DAYS = 3;
+
+/** Alt ekipman zinciri bu kadar derin olabilir: ana → alt → altın altı. */
+export const MAX_COMPONENT_DEPTH = 3;

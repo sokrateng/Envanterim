@@ -53,6 +53,11 @@ export default async function LokasyonPage({
             subtitle="e-Arşiv XML'inden ekipman oluştur"
           />
           <Row
+            href={`/lokasyonlar/${id}/zimmet`}
+            title="Zimmet"
+            subtitle="Kimde ne var, kim teslim almadı"
+          />
+          <Row
             href={`/lokasyonlar/${id}/rapor`}
             title="Sigorta raporu"
             subtitle="Fotoğraflı döküm ve toplam değer"

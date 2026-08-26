@@ -1,16 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
 import { Badge } from "@/components/ui";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { EVENT_KINDS, type EventKind } from "@/lib/constants";
 import { EVENT_KIND_LABELS, eventSummary, type TimelineEvent } from "@/lib/events";
+import { SwipeRow, UndoBar } from "@/components/SwipeRow";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 
 /** Sunucudan gelen hâli: tarihler JSON'da metin. */
 export type TimelineRow = Omit<TimelineEvent, "date"> & { date: string };
+
+/** Geri alma şeridinin ekranda kalma süresi. */
+const UNDO_MS = 5000;
 
 const trDate = new Intl.DateTimeFormat("tr-TR", {
   day: "numeric",
@@ -42,13 +46,17 @@ export function Timeline({
 }) {
   const router = useRouter();
   const closeAndRefresh = useCloseAndRefresh();
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<EventKind>("SERVICE");
   const [filter, setFilter] = useState<EventKind | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const shown = filter ? events.filter((event) => event.kind === filter) : events;
+  // Silinmek üzere olan satır listede durmuyor; geri alınırsa geri geliyor.
+  const shown = (filter ? events.filter((event) => event.kind === filter) : events)
+    .filter((event) => event.id !== deleting);
 
   async function create(formEvent: React.FormEvent<HTMLFormElement>) {
     formEvent.preventDefault();
@@ -90,6 +98,28 @@ export function Timeline({
       return;
     }
     closeAndRefresh(() => setOpen(false));
+  }
+
+  /**
+   * Silme hemen yapılmıyor: satır listeden kalkıyor, geri alma şeridi çıkıyor
+   * ve süre dolunca istek gidiyor. Dokunmatikte kazara silmek çok kolay;
+   * sayfadan çıkılırsa istek hiç gitmiyor — yanlış yön kayıp değil.
+   */
+  function askRemove(eventId: string) {
+    setError(null);
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    setDeleting(eventId);
+
+    undoTimer.current = setTimeout(() => {
+      setDeleting(null);
+      void remove(eventId);
+    }, UNDO_MS);
+  }
+
+  function undoRemove() {
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    undoTimer.current = null;
+    setDeleting(null);
   }
 
   async function remove(eventId: string) {
@@ -157,8 +187,8 @@ export function Timeline({
           {shown.map((row) => {
             const event: TimelineEvent = { ...row, date: new Date(row.date) };
             const summary = eventSummary(event, currency);
-            return (
-              <li key={row.id} className="flex min-h-touch items-start gap-3 py-2.5 pl-4 pr-4">
+            const body = (
+              <div className="flex min-h-touch items-start gap-3 py-2.5 pl-4 pr-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-headline">{trDate.format(event.date)}</span>
@@ -170,20 +200,32 @@ export function Timeline({
                     <div className="text-footnote text-muted">{summary}</div>
                   ) : null}
                 </div>
+              </div>
+            );
+
+            return (
+              <li key={row.id}>
                 {editable ? (
-                  <button
-                    type="button"
-                    onClick={() => remove(row.id)}
-                    className="min-h-touch px-2 text-subheadline text-red active:opacity-60"
+                  <SwipeRow
+                    label={`${trDate.format(event.date)} ${EVENT_KIND_LABELS[event.kind]}`}
+                    actions={[
+                      { label: "Sil", tone: "red", onSelect: () => askRemove(row.id) },
+                    ]}
                   >
-                    Sil
-                  </button>
-                ) : null}
+                    {body}
+                  </SwipeRow>
+                ) : (
+                  body
+                )}
               </li>
             );
           })}
         </ul>
       )}
+
+      {deleting ? (
+        <UndoBar message="Kayıt silindi" onUndo={undoRemove} />
+      ) : null}
 
       {error ? (
         <p role="alert" className="px-8 pt-2 text-footnote text-red">

@@ -225,6 +225,33 @@ export const itemStatusSchema = z.object({
   }),
 });
 
+/**
+ * Zimmet. Sorumlu ya hesabı olan bir üye ya da hesabı olmayan bir kişidir;
+ * ikisinden biri gelmek zorunda, ikisi birden değil.
+ */
+export const assignmentCreateSchema = z
+  .object({
+    holderUserId: emptyToUndefined(trimmed),
+    holderName: emptyToUndefined(trimmed.max(80, "En çok 80 karakter")),
+    note: emptyToUndefined(trimmed.max(200, "En çok 200 karakter")),
+    // Ana ekipman devrolurken bileşenleri de taşınsın mı.
+    withComponents: z.boolean().default(true),
+  })
+  .refine((data) => Boolean(data.holderUserId) !== Boolean(data.holderName), {
+    message: "Kime zimmetleneceğini seç",
+  });
+
+export const assignmentActionSchema = z.object({
+  islem: z.enum(["KABUL", "RED", "IADE"], {
+    errorMap: () => ({ message: "Geçersiz işlem" }),
+  }),
+});
+
+/** Alt ekipman bağı. Boş değer bağı kaldırır. */
+export const componentLinkSchema = z.object({
+  parentId: z.union([trimmed, z.null()]).transform((value) => value || null),
+});
+
 /** Zod hatasını kullanıcıya gösterilecek tek cümleye indirir. */
 export function firstError(error: z.ZodError): string {
   return error.issues[0]?.message ?? "Geçersiz veri";

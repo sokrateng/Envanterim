@@ -25,6 +25,14 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   çağrısıyla okunuyor, alanlar forma dolduruluyor — **kaydeden kullanıcı.**
 - **e-Arşiv/e-Fatura XML'i.** Veri faturanın kendisinden okunuyor; modele hiç
   gidilmiyor.
+- **Zimmet — teslim–tesellüm.** Ekipman bir kişiye zimmetlenir; kişi "üzerime
+  al" diyene kadar teslim sayılmaz ve raporda durur. Devir, iade ve red kayıtlı;
+  atanan kişiye bildirim gider. Sorumlu lokasyon üyesi olabilir, hesabı olmayan
+  biri de — ikincisinde teslimi sahibi onun adına işaretler, kimin işaretlediği
+  kayda geçer.
+- **Alt ekipman.** Lisans, hoparlör, klavye… ana ekipmana bağlanır. Her biri
+  kendi garantisi ve faturası olan tam bir ekipman; zimmet ve devir birlikte
+  işler, maliyet "bileşenlerle birlikte" de görünür.
 - **Zaman çizelgesi.** Servis, sayaç okuması, olay günlüğü ve zimmet tek
   listede; sahip olma maliyeti (alış + servis + parça) hesaplanıyor.
 - **Bakım ve garanti hatırlatmaları.** "6 ayda bir" ya da "her 10.000 km'de";
@@ -36,6 +44,8 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   Excel'e aktar, düzenleyip geri yükle.
 - **Salt-okunur paylaşım linki.** Servise giderken teknisyen geçmişi hesap
   açmadan görür; tutarlar paylaşılmaz.
+- **Kaydırma jestleri.** Envanter satırını sola çekince hızlı işlem; zaman
+  çizelgesinde silme "geri al" şeridiyle geliyor.
 
 Öncelik listesi ve sıradaki özellikler: [`docs/URUN.md`](docs/URUN.md).
 
@@ -93,7 +103,7 @@ testi: [`DEPLOY.md`](DEPLOY.md).
 | [`docs/MIMARI.md`](docs/MIMARI.md) | Veri modeli, yetki deseni, dinamik alanlar, bildirimler, faturadan okuma |
 | [`docs/TASARIM.md`](docs/TASARIM.md) | iOS görünümü: tipografi, renk, dokunma hedefi, güvenli alan |
 | [`docs/URUN.md`](docs/URUN.md) | Benzer uygulamalar ve öncelikli özellik listesi |
-| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 44 hata ve çözümü |
+| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 46 hata ve çözümü |
 
 Kural `CLAUDE.md`'de, gerekçe `docs/`'ta durur: ajanın davranışını değiştiren
 şey bağlamda sürekli duran kısa kurallardır; uzun mimari yazısı bir kez okunur.
@@ -120,4 +130,4 @@ Saf mantık `src/lib/` içinde ve testli: garanti günü hesabı, para (kuruş),
 yetki kuralları, dinamik alan doğrulaması, davet kodu, yükleme kuralları,
 faturadan gelen alanların forma dönüşümü, CSV, e-Fatura ayrıştırma, bakım
 kuralları, sigorta raporu özeti, QR ve paylaşım bağlantıları, okutulan kodun
-çözümü.
+çözümü, zimmet durumu, alt ekipman bağı ve kaydırma jestinin matematiği.

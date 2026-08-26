@@ -186,7 +186,10 @@ ekran açılır ama kamera açılmaz.
    kaydetmeden ekipman değişmemeli.
 10. Üçüncü, hiçbir lokasyona üye olmayan kullanıcıyla gir: envanter boş;
    diğerinin ek dosyasının adresine gitmeyi dene — 404 dönmeli.
-11. Bir ekipmanın QR etiketini yazdır (ya da ekranda aç), başka bir telefondan
+11. Bir ekipmanı ikinci kullanıcıya zimmetle: ona bildirim gitmeli, ekipman
+   "Teslim bekliyor" görünmeli ve lokasyonun Zimmet raporunda listelenmeli.
+   İkinci kullanıcı "Üzerime al" deyince rapordaki bekleyen satırı düşmeli.
+12. Bir ekipmanın QR etiketini yazdır (ya da ekranda aç), başka bir telefondan
    `Envanter → tarama düğmesi` ile okut: doğrudan o ürün açılmalı. Aynı
    ekranda başka bir sitenin QR'ını okut — açılmamalı, "Envanterim etiketi
    değil" demeli.

@@ -12,6 +12,13 @@ import { formatMoney } from "@/lib/money";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { warrantyStatus } from "@/lib/warranty";
+import {
+  activeAssignment,
+  assignmentState,
+  holderSummary,
+  isOverdue,
+} from "@/lib/assignment";
+import { ItemSwipe } from "./ItemSwipe";
 import { NewItemButton } from "./NewItemButton";
 import { SearchField } from "./SearchField";
 import { StatusFilter } from "./StatusFilter";
@@ -24,6 +31,16 @@ type Search = {
   durum?: string;
   lokasyon?: string;
   kategori?: string;
+  zimmet?: string;
+};
+
+const ZIMMET_FILTERS = ["bende", "bekleyen", "zimmetsiz"] as const;
+type ZimmetFilter = (typeof ZIMMET_FILTERS)[number];
+
+const ZIMMET_LABELS: Record<ZimmetFilter, string> = {
+  bende: "Bende",
+  bekleyen: "Teslim bekleyen",
+  zimmetsiz: "Zimmetsiz",
 };
 
 export default async function EnvanterPage({
@@ -45,6 +62,10 @@ export default async function EnvanterPage({
 
   const status = ITEM_STATUS.includes(filters.durum as ItemStatus)
     ? (filters.durum as ItemStatus)
+    : null;
+
+  const assignmentFilter = ZIMMET_FILTERS.includes(filters.zimmet as ZimmetFilter)
+    ? (filters.zimmet as ZimmetFilter)
     : null;
 
   const query = (filters.q ?? "").trim();
@@ -137,11 +158,46 @@ export default async function EnvanterPage({
           currency: true,
           location: { select: { id: true, name: true, icon: true } },
           category: { select: { name: true, icon: true } },
+          parentId: true,
+          assignments: {
+            where: { closedAt: null },
+            select: {
+              id: true,
+              holderUserId: true,
+              holderName: true,
+              assignedAt: true,
+              acceptedAt: true,
+              closedAt: true,
+              closedReason: true,
+              holderUser: { select: { name: true } },
+            },
+          },
         },
         orderBy: [{ updatedAt: "desc" }],
         take: 200,
       })
     : [];
+
+  // Zimmet durumu kayıttan türetiliyor, sütun değil: süzme burada yapılıyor.
+  const withHolder = items.map((item) => {
+    const active = activeAssignment(item.assignments);
+    return {
+      ...item,
+      active,
+      holder: holderSummary(active, active?.holderUser?.name),
+      pending: active ? assignmentState(active) === "PENDING" : false,
+      overdue: active ? isOverdue(active) : false,
+    };
+  });
+
+  const hasAssignments = withHolder.some((item) => item.active);
+
+  const visible = withHolder.filter((item) => {
+    if (!assignmentFilter) return true;
+    if (assignmentFilter === "zimmetsiz") return !item.active;
+    if (assignmentFilter === "bekleyen") return item.pending;
+    return item.active?.holderUserId === user.id;
+  });
 
   const vendors = memberLocationIds.length
     ? await prisma.vendor.findMany({
@@ -243,12 +299,32 @@ export default async function EnvanterPage({
         </div>
       ) : null}
 
+      {/* Zimmet çubuğu ancak kullanılıyorsa çıkıyor: 390 pikselde üçüncü çip
+          sırası listeyi ekranın dışına itiyor. */}
+      {hasAssignments || assignmentFilter ? (
+      <div className="flex gap-2 overflow-x-auto px-4 pt-3">
+        <Chip
+          href={buildHref({ ...filters, zimmet: undefined })}
+          label="Tüm zimmetler"
+          active={!assignmentFilter}
+        />
+        {ZIMMET_FILTERS.map((option) => (
+          <Chip
+            key={option}
+            href={buildHref({ ...filters, zimmet: option })}
+            label={ZIMMET_LABELS[option]}
+            active={assignmentFilter === option}
+          />
+        ))}
+      </div>
+      ) : null}
+
       {locations.length === 0 ? (
         <EmptyState
           title="Önce bir lokasyon aç"
           description="Ekipman bir lokasyona bağlanır. Lokasyonlar sekmesinden başla."
         />
-      ) : items.length === 0 ? (
+      ) : visible.length === 0 ? (
         <EmptyState
           title="Ekipman yok"
           description={
@@ -258,11 +334,12 @@ export default async function EnvanterPage({
           }
         />
       ) : (
-        <Group title={`${items.length} ekipman`}>
+        <Group title={`${visible.length} ekipman`}>
           <Rows>
-            {items.map((item) => {
+            {visible.map((item) => {
               const warranty = warrantyStatus(item.warrantyEndDate);
               const details = [
+                item.active ? item.holder : null,
                 [item.brand, item.model].filter(Boolean).join(" "),
                 item.category?.name ?? null,
                 item.serialNo ? `SN ${item.serialNo}` : null,
@@ -271,9 +348,21 @@ export default async function EnvanterPage({
                 .filter(Boolean)
                 .join(" · ");
 
+              const pendingForMe =
+                item.pending && item.active?.holderUserId === user.id
+                  ? (item.active?.id ?? null)
+                  : null;
+
               return (
-                <Row
+                <ItemSwipe
                   key={item.id}
+                  itemId={item.id}
+                  name={item.name}
+                  pendingAssignmentId={pendingForMe}
+                  status={item.status}
+                  editable={editableLocations.some((l) => l.id === item.location.id)}
+                >
+                <Row
                   badgesBelow
                   href={`/envanter/${item.id}`}
                   title={item.name}
@@ -304,6 +393,7 @@ export default async function EnvanterPage({
                       : undefined
                   }
                 />
+                </ItemSwipe>
               );
             })}
           </Rows>
@@ -319,6 +409,7 @@ function buildHref(params: Search) {
   if (params.durum) query.set("durum", params.durum);
   if (params.lokasyon) query.set("lokasyon", params.lokasyon);
   if (params.kategori) query.set("kategori", params.kategori);
+  if (params.zimmet) query.set("zimmet", params.zimmet);
   const text = query.toString();
   return text ? `/envanter?${text}` : "/envanter";
 }

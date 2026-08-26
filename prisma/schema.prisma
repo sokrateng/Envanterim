@@ -31,6 +31,9 @@ model User {
 
   memberships       LocationMember[]
   assignedEvents    ItemEvent[]        @relation("EventAssignee")
+  assignmentsHeld   ItemAssignment[]   @relation("AssignmentHolder")
+  assignmentsGiven  ItemAssignment[]   @relation("AssignmentCreator")
+  assignmentsClosed ItemAssignment[]   @relation("AssignmentCloser")
   pushSubscriptions PushSubscription[]
   invitesCreated    LocationInvite[]   @relation("InviteCreator")
   shareLinks        ShareLink[]        @relation("ShareCreator")
@@ -153,22 +156,62 @@ model Item {
   status       String @default("IN_USE") // IN_USE | IN_REPAIR | RETIRED | SOLD
   customFields Json   @default("{}") // CategoryField tanımlarına göre doğrulanır
 
+  // Alt ekipman: lisans, hoparlör, klavye… kendi garantisi ve faturası olan
+  // tam bir ekipman, yalnız bir ana ekipmana bağlı. Ana ekipman silinmiyor
+  // (yaşam döngüsüyle çıkıyor) ama yine de bağ koparsa alt ekipman kalmalı.
+  parentId String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   location    Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
   category    Category?         @relation(fields: [categoryId], references: [id])
   seller      Vendor?           @relation("ItemSeller", fields: [sellerId], references: [id])
+  parent      Item?             @relation("ItemComponents", fields: [parentId], references: [id], onDelete: SetNull)
+  components  Item[]            @relation("ItemComponents")
   attachments Attachment[]
   events      ItemEvent[]
   parts       Part[]
   reminders   ItemReminder[]
   maintenance MaintenanceRule[]
   shareLinks  ShareLink[]
+  assignments ItemAssignment[]
 
   @@index([locationId, status])
   @@index([locationId, categoryId])
   @@index([serialNo])
+  @@index([parentId])
+}
+
+// Zimmet — teslim–tesellüm. Ekipmanın "şu anki sorumlusu" saklanmıyor,
+// kapanmamış kayıttan türetiliyor (CLAUDE.md).
+//
+// Sorumlu ya hesabı olan bir üye (`holderUserId`) ya da hesabı olmayan bir
+// kişidir (`holderName`): ev halkının tamamının hesabı olmuyor. Hesabı olan
+// kişi teslimi kendi onaylıyor; olmayan için sahip/düzenleyen onun adına
+// işaretliyor — kimin işaretlediği `closedById`/`acceptedById` ile kayıtta.
+model ItemAssignment {
+  id           String   @id @default(cuid())
+  itemId       String
+  holderUserId String?
+  holderName   String?
+  assignedById String
+  assignedAt   DateTime @default(now())
+  note         String?
+
+  acceptedAt   DateTime?
+  acceptedById String? // kişinin kendisi ya da adına işaretleyen üye
+  closedAt     DateTime?
+  closedReason String? // RETURN | TRANSFER | DECLINE
+  closedById   String?
+
+  item       Item  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  holderUser User? @relation("AssignmentHolder", fields: [holderUserId], references: [id], onDelete: Cascade)
+  assignedBy User  @relation("AssignmentCreator", fields: [assignedById], references: [id], onDelete: Cascade)
+  closedBy   User? @relation("AssignmentCloser", fields: [closedById], references: [id], onDelete: SetNull)
+
+  @@index([itemId, assignedAt])
+  @@index([holderUserId, closedAt])
 }
 
 // Tekrarlayan bakım kuralı: "6 ayda bir" ya da "her 10.000 km'de".

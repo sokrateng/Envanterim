@@ -73,6 +73,18 @@
       deterministik ve kesin
 - [x] Salt-okunur paylaşım linki
 
+### v4 — sorumluluk ve yapı
+- [x] **Zimmet (teslim–tesellüm).** Ekipman bir kişiye zimmetlenir; kişi
+      "üzerime al" diyene kadar teslim sayılmaz, almayanlar raporlanır.
+      Sorumlu ya lokasyon üyesi ya da hesabı olmayan biri olabilir; ikincisinde
+      teslimi sahibi onun adına işaretler ve bu iz kayda geçer.
+- [x] Zimmet devri (kişiden kişiye), iade ve red
+- [x] Zimmet bildirimi: atanan kişiye push + e-posta, cevabı atayana
+- [x] **Alt ekipman.** Lisans, hoparlör, klavye… ana ekipmana bağlanır;
+      zimmet ve devir birlikte işler, maliyet "bileşenlerle birlikte" görünür.
+- [x] Kaydırma jestleri: envanter satırında hızlı işlem, zaman çizelgesinde
+      geri alınabilir silme
+
 ### Sonra
 - [x] E-posta bildirimi
 - [x] Barkod/QR kamera ile okuma

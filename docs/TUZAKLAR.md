@@ -244,3 +244,21 @@ elde PNG var; ortamdaki ffmpeg derlemesi de PNG çözemeyebiliyor. **Çözüm:**
 y4m'yi kendin yaz — başlık artı kare başına `FRAME\n` ve Y/U/V düzlemleri;
 QR modüllerini doğrudan Y düzlemine çiz. Böylece testin ffmpeg'e bağımlılığı
 kalmıyor.
+
+## Kaydırma jesti
+
+**45. Yatay jest dikey kaydırmayı çalar.** Satıra `pointermove` bağlayıp her
+harekette satırı kaydırınca liste dikeyde kilitleniyor: parmak biraz yana
+kaçtığı için uzun envanterde sayfa kaymıyor. `preventDefault` da çare değil —
+`touchmove` pasif dinleyicide. **Çözüm:** yönü ilk birkaç pikselde **bir kez**
+seç ve jest bitene kadar değiştirme; eşitlikte dikeyi seç; sürüklenen yüzeye
+`touch-action: pan-y` ver. Testi fare ile yapamazsın: Playwright'ta
+`Input.dispatchTouchEvent` ile gerçek parmak hareketi gönder, hem yatayı hem
+dikeyi doğrula.
+
+**46. Ad kimlik değildir.** Aynı lokasyonda "Eylül Çoban" adlı iki üye
+olabiliyor (test koşuları, isim benzerliği). Ada göre seçen her kod — arayüzde
+`selectOption({ label })`, raporda ada göre gruplama, "kim üzerine aldı"
+karşılaştırması — sessizce yanlış kişiyi buluyor ve hata "yetki çalışmıyor"
+gibi görünüyor. **Çözüm:** üye tarafında her yerde kimliğe bak; ad yalnız
+hesabı olmayan kişide veri. Testte de her koşuda ayrı ad üret.

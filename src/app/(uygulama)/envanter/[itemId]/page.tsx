@@ -16,6 +16,18 @@ import { remainingText, shareState } from "@/lib/share";
 import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { warrantyStatus } from "@/lib/warranty";
 import type { CategoryOption } from "@/components/ItemFields";
+import {
+  activeAssignment,
+  assignmentState,
+  canRespond,
+  holderView,
+  isOverdue,
+  isSelf,
+  pendingDays,
+} from "@/lib/assignment";
+import { linkableParents, totalWithComponents } from "@/lib/components";
+import { Assignment, type AssignmentView } from "./Assignment";
+import { Components, type ComponentRow } from "./Components";
 import { Attachments, type AttachmentView } from "./Attachments";
 import { Parts, type PartRow } from "./Parts";
 import { Maintenance, type MaintenanceRow } from "./Maintenance";
@@ -119,6 +131,37 @@ export default async function EkipmanPage({
         },
         orderBy: { date: "desc" },
       },
+      parentId: true,
+      parent: { select: { id: true, name: true } },
+      components: {
+        select: {
+          id: true,
+          name: true,
+          brand: true,
+          model: true,
+          status: true,
+          purchasePriceMinor: true,
+          parts: { select: { priceMinor: true } },
+          events: { select: { kind: true, costMinor: true } },
+        },
+        orderBy: { name: "asc" },
+      },
+      assignments: {
+        select: {
+          id: true,
+          holderUserId: true,
+          holderName: true,
+          assignedAt: true,
+          acceptedAt: true,
+          closedAt: true,
+          closedReason: true,
+          note: true,
+          holderUser: { select: { name: true } },
+          assignedBy: { select: { name: true } },
+        },
+        orderBy: { assignedAt: "desc" },
+        take: 20,
+      },
       location: { select: { id: true, name: true } },
       category: {
         select: {
@@ -221,6 +264,63 @@ export default async function EkipmanPage({
     })),
     item.parts.map((part) => part.priceMinor),
   );
+
+  // Zimmet: durum kayıttan türetiliyor, saklanmıyor (CLAUDE.md).
+  const active = activeAssignment(item.assignments);
+  const activeView: AssignmentView | null = active
+    ? {
+        id: active.id,
+        state: assignmentState(active),
+        holderName: holderView(active, active.holderUser?.name).name,
+        assignedByName: active.assignedBy.name,
+        assignedOn: trDate.format(active.assignedAt),
+        pendingDays: pendingDays(active),
+        overdue: isOverdue(active),
+        note: active.note,
+        canRespond: canRespond(active, { userId: access.userId, role: access.role }),
+        self: isSelf(active, { userId: access.userId, role: access.role }),
+      }
+    : null;
+
+  // Bileşenlerle birlikte maliyet: lokasyon toplamında her ekipman kendi
+  // satırında sayıldığı için bu toplam yalnız bu sayfada anlamlı.
+  const componentCosts = item.components.map((component) =>
+    ownershipCostMinor(
+      component.purchasePriceMinor,
+      component.events.map((event) => ({
+        kind: event.kind as TimelineEvent["kind"],
+        costMinor: event.costMinor,
+      })),
+      component.parts.map((part) => part.priceMinor),
+    ),
+  );
+
+  const componentRows: ComponentRow[] = item.components.map((component, index) => ({
+    id: component.id,
+    name: component.name,
+    detail:
+      [component.brand, component.model].filter(Boolean).join(" ") ||
+      (componentCosts[index] ? formatMoney(componentCosts[index], item.currency) : null),
+  }));
+
+  // Bağlanabilecek ekipmanlar: kural saf modülde (döngü, derinlik, lokasyon).
+  const locationItems = editable
+    ? await prisma.item.findMany({
+        where: { locationId: item.locationId },
+        select: { id: true, parentId: true, locationId: true, name: true },
+        orderBy: { name: "asc" },
+      })
+    : [];
+
+  const linkableChildren = editable
+    ? locationItems.filter(
+        (candidate) =>
+          candidate.id !== item.id &&
+          linkableParents(locationItems, candidate.id).some(
+            (parent) => parent.id === item.id,
+          ),
+      )
+    : [];
 
   const members = editable
     ? await prisma.locationMember.findMany({
@@ -375,6 +475,16 @@ export default async function EkipmanPage({
             subtitle="Alış + servis + parça"
             trailing={formatMoney(totalCost, item.currency)}
           />
+          {componentCosts.some((cost) => cost > 0) ? (
+            <Row
+              title="Bileşenlerle birlikte"
+              subtitle={`${componentCosts.length} bileşen dahil`}
+              trailing={formatMoney(
+                totalWithComponents(totalCost, componentCosts),
+                item.currency,
+              )}
+            />
+          ) : null}
           <Row
             title="Garanti bitişi"
             trailing={
@@ -392,6 +502,27 @@ export default async function EkipmanPage({
             ))}
           </Rows>
         </Group>
+      ) : null}
+
+      <Assignment
+        itemId={item.id}
+        active={activeView}
+        members={members.map((member) => member.user)}
+        componentCount={item.components.length}
+        editable={editable}
+      />
+
+      {item.parent || componentRows.length || (editable && linkableChildren.length) ? (
+        <Components
+          itemId={item.id}
+          parent={item.parent}
+          components={componentRows}
+          linkable={linkableChildren.map((option) => ({
+            id: option.id,
+            name: option.name,
+          }))}
+          editable={editable}
+        />
       ) : null}
 
       <Timeline

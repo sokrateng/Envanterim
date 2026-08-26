@@ -79,6 +79,43 @@ export function warrantyMail(
   };
 }
 
+/**
+ * Zimmet bildirimi. Kişi ekipmanı üzerine almadan teslim sayılmıyor; posta
+ * da bunu söylüyor — "sana atandı" değil, "onayını bekliyoruz".
+ */
+export function assignmentMail(
+  item: { id: string; name: string },
+  assignedByName: string,
+  baseUrl?: string | null,
+): Mail {
+  return {
+    subject: `Zimmet: ${item.name}`,
+    text:
+      `${assignedByName}, "${item.name}" ekipmanını sana zimmetledi.\n\n` +
+      `Teslim aldıysan ürün sayfasından "Üzerime al" de; almadıysan ` +
+      `"Bende değil" ile geri çevir.\n\n` +
+      `Ürün sayfası: ${itemLink(baseUrl, item.id)}` +
+      IMZA,
+  };
+}
+
+/** Atayan tarafa: zimmet kabul edildi ya da geri çevrildi. */
+export function assignmentAnswerMail(
+  item: { id: string; name: string },
+  holderName: string,
+  accepted: boolean,
+  baseUrl?: string | null,
+): Mail {
+  return {
+    subject: `${accepted ? "Zimmet kabul edildi" : "Zimmet geri çevrildi"}: ${item.name}`,
+    text:
+      `${holderName}, "${item.name}" ekipmanını ` +
+      `${accepted ? "üzerine aldı" : "kabul etmedi; ekipman havuza döndü"}.\n\n` +
+      `Ürün sayfası: ${itemLink(baseUrl, item.id)}` +
+      IMZA,
+  };
+}
+
 export function maintenanceMail(
   item: { id: string; name: string },
   rule: MaintenanceRule,
