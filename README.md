@@ -88,6 +88,7 @@ npm run dev              # geliştirme
 npm test                 # Vitest (saf mantık modülleri)
 npm run test:e2e         # Playwright (iPhone profilinde, sunucu ayakta olmalı)
 npm run seed:e2e         # testler için kullanıcı + lokasyon + ekipman
+npm run mail:test        # SMTP ayarını sına (deneme postası gönderir)
 npm run typecheck        # tsc --noEmit
 npm run build            # prisma generate + next build
 npm run db:migrate       # şema göçü (geliştirme)

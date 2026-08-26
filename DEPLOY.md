@@ -173,6 +173,35 @@ Anahtar 32 haneli, tahmin edilemez; iptal anında geçerliliğini yitirir.
 **QR etiketler** `NEXTAUTH_URL` adresini kullanır: etiket bu adrese gider.
 Alan adı değişirse eski etiketler eski adrese bakar — yeniden basılmalı.
 
+**E-posta sağlayıcısı.** Ayrı bir servis kurmaya gerek yok; Gmail ya da Google
+Workspace hesabı bu iş için yeterli:
+
+1. Hesapta **iki adımlı doğrulama** açık olmalı.
+2. Google Hesabı → Güvenlik → **Uygulama şifreleri**'nden 16 haneli bir şifre
+   üret. Normal hesap şifresi SMTP'de çalışmıyor.
+3. Değişkenler:
+
+   ```
+   SMTP_URL=smtps://kullanici%40gmail.com:uygulamasifresi@smtp.gmail.com:465
+   SMTP_FROM=Envanterim <kullanici@gmail.com>
+   ```
+
+   Adresteki `@` işareti **`%40`** olarak yazılmalı, yoksa bağlantı dizesi
+   yanlış ayrışır. 465 için şema `smtps://`, 587 için `smtp://`.
+
+`SMTP_FROM` ile `SMTP_URL`'deki kullanıcı **aynı adres** olmalı: Gmail başka bir
+adresten göndertmez (doğrulanmış takma ad dışında). Günlük sınır kişisel
+hesapta ~500, Workspace'te 2000 posta; bu uygulamanın hacmi bunun çok altında.
+
+Ayarı dağıtmadan önce sına:
+
+```bash
+npm run mail:test -- sen@ornek.com
+```
+
+Bağlanır, kimlik doğrular ve bir deneme postası gönderir; hata olursa sebebini
+Türkçe yazar (uygulama şifresi, port/şema, gönderen adresi).
+
 **Şifre sıfırlama** SMTP'ye bağlı: `SMTP_URL` tanımsızsa giriş ekranında
 "Şifremi unuttum" hiç görünmüyor ve uç 503 dönüyor. Kod yalnız **doğrulanmış**
 adrese gidiyor; adres doğrulanmamışsa hesabın sahibi olduğunu gösteren kanal
