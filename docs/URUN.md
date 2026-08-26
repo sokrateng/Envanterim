@@ -53,9 +53,9 @@
 - [x] Garanti durumu rozeti: kalan gün, bitmişse gri
 
 ### v2 — takip
-- [ ] Servis kaydı (tarih, servis veren, yapılan iş, tutar)
+- [x] Servis kaydı (tarih, servis veren, yapılan iş, tutar)
 - [ ] Yedek parça listesi ve temin ücretleri
-- [ ] Ürün zaman çizelgesi — dört olay türü de: sayaç okuması, olay günlüğü,
+- [x] Ürün zaman çizelgesi — dört olay türü de: sayaç okuması, olay günlüğü,
       zimmet geçmişi, servis/maliyet
 - [x] **Faturadan otomatik doldurma** (Claude ile PDF + fotoğraf, tek çağrı;
       kullanıcı onaylayıp kaydeder)
@@ -64,7 +64,7 @@
 - [ ] **QR etiket** üretme ve yazdırma
 
 ### v3 — rapor ve kolaylık
-- [ ] Sahip olma maliyeti (ürün ve lokasyon bazında)
+- [x] Sahip olma maliyeti (ürün bazında; lokasyon toplamı bekliyor)
 - [ ] Sigorta raporu: fotoğraflı PDF döküm + toplam değer
 - [ ] CSV dışa/içe aktarma
 - [ ] Tekrarlayan bakım hatırlatması (sayaç okumasına bağlanabilir:

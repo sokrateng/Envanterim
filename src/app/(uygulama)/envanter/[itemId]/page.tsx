@@ -10,10 +10,12 @@ import { readCustomFields, type FieldDef } from "@/lib/custom-fields";
 import { formatMoney } from "@/lib/money";
 import { canEdit } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { ownershipCostMinor, type TimelineEvent } from "@/lib/events";
 import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { warrantyStatus } from "@/lib/warranty";
 import type { CategoryOption } from "@/components/ItemFields";
 import { Attachments, type AttachmentView } from "./Attachments";
+import { Timeline, type TimelineRow } from "./Timeline";
 import { FillProvider } from "./fill-context";
 import { EditItemButton } from "./EditItemButton";
 import { StatusPicker } from "./StatusPicker";
@@ -64,6 +66,21 @@ export default async function EkipmanPage({
         select: { id: true, url: true, name: true, kind: true, mimeType: true },
         orderBy: { uploadedAt: "desc" },
       },
+      events: {
+        select: {
+          id: true,
+          kind: true,
+          date: true,
+          note: true,
+          costMinor: true,
+          readingValue: true,
+          readingUnit: true,
+          vendor: { select: { name: true } },
+          assignedToUser: { select: { name: true } },
+          assignedPlace: true,
+        },
+        orderBy: { date: "desc" },
+      },
       location: { select: { id: true, name: true } },
       category: {
         select: {
@@ -103,6 +120,36 @@ export default async function EkipmanPage({
   const customRows = readCustomFields(item.customFields, fieldDefs);
   const warranty = warrantyStatus(item.warrantyEndDate);
 
+  const timeline: TimelineRow[] = item.events.map((event) => ({
+    id: event.id,
+    kind: event.kind as TimelineEvent["kind"],
+    date: event.date.toISOString(),
+    note: event.note,
+    costMinor: event.costMinor,
+    readingValue: event.readingValue,
+    readingUnit: event.readingUnit,
+    vendorName: event.vendor?.name ?? null,
+    assignedToName: event.assignedToUser?.name ?? null,
+    assignedPlace: event.assignedPlace,
+  }));
+
+  // Türetilmiş değer saklanmıyor, hesaplanıyor (CLAUDE.md).
+  const totalCost = ownershipCostMinor(
+    item.purchasePriceMinor,
+    item.events.map((event) => ({
+      kind: event.kind as TimelineEvent["kind"],
+      costMinor: event.costMinor,
+    })),
+  );
+
+  const members = editable
+    ? await prisma.locationMember.findMany({
+        where: { locationId: item.locationId },
+        select: { user: { select: { id: true, name: true } } },
+        orderBy: { user: { name: "asc" } },
+      })
+    : [];
+
   const categories = editable
     ? await prisma.category.findMany({
         where: { locationId: item.locationId },
@@ -126,9 +173,11 @@ export default async function EkipmanPage({
       })
     : [];
 
+  // Satıcı ve servis aynı tabloda; iki listede de lokasyonun tüm firmaları
+  // gösteriliyor, hangi rolde kullanıldığını kayıt sırasında işaretliyoruz.
   const vendors = editable
     ? await prisma.vendor.findMany({
-        where: { locationId: item.locationId, isSeller: true },
+        where: { locationId: item.locationId },
         select: { id: true, name: true },
         orderBy: { name: "asc" },
       })
@@ -237,6 +286,11 @@ export default async function EkipmanPage({
             }
           />
           <Row
+            title="Sahip olma maliyeti"
+            subtitle="Alış + servis"
+            trailing={formatMoney(totalCost, item.currency)}
+          />
+          <Row
             title="Garanti bitişi"
             trailing={
               item.warrantyEndDate ? trDate.format(item.warrantyEndDate) : "—"
@@ -254,6 +308,15 @@ export default async function EkipmanPage({
           </Rows>
         </Group>
       ) : null}
+
+      <Timeline
+        itemId={item.id}
+        events={timeline}
+        vendors={vendors}
+        members={members.map((member) => member.user)}
+        currency={item.currency}
+        editable={editable}
+      />
 
       <Attachments
         itemId={item.id}

@@ -140,6 +140,45 @@ export const fieldUpdateSchema = z.object({
   order: z.number().int().min(0).max(999).optional(),
 });
 
+/**
+ * Olay kaydı. Dört tür de aynı tabloda; her türün kendi alanları var, bu
+ * yüzden ayrık birleşim (MIMARI §3).
+ */
+const eventBase = {
+  date: dateOnly,
+  note: emptyToUndefined(trimmed.max(500, "En çok 500 karakter")),
+};
+
+export const eventCreateSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("SERVICE"),
+    ...eventBase,
+    vendorId: emptyToUndefined(trimmed),
+    vendorName: emptyToUndefined(trimmed.max(80, "En çok 80 karakter")),
+    cost: emptyToUndefined(moneyMinor),
+  }),
+  z.object({
+    kind: z.literal("READING"),
+    ...eventBase,
+    // Sayaç değeri metin değil sayı: bakım kuralı buna bakıyor (MIMARI §3).
+    readingValue: z.coerce
+      .number({ invalid_type_error: "Sayaç değeri sayı olmalı" })
+      .finite("Sayaç değeri sayı olmalı")
+      .min(0, "Sayaç değeri eksi olamaz"),
+    readingUnit: emptyToUndefined(trimmed.max(12, "En çok 12 karakter")),
+  }),
+  z.object({
+    kind: z.literal("LOG"),
+    ...eventBase,
+  }),
+  z.object({
+    kind: z.literal("ASSIGNMENT"),
+    ...eventBase,
+    assignedToUserId: emptyToUndefined(trimmed),
+    assignedPlace: emptyToUndefined(trimmed.max(80, "En çok 80 karakter")),
+  }),
+]);
+
 export const itemStatusSchema = z.object({
   status: z.enum(ITEM_STATUS, {
     errorMap: () => ({ message: "Geçersiz durum" }),
