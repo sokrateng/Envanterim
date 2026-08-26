@@ -20,6 +20,15 @@ model User {
   inviteCode   String?  @unique // hesabın hangi davet koduyla açıldığı
   createdAt    DateTime @default(now())
 
+  // E-posta bildirimi. Adres doğrulanmadan bildirim gitmiyor: yanlış yazılan
+  // adrese envanter bilgisi gönderilmesin.
+  email              String?   @unique
+  emailVerifiedAt    DateTime?
+  emailReminders     Boolean   @default(true)
+  emailCodeHash      String? // doğrulama kodu düz metin saklanmıyor
+  emailCodeExpiresAt DateTime?
+  emailCodeTries     Int       @default(0)
+
   memberships       LocationMember[]
   assignedEvents    ItemEvent[]        @relation("EventAssignee")
   pushSubscriptions PushSubscription[]

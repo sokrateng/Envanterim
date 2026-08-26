@@ -50,6 +50,8 @@ bakmak yetmiyor (docs/TASARIM.md).
    | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | garanti bildirimi (açık anahtar) |
    | `VAPID_PRIVATE_KEY` | garanti bildirimi — **yalnız sunucu** |
    | `VAPID_SUBJECT` | `mailto:sen@example.com` |
+   | `SMTP_URL` | e-posta bildirimi (`smtp://kullanıcı:şifre@sunucu:587`) |
+   | `SMTP_FROM` | gönderen adresi |
    | `CRON_SECRET` | cron ucunu korur |
 
 3. Build komutu `npm run build` — içinde `prisma generate` var, ayrıca
@@ -145,6 +147,12 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
 
    Yanıt: `{"bakilan":…,"planlanan":…,"gonderilen":…,"atlanan":…,"bakim":{…}}`.
 
+**E-posta kanalı:** `SMTP_URL` ve `SMTP_FROM` tanımlıysa aynı hatırlatmalar
+e-postayla da gider. Kullanıcı adresini Hesap sekmesinden ekler ve gelen altı
+haneli kodla doğrular — **doğrulanmamış adrese bildirim gitmez.** Aynı
+`ItemReminder` damgası iki kanal için de geçerlidir (docs/MIMARI.md §4), yani
+cron iki kez tetiklense de ikinci kez ne push ne e-posta gider.
+
 **iOS notu:** iPhone'da web push yalnız ana ekrana eklenmiş uygulamada
 çalışır. Hesap sekmesindeki anahtar bunu söyleyip kullanıcıyı yönlendirir.
 
@@ -175,6 +183,5 @@ Alan adı değişirse eski etiketler eski adrese bakar — yeniden basılmalı.
 
 ## 10. Sonraki sürümde eklenecek dağıtım adımları
 
-- **E-posta bildirimi** (SMTP) — `ItemReminder` kanaldan bağımsız, şema
-  değişmeden eklenir.
+- Şimdilik yok; yeni bir kanal ya da dış servis eklendiğinde buraya yazılır.
 

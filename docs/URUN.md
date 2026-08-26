@@ -74,7 +74,7 @@
 - [x] Salt-okunur paylaşım linki
 
 ### Sonra
-- [ ] E-posta bildirimi
+- [x] E-posta bildirimi
 - [ ] Barkod/QR kamera ile okuma
 - [ ] Amortisman ve güncel değer
 

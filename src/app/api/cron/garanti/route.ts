@@ -6,6 +6,8 @@ import {
   ruleStatus,
   statusText,
 } from "@/lib/maintenance";
+import { maintenanceMail, warrantyMail } from "@/lib/email-message";
+import { isEmailConfigured, sendMailToMany } from "@/lib/mailer";
 import { isPushConfigured, sendToUsers } from "@/lib/push";
 import {
   planReminders,
@@ -32,8 +34,10 @@ export async function GET(request: Request) {
     }
   }
 
-  if (!isPushConfigured()) {
-    return NextResponse.json({ atlandi: "VAPID anahtarları tanımlı değil" });
+  if (!isPushConfigured() && !isEmailConfigured()) {
+    return NextResponse.json({
+      atlandi: "Ne VAPID anahtarı ne SMTP tanımlı; gönderilecek kanal yok",
+    });
   }
 
   const now = new Date();
@@ -72,6 +76,8 @@ export async function GET(request: Request) {
   let sent = 0;
   let removed = 0;
   let skipped = 0;
+  let mailed = 0;
+  let mailFailed = 0;
 
   for (const reminder of planned) {
     // Damgayı önce yaz: yarışta ikinci tetikleme burada eli boş dönsün.
@@ -110,7 +116,7 @@ export async function GET(request: Request) {
 
     const members = await prisma.locationMember.findMany({
       where: { locationId: reminder.locationId },
-      select: { userId: true },
+      select: { userId: true, user: { select: { email: true, emailVerifiedAt: true, emailReminders: true } } },
     });
 
     // Gönderimi await et; yanıttan sonra iş yapılmıyor (TUZAKLAR #1).
@@ -120,6 +126,15 @@ export async function GET(request: Request) {
     );
     sent += result.sent;
     removed += result.removed;
+
+    // Aynı damga iki kanal için de geçerli: `ItemReminder` kanaldan bağımsız
+    // (docs/MIMARI.md §4).
+    const mail = await sendMailToMany(
+      mailRecipients(members),
+      warrantyMail(reminder, process.env.NEXTAUTH_URL),
+    );
+    mailed += mail.sent;
+    mailFailed += mail.failed;
   }
 
   const bakim = await sendMaintenance(now);
@@ -130,8 +145,23 @@ export async function GET(request: Request) {
     gonderilen: sent,
     atlanan: skipped,
     silinenAbonelik: removed,
+    eposta: { gonderilen: mailed, basarisiz: mailFailed },
     bakim,
   });
+}
+
+/** Yalnız doğrulanmış ve hatırlatmayı açık bırakmış adreslere gidiyor. */
+function mailRecipients(
+  members: Array<{
+    user: { email: string | null; emailVerifiedAt: Date | null; emailReminders: boolean };
+  }>,
+): string[] {
+  return members
+    .filter(
+      (member) =>
+        member.user.email && member.user.emailVerifiedAt && member.user.emailReminders,
+    )
+    .map((member) => member.user.email as string);
 }
 
 /**
@@ -168,6 +198,7 @@ async function sendMaintenance(now: Date) {
   let sent = 0;
   let removed = 0;
   let skipped = 0;
+  let mailed = 0;
 
   for (const rule of rules) {
     const events = rule.item.events.map((event) => ({
@@ -208,7 +239,7 @@ async function sendMaintenance(now: Date) {
 
     const members = await prisma.locationMember.findMany({
       where: { locationId: rule.item.locationId },
-      select: { userId: true },
+      select: { userId: true, user: { select: { email: true, emailVerifiedAt: true, emailReminders: true } } },
     });
 
     const result = await sendToUsers(
@@ -222,9 +253,22 @@ async function sendMaintenance(now: Date) {
     );
     sent += result.sent;
     removed += result.removed;
+
+    const mail = await sendMailToMany(
+      mailRecipients(members),
+      maintenanceMail(rule.item, rule, status, process.env.NEXTAUTH_URL),
+    );
+    mailed += mail.sent;
+
     // statusText yalnız metin üretiyor; burada çağırmak günlüğe yazmak için.
     console.log("bakım bildirimi", rule.item.name, statusText(rule, status));
   }
 
-  return { kural: rules.length, gonderilen: sent, atlanan: skipped, silinenAbonelik: removed };
+  return {
+    kural: rules.length,
+    gonderilen: sent,
+    atlanan: skipped,
+    silinenAbonelik: removed,
+    eposta: mailed,
+  };
 }
