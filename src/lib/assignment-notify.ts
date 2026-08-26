@@ -9,9 +9,17 @@ import { sendToUsers } from "@/lib/push";
  * Zimmet bildirimleri. Atama karşı taraf için bir istek: haberi olmadan
  * ekipman kimsenin üzerine yazılmıyor.
  *
- * Gönderim `await` ediliyor (TUZAKLAR #1) ve hata akışı durdurmuyor: posta
- * gitmese de zimmet kaydı geçerli, kişi uygulamada görüyor.
+ * Gönderim `await` ediliyor (TUZAKLAR #1) ama **hiçbir koşulda** çağıran işi
+ * düşürmüyor: zimmet kaydı çoktan yazıldı, bildirim yan iş. Bozuk bir VAPID
+ * ayarı yüzünden zimmet vermenin 500 dönmesi üretimde yaşandı (TUZAKLAR #51).
  */
+async function sessizce(is: () => Promise<unknown>): Promise<void> {
+  try {
+    await is();
+  } catch (error) {
+    console.error("zimmet bildirimi gönderilemedi", (error as Error)?.message);
+  }
+}
 
 type ItemRef = { id: string; name: string };
 
@@ -31,20 +39,22 @@ export async function notifyAssigned(
   holderUserId: string,
   assignedByName: string,
 ): Promise<void> {
-  await sendToUsers([holderUserId], {
-    title: "Zimmet",
-    body: `${assignedByName}, ${item.name} ekipmanını sana zimmetledi`,
-    url: `/envanter/${item.id}`,
-    tag: `zimmet-${item.id}`,
-  });
+  await sessizce(async () => {
+    await sendToUsers([holderUserId], {
+      title: "Zimmet",
+      body: `${assignedByName}, ${item.name} ekipmanını sana zimmetledi`,
+      url: `/envanter/${item.id}`,
+      tag: `zimmet-${item.id}`,
+    });
 
-  const address = await mailTarget(holderUserId);
-  if (address) {
-    await sendMail(
-      address,
-      assignmentMail(item, assignedByName, process.env.NEXTAUTH_URL),
-    );
-  }
+    const address = await mailTarget(holderUserId);
+    if (address) {
+      await sendMail(
+        address,
+        assignmentMail(item, assignedByName, process.env.NEXTAUTH_URL),
+      );
+    }
+  });
 }
 
 /** Atayana: kabul edildi ya da geri çevrildi. */
@@ -54,18 +64,20 @@ export async function notifyAnswer(
   holderName: string,
   accepted: boolean,
 ): Promise<void> {
-  await sendToUsers([assignedById], {
-    title: accepted ? "Zimmet kabul edildi" : "Zimmet geri çevrildi",
-    body: `${holderName} · ${item.name}`,
-    url: `/envanter/${item.id}`,
-    tag: `zimmet-cevap-${item.id}`,
-  });
+  await sessizce(async () => {
+    await sendToUsers([assignedById], {
+      title: accepted ? "Zimmet kabul edildi" : "Zimmet geri çevrildi",
+      body: `${holderName} · ${item.name}`,
+      url: `/envanter/${item.id}`,
+      tag: `zimmet-cevap-${item.id}`,
+    });
 
-  const address = await mailTarget(assignedById);
-  if (address) {
-    await sendMail(
-      address,
-      assignmentAnswerMail(item, holderName, accepted, process.env.NEXTAUTH_URL),
-    );
-  }
+    const address = await mailTarget(assignedById);
+    if (address) {
+      await sendMail(
+        address,
+        assignmentAnswerMail(item, holderName, accepted, process.env.NEXTAUTH_URL),
+      );
+    }
+  });
 }

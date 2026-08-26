@@ -3,6 +3,7 @@ import "server-only";
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
 import type { PushPayload } from "@/lib/reminders";
+import { isValidVapidSubject } from "@/lib/vapid";
 
 /**
  * Web push gönderimi (MIMARI §4). VAPID anahtarları yoksa özellik kapalı;
@@ -16,17 +17,31 @@ let configured: boolean | null = null;
 
 function ensureConfigured(): boolean {
   if (configured !== null) return configured;
+  configured = false;
 
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
   const subject = process.env.VAPID_SUBJECT ?? "mailto:envanter@example.com";
 
-  if (!publicKey || !privateKey) {
-    configured = false;
+  if (!publicKey || !privateKey) return false;
+
+  if (!isValidVapidSubject(subject)) {
+    console.error(
+      `VAPID_SUBJECT bir adres olmalı ("mailto:sen@ornek.com" ya da ` +
+        `"https://..."); gelen değer: ${subject}. Bildirim kapalı kaldı.`,
+    );
     return false;
   }
 
-  webpush.setVapidDetails(subject, publicKey, privateKey);
+  try {
+    webpush.setVapidDetails(subject, publicKey, privateKey);
+  } catch (error) {
+    // Bozuk anahtar bütün özelliği düşürmesin: bildirim kapanır, uygulama
+    // çalışmaya devam eder.
+    console.error("VAPID anahtarları geçersiz:", (error as Error).message);
+    return false;
+  }
+
   configured = true;
   return true;
 }

@@ -137,6 +137,9 @@ DATABASE_URL="…üretim pooler…" npm run create-admin -- "Engin C" enginc "uz
    npx web-push generate-vapid-keys
    ```
 
+   `VAPID_SUBJECT` **bir adres**: `mailto:sen@ornek.com` ya da `https://…`.
+   Etiket yazılırsa push kapalı kalır ve günlüğe neden yazılır (TUZAKLAR #52).
+
 2. `vercel.json` cron'u tanımlı: `/api/cron/garanti` her gün 06:00 UTC'de
    çalışır. Vercel isteği `Authorization: Bearer $CRON_SECRET` ile gönderir;
    `CRON_SECRET` tanımlıysa uç başka isteği kabul etmez.

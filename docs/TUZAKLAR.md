@@ -299,3 +299,18 @@ Yerelde fark edilmiyor (aynı makine, ~1 ms), üretimde altı tur × 100 ms oluy
 **Çözüm:** birbirine bağlı olmayanları `Promise.all` ile, aynı tabloya giden
 sayım + listeyi `$transaction([...])` ile tek tura indir; bir de uygulamayı
 veritabanıyla aynı bölgeye al (`vercel.json` → `regions`).
+
+## Yapılandırma
+
+**51. Bozuk bir ayar, alakasız bir özelliği düşürüyor.** `VAPID_SUBJECT`
+"Envanter_Test_Mail_Subject" yazılmıştı; web-push bunu doğrulayıp hata
+fırlatıyor ve hata **zimmet verme** ucundan dönüyor — üstelik kayıt yazıldıktan
+sonra, yani kullanıcı hata görüyor ama zimmet oluşmuş oluyor. **Çözüm iki
+katmanlı:** (1) ayar okunurken biçim doğrulanıp özellik **kapalı** bırakılıyor,
+patlamıyor; (2) bildirim gönderimi hiçbir koşulda çağıran işi düşürmüyor —
+bildirim yan iş, kayıt asıl iş. Genel kural: yan işler sessiz başarısız olur,
+asıl iş kullanıcıya döner.
+
+**52. `VAPID_SUBJECT` bir adres, etiket değil.** `mailto:sen@ornek.com` ya da
+`https://alan-adin`. Bildirimin kimden geldiğini push servisine söyleyen alan;
+konu başlığı sanıp metin yazmak kolay (`.env.example`'da örnek var).
