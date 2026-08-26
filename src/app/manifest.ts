@@ -19,6 +19,12 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait",
     background_color: "#F2F2F7",
     theme_color: "#F2F2F7",
+    // Ana ekran simgesine basılı tutunca doğrudan tarayıcıya girilsin:
+    // envanterde bir cihazı bulmanın en kısa yolu etiketini okutmak.
+    shortcuts: [
+      { name: "Kod tara", short_name: "Tara", url: "/tara" },
+      { name: "Envanter", short_name: "Envanter", url: "/envanter" },
+    ],
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },

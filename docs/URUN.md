@@ -75,7 +75,7 @@
 
 ### Sonra
 - [x] E-posta bildirimi
-- [ ] Barkod/QR kamera ile okuma
+- [x] Barkod/QR kamera ile okuma
 - [ ] Amortisman ve güncel değer
 
 > **Not:** "Fotoğraftan OCR" ayrı bir madde değil — Claude fotoğrafı ve PDF'i

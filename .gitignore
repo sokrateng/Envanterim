@@ -40,3 +40,6 @@ next-env.d.ts
 
 # yerel yükleme yedeği
 .uploads
+
+# kurulumda kopyalanır (scripts/copy-zxing.mjs)
+/public/zxing

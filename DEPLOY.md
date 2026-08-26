@@ -163,6 +163,12 @@ Anahtar 32 haneli, tahmin edilemez; iptal anında geçerliliğini yitirir.
 **QR etiketler** `NEXTAUTH_URL` adresini kullanır: etiket bu adrese gider.
 Alan adı değişirse eski etiketler eski adrese bakar — yeniden basılmalı.
 
+**Kamerayla okutma** (`/tara`) ek bir değişken istemiyor ama iki şey gerekir:
+kod okuyucunun `.wasm` dosyası derlemede `public/zxing/` altına kopyalanır
+(`npm run build`in ilk adımı) ve tarayıcı kameraya yalnız güvenli kaynakta
+izin verir — Vercel zaten https, kendi sunucunda sertifikasız bir alan adında
+ekran açılır ama kamera açılmaz.
+
 ## 9. Duman testi (dağıtımdan sonra)
 
 1. `/giris` → ilk hesapla gir.
@@ -180,6 +186,10 @@ Alan adı değişirse eski etiketler eski adrese bakar — yeniden basılmalı.
    kaydetmeden ekipman değişmemeli.
 10. Üçüncü, hiçbir lokasyona üye olmayan kullanıcıyla gir: envanter boş;
    diğerinin ek dosyasının adresine gitmeyi dene — 404 dönmeli.
+11. Bir ekipmanın QR etiketini yazdır (ya da ekranda aç), başka bir telefondan
+   `Envanter → tarama düğmesi` ile okut: doğrudan o ürün açılmalı. Aynı
+   ekranda başka bir sitenin QR'ını okut — açılmamalı, "Envanterim etiketi
+   değil" demeli.
 
 ## 10. Sonraki sürümde eklenecek dağıtım adımları
 

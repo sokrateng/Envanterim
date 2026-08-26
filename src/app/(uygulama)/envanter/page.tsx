@@ -182,8 +182,26 @@ export default async function EnvanterPage({
         }
       />
 
-      <div className="px-4 pt-3">
+      <div className="flex items-center gap-2 px-4 pt-3">
         <SearchField defaultValue={query} />
+        <Link
+          href="/tara"
+          aria-label="Kod tara"
+          className="grid h-touch w-touch shrink-0 place-items-center rounded-card border border-separator bg-surface text-blue active:opacity-60"
+        >
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            className="h-[22px] w-[22px]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.7}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15M7.5 12h9" />
+          </svg>
+        </Link>
       </div>
       <div className="px-4 pt-3">
         <StatusFilter value={status} />

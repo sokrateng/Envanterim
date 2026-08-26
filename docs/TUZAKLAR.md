@@ -219,3 +219,28 @@ dizgi karşılaştırması sessizce şaşıyor. `toLocaleLowerCase("tr")` ise bu
 (HTML, veritabanı değeri) karşılaştır. CSS `text-transform: uppercase`
 metnin kendisini değiştirmediği için `innerText` ile okurken bu tuzağa ayrıca
 dikkat et.
+
+## Kamerayla kod okuma
+
+**42. `zxing-wasm` .wasm dosyasını varsayılan olarak jsDelivr'dan çeker.**
+Kütüphanenin `locateFile`'ı CDN'e bakıyor; dosyayı kendin sunmazsan tarayıcı
+ekranı dış bir alan adına bağımlı hâle geliyor — çevrimdışı açılmıyor, sıkı
+bir CSP'de hiç yüklenmiyor ve okutma sessizce "kamera açık ama hiç okumuyor"
+gibi görünüyor. **Çözüm:** `.wasm`'i `public/` altına kopyala
+(`scripts/copy-zxing.mjs`, kuruluma ve derlemeye bağlı) ve
+`prepareZXingModule({ overrides: { locateFile } })` ile kendi yolunu ver. Testte
+dış CDN'e istek gitmediğini de doğrula.
+
+**43. Tarama açıkken elle yazılan koda fırsat kalmıyor.** Kamera arkada
+okumaya devam ederken kullanıcı seri numarasını yazıyor; çerçeveye giren
+başka bir etiket okunuyor ve ekran bambaşka bir ürüne atlıyor. Yazdığı şey
+kayboluyor. **Çözüm:** metin alanına odaklanınca (ya da içinde metin varken)
+çözümlemeyi duraklat ve bunu ekranda söyle; akış kullanıcının seçtiği yerden
+devam etsin.
+
+**44. Chromium'un sahte kamerası yalnız `.y4m` ve `.mjpeg` okur.** Playwright
+ile okutmayı test etmek için `--use-file-for-fake-video-capture` gerekiyor ama
+elde PNG var; ortamdaki ffmpeg derlemesi de PNG çözemeyebiliyor. **Çözüm:**
+y4m'yi kendin yaz — başlık artı kare başına `FRAME\n` ve Y/U/V düzlemleri;
+QR modüllerini doğrudan Y düzlemine çiz. Böylece testin ffmpeg'e bağımlılığı
+kalmıyor.
