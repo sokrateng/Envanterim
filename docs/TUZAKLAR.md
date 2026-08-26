@@ -207,3 +207,15 @@ close();                       // efekt temizliği history.back() çağırır
 ```
 
 Kayıt bir şekilde yoksa `popstate` hiç gelmez; kısa bir zamanlayıcıyı yedek bırak.
+
+## Türkçe metin
+
+**41. `toLowerCase()` Türkçe "İ"yi bozar.** `"DEĞERİ".toLowerCase()` "değeri"
+vermiyor: nokta ayrı bir birleştirici karaktere dönüşüyor (`i` + U+0307) ve
+dizgi karşılaştırması sessizce şaşıyor. `toLocaleLowerCase("tr")` ise bu kez
+`I`yı `ı` yapıyor — İngilizce yazılmış başlıklarla eşleşme kayboluyor.
+**Çözüm:** karşılaştırmayı harf eşlemesiyle normalleştir (bkz.
+`src/lib/csv.ts` → `normalizeHeader`), ya da özgün yazımın durduğu yerde
+(HTML, veritabanı değeri) karşılaştır. CSS `text-transform: uppercase`
+metnin kendisini değiştirmediği için `innerText` ile okurken bu tuzağa ayrıca
+dikkat et.

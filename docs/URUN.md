@@ -64,8 +64,8 @@
 - [x] **QR etiket** üretme ve yazdırma
 
 ### v3 — rapor ve kolaylık
-- [x] Sahip olma maliyeti (ürün bazında; lokasyon toplamı bekliyor)
-- [ ] Sigorta raporu: fotoğraflı PDF döküm + toplam değer
+- [x] Sahip olma maliyeti (ürün ve lokasyon bazında)
+- [x] Sigorta raporu: fotoğraflı PDF döküm + toplam değer
 - [x] CSV dışa/içe aktarma
 - [ ] Tekrarlayan bakım hatırlatması (sayaç okumasına bağlanabilir:
       "her 10.000 km'de servis")
