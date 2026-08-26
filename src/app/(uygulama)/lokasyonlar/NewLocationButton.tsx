@@ -4,12 +4,15 @@ import { useState } from "react";
 import { Sheet } from "@/components/Sheet";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
+import { EmojiField } from "@/components/EmojiField";
 
 export function NewLocationButton() {
   const closeAndRefresh = useCloseAndRefresh();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Öneriler yazılan ada göre sıralanıyor.
+  const [name, setName] = useState("");
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,11 +52,17 @@ export function NewLocationButton() {
       <Sheet open={open} onClose={() => setOpen(false)} title="Yeni lokasyon">
         <form onSubmit={onSubmit}>
           <Field label="Ad">
-            <input name="name" required autoFocus className={inputClass} placeholder="Ev" />
+            <input
+              name="name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              autoFocus
+              className={inputClass}
+              placeholder="Ev"
+            />
           </Field>
-          <Field label="Simge" hint="Tek bir emoji — listede adın önünde görünür.">
-            <input name="icon" className={inputClass} placeholder="🏠" maxLength={8} />
-          </Field>
+          <EmojiField name="icon" set="location" nameValue={name} label="Simge" />
           <FormError message={error} />
           <SubmitButton pending={pending}>Oluştur</SubmitButton>
         </form>

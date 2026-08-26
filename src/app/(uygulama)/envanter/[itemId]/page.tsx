@@ -303,14 +303,51 @@ export default async function EkipmanPage({
       (componentCosts[index] ? formatMoney(componentCosts[index], item.currency) : null),
   }));
 
-  // Bağlanabilecek ekipmanlar: kural saf modülde (döngü, derinlik, lokasyon).
-  const locationItems = editable
-    ? await prisma.item.findMany({
-        where: { locationId: item.locationId },
-        select: { id: true, parentId: true, locationId: true, name: true },
-        orderBy: { name: "asc" },
-      })
-    : [];
+  // Dördü de birbirinden bağımsız: sırayla beklemek uzak bölgedeki
+  // veritabanında dört ayrı tur demek, birlikte tek tur.
+  const [locationItems, members, categories, vendors] = editable
+    ? await Promise.all([
+        // Bağlanabilecek ekipmanlar: kural saf modülde (döngü, derinlik,
+        // lokasyon), bu yüzden ağacın tamamı gerekiyor — üç küçük sütun.
+        prisma.item.findMany({
+          where: { locationId: item.locationId },
+          select: { id: true, parentId: true, locationId: true, name: true },
+          orderBy: { name: "asc" },
+        }),
+        prisma.locationMember.findMany({
+          where: { locationId: item.locationId },
+          select: { user: { select: { id: true, name: true } } },
+          orderBy: { user: { name: "asc" } },
+        }),
+        prisma.category.findMany({
+          where: { locationId: item.locationId },
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            fields: {
+              select: {
+                key: true,
+                label: true,
+                type: true,
+                required: true,
+                options: true,
+                hidden: true,
+              },
+              orderBy: { order: "asc" },
+            },
+          },
+          orderBy: { name: "asc" },
+        }),
+        // Satıcı ve servis aynı tabloda; iki listede de lokasyonun tüm
+        // firmaları gösteriliyor.
+        prisma.vendor.findMany({
+          where: { locationId: item.locationId },
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
+        }),
+      ])
+    : [[], [], [], []];
 
   const linkableChildren = editable
     ? locationItems.filter(
@@ -320,47 +357,6 @@ export default async function EkipmanPage({
             (parent) => parent.id === item.id,
           ),
       )
-    : [];
-
-  const members = editable
-    ? await prisma.locationMember.findMany({
-        where: { locationId: item.locationId },
-        select: { user: { select: { id: true, name: true } } },
-        orderBy: { user: { name: "asc" } },
-      })
-    : [];
-
-  const categories = editable
-    ? await prisma.category.findMany({
-        where: { locationId: item.locationId },
-        select: {
-          id: true,
-          name: true,
-          icon: true,
-          fields: {
-            select: {
-              key: true,
-              label: true,
-              type: true,
-              required: true,
-              options: true,
-              hidden: true,
-            },
-            orderBy: { order: "asc" },
-          },
-        },
-        orderBy: { name: "asc" },
-      })
-    : [];
-
-  // Satıcı ve servis aynı tabloda; iki listede de lokasyonun tüm firmaları
-  // gösteriliyor, hangi rolde kullanıldığını kayıt sırasında işaretliyoruz.
-  const vendors = editable
-    ? await prisma.vendor.findMany({
-        where: { locationId: item.locationId },
-        select: { id: true, name: true },
-        orderBy: { name: "asc" },
-      })
     : [];
 
   const categoryOptions: CategoryOption[] = categories.map((category) => ({

@@ -33,6 +33,8 @@ export function CategoryFields({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [type, setType] = useState<string>("TEXT");
+  // Düzenlenen alan; tip ve seçenekler değişmiyor (girilmiş değerleri bozardı).
+  const [editing, setEditing] = useState<FieldView | null>(null);
 
   const base = `/api/lokasyonlar/${locationId}/kategoriler/${categoryId}/alanlar`;
 
@@ -62,6 +64,31 @@ export function CategoryFields({
 
     setType("TEXT");
     closeAndRefresh(() => setOpen(false));
+  }
+
+  async function saveField(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editing) return;
+    setPending(true);
+    setError(null);
+
+    const form = new FormData(event.currentTarget);
+    const response = await fetch(`${base}/${editing.id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        label: String(form.get("label") ?? ""),
+        required: form.get("required") === "on",
+      }),
+    });
+
+    setPending(false);
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      setError(body.hata ?? "Alan güncellenemedi");
+      return;
+    }
+    closeAndRefresh(() => setEditing(null));
   }
 
   async function toggleHidden(field: FieldView) {
@@ -113,8 +140,15 @@ export function CategoryFields({
               </div>
               <button
                 type="button"
+                onClick={() => setEditing(field)}
+                className="min-h-touch shrink-0 px-2 text-subheadline text-blue active:opacity-60"
+              >
+                Düzenle
+              </button>
+              <button
+                type="button"
                 onClick={() => toggleHidden(field)}
-                className="min-h-touch px-2 text-subheadline text-blue active:opacity-60"
+                className="min-h-touch shrink-0 px-2 text-subheadline text-muted active:opacity-60"
               >
                 {field.hidden ? "Göster" : "Gizle"}
               </button>
@@ -170,6 +204,42 @@ export function CategoryFields({
           <FormError message={error} />
           <SubmitButton pending={pending}>Ekle</SubmitButton>
         </form>
+      </Sheet>
+
+      <Sheet
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+        title="Alanı düzenle"
+      >
+        {editing ? (
+          <form onSubmit={saveField} className="max-h-[70dvh] overflow-y-auto pb-2">
+            <Field label="Alan adı">
+              <input
+                name="label"
+                defaultValue={editing.label}
+                required
+                autoFocus
+                className={inputClass}
+              />
+            </Field>
+            <label className="flex min-h-touch items-center justify-between gap-3 py-2">
+              <span className="text-body">Zorunlu</span>
+              <input
+                type="checkbox"
+                name="required"
+                defaultChecked={editing.required}
+                className="h-6 w-6 accent-[var(--ios-blue)]"
+              />
+            </label>
+            <p className="pb-2 text-footnote text-muted">
+              Tip ({editing.typeLabel}) ve seçenekler değiştirilmiyor: girilmiş
+              değerler o tipe göre kaydedildi, sonradan değiştirmek onları
+              okunamaz hâle getirirdi. Yeni bir alan açıp eskisini gizleyebilirsin.
+            </p>
+            <FormError message={error} />
+            <SubmitButton pending={pending}>Kaydet</SubmitButton>
+          </form>
+        ) : null}
       </Sheet>
     </section>
   );

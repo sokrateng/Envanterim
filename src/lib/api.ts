@@ -35,3 +35,31 @@ export async function parseBody<S extends ZodTypeAny>(
     throw error;
   }
 }
+
+/**
+ * Beklenmeyen istisnayı JSON'a çevirir.
+ *
+ * Sarmalanmayan bir uçta istisna Next'in HTML hata sayfasına dönüşüyor;
+ * istemci `response.json()` yapamayınca elinde yalnız genel mesaj kalıyor ve
+ * kullanıcı "neden olmadı" sorusunun cevabını hiçbir yerde bulamıyor. Burada
+ * hata bir kimlikle günlüğe yazılıyor, kullanıcıya da aynı kimlik gösteriliyor:
+ * ekrandaki kod ile sunucu günlüğü eşleşiyor.
+ */
+export async function guard(
+  route: string,
+  handler: () => Promise<NextResponse>,
+): Promise<NextResponse> {
+  try {
+    return await handler();
+  } catch (error) {
+    const id = Math.random().toString(36).slice(2, 8);
+    console.error(`[${route}] ${id}`, error);
+
+    const detail =
+      process.env.NODE_ENV === "production"
+        ? ""
+        : ` (${(error as Error)?.message ?? "bilinmeyen"})`;
+
+    return apiError(`Beklenmeyen bir hata oldu. Kod: ${id}${detail}`, 500);
+  }
+}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
+import { EmojiField } from "@/components/EmojiField";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 
 /**
@@ -30,6 +31,7 @@ export function EditLocation({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [draftName, setDraftName] = useState(name);
 
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -83,17 +85,20 @@ export function EditLocation({
       <Sheet open={open} onClose={() => setOpen(false)} title="Lokasyon">
         <form onSubmit={save} className="max-h-[70dvh] overflow-y-auto pb-2">
           <Field label="Ad">
-            <input name="name" defaultValue={name} required className={inputClass} />
-          </Field>
-          <Field label="İkon" hint="Tek emoji; listede adın önünde görünür.">
             <input
-              name="icon"
-              defaultValue={icon ?? ""}
-              maxLength={8}
+              name="name"
+              value={draftName}
+              onChange={(event) => setDraftName(event.target.value)}
+              required
               className={inputClass}
-              placeholder="🏠"
             />
           </Field>
+          <EmojiField
+            name="icon"
+            defaultValue={icon}
+            set="location"
+            nameValue={draftName}
+          />
           <FormError message={error} />
           <SubmitButton pending={pending}>Kaydet</SubmitButton>
         </form>

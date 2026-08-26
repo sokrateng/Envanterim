@@ -280,3 +280,22 @@ isteklerini saklıyorsa bu yük önbellekte olmuyor ve ağsızken tıklamalar bo
 düşüyor — üstelik sayfayı elle yenileyince açıldığı için "çalışıyor" sanılıyor.
 **Çözüm:** RSC isteklerini de sakla; anahtar `_rsc` parametresi yönlendirici
 durumunu kodladığı için adres başına ayrı kayıt oluyor.
+
+## Performans
+
+**49. Grup düzeyinde `loading.tsx`, panelden dönen `router.refresh()`'i yutuyor.**
+İskelet ekranı eklemek gezinmeyi hızlı hissettiriyor ama (uygulama) grubuna
+konan `loading.tsx` bir Suspense sınırı açıyor ve panel `history.back()` ile
+kapanırken yapılan yenilemeyi eziyor: kullanıcı kaydediyor, panel kapanıyor,
+**yeni kayıt listede görünmüyor** — TUZAKLAR #40'ın geri gelmiş hâli. Yenilemeyi
+bir sonraki makro göreve ertelemek de çözmüyor. **Çözüm:** panel barındıran
+ekranlarda grup düzeyinde `loading.tsx` kullanma. Algılanan hızı bağlantı ön
+yüklemesi ve sorguları paralelleştirerek kazan.
+
+**50. Sunucu bileşeninde sıralı sorgular sessiz bir şelale.** Sayfa yavaşsa
+suçlu genelde tek bir ağır sorgu değil, arka arkaya beklenen altı küçük sorgu:
+uygulama ile veritabanı ayrı bölgelerdeyse her biri ayrı bir gidiş-dönüş.
+Yerelde fark edilmiyor (aynı makine, ~1 ms), üretimde altı tur × 100 ms oluyor.
+**Çözüm:** birbirine bağlı olmayanları `Promise.all` ile, aynı tabloya giden
+sayım + listeyi `$transaction([...])` ile tek tura indir; bir de uygulamayı
+veritabanıyla aynı bölgeye al (`vercel.json` → `regions`).

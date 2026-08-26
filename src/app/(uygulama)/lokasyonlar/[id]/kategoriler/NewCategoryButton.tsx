@@ -4,12 +4,14 @@ import { useState } from "react";
 import { Sheet } from "@/components/Sheet";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
+import { EmojiField } from "@/components/EmojiField";
 
 export function NewCategoryButton({ locationId }: { locationId: string }) {
   const closeAndRefresh = useCloseAndRefresh();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [name, setName] = useState("");
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,11 +51,17 @@ export function NewCategoryButton({ locationId }: { locationId: string }) {
       <Sheet open={open} onClose={() => setOpen(false)} title="Yeni kategori">
         <form onSubmit={onSubmit}>
           <Field label="Ad">
-            <input name="name" required autoFocus className={inputClass} placeholder="Beyaz eşya" />
+            <input
+              name="name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              autoFocus
+              className={inputClass}
+              placeholder="Beyaz eşya"
+            />
           </Field>
-          <Field label="Simge" hint="Tek bir emoji.">
-            <input name="icon" maxLength={8} className={inputClass} placeholder="🧺" />
-          </Field>
+          <EmojiField name="icon" set="category" nameValue={name} label="Simge" />
           <FormError message={error} />
           <SubmitButton pending={pending}>Oluştur</SubmitButton>
         </form>

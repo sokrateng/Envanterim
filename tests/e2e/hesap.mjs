@@ -160,6 +160,9 @@ try {
     .tap();
   await page.waitForSelector("text=Geri al");
   await page.waitForSelector(`text=Denetim ${damga}`, { state: "detached", timeout: 15000 });
+  // Silme geri alma süresi dolunca gidiyor; sayfadan erken ayrılmak isteği
+  // iptal ediyor (tasarım gereği). Şerit kalkana kadar bekle.
+  await page.waitForSelector("text=Geri al", { state: "detached", timeout: 15000 });
 
   await page.goto(`${BASE}/lokasyonlar/${doluId}/hareketler`);
   await page.waitForSelector('h1:has-text("Hareketler")');

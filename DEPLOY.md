@@ -34,6 +34,13 @@ bakmak yetmiyor (docs/TASARIM.md).
 
 ## 3. Vercel
 
+**Bölge:** `vercel.json` içinde `"regions": ["fra1"]` var — fonksiyonlar
+Frankfurt'ta çalışsın diye. Supabase projesi de `eu-central-1` ise uygulama ile
+veritabanı aynı şehirde olur. Ayrı kıtalarda olurlarsa her sorgu ~100 ms
+gidiş-dönüş yer ve sayfalar gözle görülür yavaşlar (TUZAKLAR #50). Vercel
+panelinde **Settings → Functions → Region** alanından da doğrula; Hobby planı
+tek bölge seçtiriyor.
+
 1. Depoyu içe aktar (Framework: Next.js, kök dizin `.`).
 2. **Settings → Environment Variables** (Production + Preview):
 

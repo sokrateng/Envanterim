@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { Badge, EmptyState, Group, Row, Rows, Screen, ScreenHeader } from "@/components/ui";
+import {
+  Badge,
+  EmptyState,
+  Group,
+  Row,
+  Rows,
+  Screen,
+  ScreenHeader,
+} from "@/components/ui";
 import { listMyLocations } from "@/lib/access";
 import {
   ITEM_STATUS,
@@ -68,7 +76,9 @@ export default async function EnvanterPage({
     ? (filters.durum as ItemStatus)
     : null;
 
-  const assignmentFilter = ZIMMET_FILTERS.includes(filters.zimmet as ZimmetFilter)
+  const assignmentFilter = ZIMMET_FILTERS.includes(
+    filters.zimmet as ZimmetFilter,
+  )
     ? (filters.zimmet as ZimmetFilter)
     : null;
 
@@ -76,8 +86,8 @@ export default async function EnvanterPage({
   const requestedCategory = filters.kategori ?? null;
 
   // Kategoriler lokasyona ait; forma yalnız üye olunan lokasyonlarınki gider.
-  const categories = memberLocationIds.length
-    ? await prisma.category.findMany({
+  const categoriesPromise = memberLocationIds.length
+    ? prisma.category.findMany({
         where: { locationId: { in: memberLocationIds } },
         select: {
           id: true,
@@ -98,45 +108,17 @@ export default async function EnvanterPage({
         },
         orderBy: { name: "asc" },
       })
-    : [];
-
-  const categoriesByLocation: Record<string, CategoryOption[]> = {};
-  for (const category of categories) {
-    const option: CategoryOption = {
-      id: category.id,
-      name: category.name,
-      icon: category.icon,
-      fields: category.fields.map((field) => ({
-        key: field.key,
-        label: field.label,
-        type: field.type as FieldType,
-        required: field.required,
-        options: Array.isArray(field.options) ? (field.options as string[]) : null,
-        hidden: field.hidden,
-      })),
-    };
-    (categoriesByLocation[category.locationId] ??= []).push(option);
-  }
-
-  // Filtre çubuğu yalnız seçili lokasyonun (ya da hepsinin) kategorilerini
-  // gösterir; başka lokasyonun kategorisiyle filtrelemek anlamsız olurdu.
-  const filterCategories = selectedLocation
-    ? (categoriesByLocation[selectedLocation] ?? [])
-    : categories.map((c) => ({ id: c.id, name: c.name, icon: c.icon, fields: [] }));
-
-  // Başka lokasyonun kategorisiyle filtrelenmesin: gelen parametre üye
-  // olunan lokasyonların kategorileriyle kesiştirilir.
-  const categoryFilter =
-    requestedCategory && categories.some((c) => c.id === requestedCategory)
-      ? requestedCategory
-      : null;
+    : Promise.resolve([]);
 
   // Süzme veritabanında yapılıyor: sayfa sınırından sonra elemek listeyi
   // sessizce eksiltir — kullanıcı eksik listeye baktığını anlamaz.
   const where = {
     locationId: selectedLocation ? selectedLocation : { in: memberLocationIds },
     ...(status ? { status } : {}),
-    ...(categoryFilter ? { categoryId: categoryFilter } : {}),
+    // Kategori kimliği doğrudan kullanılıyor: satırlar zaten üye olunan
+    // lokasyonlarla sınırlı, başka lokasyonun kategorisi eşleşemez. Böylece
+    // liste sorgusu kategori listesini beklemiyor.
+    ...(requestedCategory ? { categoryId: requestedCategory } : {}),
     ...(query
       ? {
           OR: [
@@ -159,48 +141,77 @@ export default async function EnvanterPage({
       : {}),
   };
 
-  const total = memberLocationIds.length
-    ? await prisma.item.count({ where })
-    : 0;
+  const page = Math.max(1, Number(filters.sayfa) || 1);
 
-  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const page = Math.min(Math.max(1, Number(filters.sayfa) || 1), pageCount);
-
-  const items = memberLocationIds.length
-    ? await prisma.item.findMany({
-        where,
-        select: {
-          id: true,
-          name: true,
-          brand: true,
-          model: true,
-          serialNo: true,
-          status: true,
-          warrantyEndDate: true,
-          purchasePriceMinor: true,
-          currency: true,
-          location: { select: { id: true, name: true, icon: true } },
-          category: { select: { name: true, icon: true } },
-          parentId: true,
-          assignments: {
-            where: { closedAt: null },
-            select: {
-              id: true,
-              holderUserId: true,
-              holderName: true,
-              assignedAt: true,
-              acceptedAt: true,
-              closedAt: true,
-              closedReason: true,
-              holderUser: { select: { name: true } },
+  // Sayım ve liste tek işlemde gidiyor: ayrı ayrı beklemek uzak bölgedeki
+  // veritabanında iki tur demek.
+  const listeIstegi = memberLocationIds.length
+    ? prisma.$transaction([
+        prisma.item.count({ where }),
+        prisma.item.findMany({
+          where,
+          select: {
+            id: true,
+            name: true,
+            brand: true,
+            model: true,
+            serialNo: true,
+            status: true,
+            warrantyEndDate: true,
+            purchasePriceMinor: true,
+            currency: true,
+            location: { select: { id: true, name: true, icon: true } },
+            category: { select: { name: true, icon: true } },
+            parentId: true,
+            assignments: {
+              where: { closedAt: null },
+              select: {
+                id: true,
+                holderUserId: true,
+                holderName: true,
+                assignedAt: true,
+                acceptedAt: true,
+                closedAt: true,
+                closedReason: true,
+                holderUser: { select: { name: true } },
+              },
             },
           },
-        },
-        orderBy: [{ updatedAt: "desc" }],
-        skip: (page - 1) * PAGE_SIZE,
-        take: PAGE_SIZE,
-      })
-    : [];
+          orderBy: [{ updatedAt: "desc" }],
+          skip: (page - 1) * PAGE_SIZE,
+          take: PAGE_SIZE,
+        }),
+      ])
+    : Promise.resolve([0, []] as const);
+
+  // Birbirine bağlı olmayan sorgular birlikte gidiyor: sırayla beklemek
+  // uzak bölgedeki veritabanında her biri için ayrı bir tur demek.
+  const [[total, items], categories, acikZimmet, vendors] = await Promise.all([
+    listeIstegi,
+    categoriesPromise,
+    // Zimmet çubuğu ancak özellik kullanılıyorsa çıksın; sayfadaki
+    // satırlara bakmak yetmiyor, ikinci sayfada zimmet olabilir.
+    memberLocationIds.length
+      ? prisma.itemAssignment.count({
+          where: {
+            closedAt: null,
+            item: { locationId: { in: memberLocationIds } },
+          },
+          take: 1,
+        })
+      : Promise.resolve(0),
+    memberLocationIds.length
+      ? prisma.vendor.findMany({
+          where: { locationId: { in: memberLocationIds }, isSeller: true },
+          select: { id: true, name: true, locationId: true },
+          orderBy: { name: "asc" },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const hasAssignments = acikZimmet > 0;
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   // Görünen satırın sorumlusu: durum kayıttan türetiliyor, saklanmıyor.
   const visible = items.map((item) => {
@@ -214,27 +225,46 @@ export default async function EnvanterPage({
     };
   });
 
-  // Zimmet çubuğu ancak özellik kullanılıyorsa çıksın; sayfadaki satırlara
-  // bakmak yetmiyor, ikinci sayfada zimmet olabilir.
-  const hasAssignments = memberLocationIds.length
-    ? (await prisma.itemAssignment.count({
-        where: {
-          closedAt: null,
-          item: { locationId: { in: memberLocationIds } },
-        },
-        take: 1,
-      })) > 0
-    : false;
+  const categoriesByLocation: Record<string, CategoryOption[]> = {};
+  for (const category of categories) {
+    const option: CategoryOption = {
+      id: category.id,
+      name: category.name,
+      icon: category.icon,
+      fields: category.fields.map((field) => ({
+        key: field.key,
+        label: field.label,
+        type: field.type as FieldType,
+        required: field.required,
+        options: Array.isArray(field.options)
+          ? (field.options as string[])
+          : null,
+        hidden: field.hidden,
+      })),
+    };
+    (categoriesByLocation[category.locationId] ??= []).push(option);
+  }
 
-  const vendors = memberLocationIds.length
-    ? await prisma.vendor.findMany({
-        where: { locationId: { in: memberLocationIds }, isSeller: true },
-        select: { id: true, name: true, locationId: true },
-        orderBy: { name: "asc" },
-      })
-    : [];
+  // Filtre çubuğu yalnız seçili lokasyonun (ya da hepsinin) kategorilerini
+  // gösterir; başka lokasyonun kategorisiyle filtrelemek anlamsız olurdu.
+  const filterCategories = selectedLocation
+    ? (categoriesByLocation[selectedLocation] ?? [])
+    : categories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        icon: c.icon,
+        fields: [],
+      }));
 
-  const vendorsByLocation: Record<string, Array<{ id: string; name: string }>> = {};
+  const categoryFilter =
+    requestedCategory && categories.some((c) => c.id === requestedCategory)
+      ? requestedCategory
+      : null;
+
+  const vendorsByLocation: Record<
+    string,
+    Array<{ id: string; name: string }>
+  > = {};
   for (const vendor of vendors) {
     (vendorsByLocation[vendor.locationId] ??= []).push({
       id: vendor.id,
@@ -293,14 +323,22 @@ export default async function EnvanterPage({
       {locations.length > 1 ? (
         <div className="flex gap-2 overflow-x-auto px-4 pt-3">
           <Chip
-            href={buildHref({ ...filters, lokasyon: undefined, sayfa: undefined })}
+            href={buildHref({
+              ...filters,
+              lokasyon: undefined,
+              sayfa: undefined,
+            })}
             label="Tüm lokasyonlar"
             active={!selectedLocation}
           />
           {locations.map((location) => (
             <Chip
               key={location.id}
-              href={buildHref({ ...filters, lokasyon: location.id, sayfa: undefined })}
+              href={buildHref({
+                ...filters,
+                lokasyon: location.id,
+                sayfa: undefined,
+              })}
               label={`${location.icon ?? "📍"} ${location.name}`}
               active={selectedLocation === location.id}
             />
@@ -311,14 +349,22 @@ export default async function EnvanterPage({
       {filterCategories.length ? (
         <div className="flex gap-2 overflow-x-auto px-4 pt-3">
           <Chip
-            href={buildHref({ ...filters, kategori: undefined, sayfa: undefined })}
+            href={buildHref({
+              ...filters,
+              kategori: undefined,
+              sayfa: undefined,
+            })}
             label="Tüm kategoriler"
             active={!categoryFilter}
           />
           {filterCategories.map((category) => (
             <Chip
               key={category.id}
-              href={buildHref({ ...filters, kategori: category.id, sayfa: undefined })}
+              href={buildHref({
+                ...filters,
+                kategori: category.id,
+                sayfa: undefined,
+              })}
               label={`${category.icon ?? "🏷"} ${category.name}`}
               active={categoryFilter === category.id}
             />
@@ -329,21 +375,25 @@ export default async function EnvanterPage({
       {/* Zimmet çubuğu ancak kullanılıyorsa çıkıyor: 390 pikselde üçüncü çip
           sırası listeyi ekranın dışına itiyor. */}
       {hasAssignments || assignmentFilter ? (
-      <div className="flex gap-2 overflow-x-auto px-4 pt-3">
-        <Chip
-          href={buildHref({ ...filters, zimmet: undefined, sayfa: undefined })}
-          label="Tüm zimmetler"
-          active={!assignmentFilter}
-        />
-        {ZIMMET_FILTERS.map((option) => (
+        <div className="flex gap-2 overflow-x-auto px-4 pt-3">
           <Chip
-            key={option}
-            href={buildHref({ ...filters, zimmet: option, sayfa: undefined })}
-            label={ZIMMET_LABELS[option]}
-            active={assignmentFilter === option}
+            href={buildHref({
+              ...filters,
+              zimmet: undefined,
+              sayfa: undefined,
+            })}
+            label="Tüm zimmetler"
+            active={!assignmentFilter}
           />
-        ))}
-      </div>
+          {ZIMMET_FILTERS.map((option) => (
+            <Chip
+              key={option}
+              href={buildHref({ ...filters, zimmet: option, sayfa: undefined })}
+              label={ZIMMET_LABELS[option]}
+              active={assignmentFilter === option}
+            />
+          ))}
+        </div>
       ) : null}
 
       {locations.length === 0 ? (
@@ -393,39 +443,45 @@ export default async function EnvanterPage({
                   name={item.name}
                   pendingAssignmentId={pendingForMe}
                   status={item.status}
-                  editable={editableLocations.some((l) => l.id === item.location.id)}
+                  editable={editableLocations.some(
+                    (l) => l.id === item.location.id,
+                  )}
                 >
-                <Row
-                  badgesBelow
-                  href={`/envanter/${item.id}`}
-                  title={item.name}
-                  subtitle={details || "Ayrıntı girilmemiş"}
-                  badge={
-                    <>
-                      {item.status !== "IN_USE" ? (
-                        <Badge tone={item.status === "IN_REPAIR" ? "orange" : "muted"}>
-                          {ITEM_STATUS_LABELS[item.status as ItemStatus]}
+                  <Row
+                    badgesBelow
+                    href={`/envanter/${item.id}`}
+                    title={item.name}
+                    subtitle={details || "Ayrıntı girilmemiş"}
+                    badge={
+                      <>
+                        {item.status !== "IN_USE" ? (
+                          <Badge
+                            tone={
+                              item.status === "IN_REPAIR" ? "orange" : "muted"
+                            }
+                          >
+                            {ITEM_STATUS_LABELS[item.status as ItemStatus]}
+                          </Badge>
+                        ) : null}
+                        <Badge
+                          tone={
+                            warranty.state === "active"
+                              ? "green"
+                              : warranty.state === "ending-soon"
+                                ? "orange"
+                                : "muted"
+                          }
+                        >
+                          {warranty.label}
                         </Badge>
-                      ) : null}
-                      <Badge
-                        tone={
-                          warranty.state === "active"
-                            ? "green"
-                            : warranty.state === "ending-soon"
-                              ? "orange"
-                              : "muted"
-                        }
-                      >
-                        {warranty.label}
-                      </Badge>
-                    </>
-                  }
-                  trailing={
-                    item.purchasePriceMinor != null
-                      ? formatMoney(item.purchasePriceMinor, item.currency)
-                      : undefined
-                  }
-                />
+                      </>
+                    }
+                    trailing={
+                      item.purchasePriceMinor != null
+                        ? formatMoney(item.purchasePriceMinor, item.currency)
+                        : undefined
+                    }
+                  />
                 </ItemSwipe>
               );
             })}
@@ -434,7 +490,10 @@ export default async function EnvanterPage({
       )}
 
       {pageCount > 1 ? (
-        <nav aria-label="Sayfalar" className="flex items-center justify-between gap-3 px-4 pt-4">
+        <nav
+          aria-label="Sayfalar"
+          className="flex items-center justify-between gap-3 px-4 pt-4"
+        >
           <PageLink
             href={buildHref({ ...filters, sayfa: String(page - 1) })}
             enabled={page > 1}
@@ -442,7 +501,8 @@ export default async function EnvanterPage({
             ‹ Önceki
           </PageLink>
           <span className="text-footnote text-muted">
-            {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} / {total}
+            {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} /{" "}
+            {total}
           </span>
           <PageLink
             href={buildHref({ ...filters, sayfa: String(page + 1) })}
@@ -486,7 +546,10 @@ function PageLink({
     );
   }
   return (
-    <Link href={href} className="min-h-touch px-2 py-2 text-body text-blue active:opacity-60">
+    <Link
+      href={href}
+      className="min-h-touch px-2 py-2 text-body text-blue active:opacity-60"
+    >
       {children}
     </Link>
   );

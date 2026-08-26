@@ -5,6 +5,7 @@ import { FIELD_TYPE_LABELS, type FieldType } from "@/lib/constants";
 import { canManageCategories } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { CategoryFields, type FieldView } from "./CategoryFields";
+import { EditCategory } from "./EditCategory";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +55,14 @@ export default async function KategoriPage({
       <ScreenHeader
         title={`${category.icon ?? "🏷"} ${category.name}`}
         back={{ href: `/lokasyonlar/${id}/kategoriler`, label: "Kategoriler" }}
+        action={
+          <EditCategory
+            locationId={id}
+            categoryId={katId}
+            name={category.name}
+            icon={category.icon}
+          />
+        }
       />
       <p className="px-4 pt-2 text-footnote text-muted">
         {category._count.items} ekipman bu kategoride.
