@@ -55,11 +55,16 @@ export async function guard(
     const id = Math.random().toString(36).slice(2, 8);
     console.error(`[${route}] ${id}`, error);
 
-    const detail =
-      process.env.NODE_ENV === "production"
-        ? ""
-        : ` (${(error as Error)?.message ?? "bilinmeyen"})`;
+    // Hatanın **türü** ve varsa sağlayıcı kodu kullanıcıya da gidiyor: sır
+    // içermiyor ama "neden olmadı" sorusunu tek bakışta cevaplıyor. Mesajın
+    // kendisi yalnız günlükte kalıyor — bağlantı dizesi, tablo adı, yol
+    // oradan sızabilir.
+    const named = error as { name?: string; code?: string | number };
+    const tur = [named?.name, named?.code].filter(Boolean).join(" ");
 
-    return apiError(`Beklenmeyen bir hata oldu. Kod: ${id}${detail}`, 500);
+    return apiError(
+      `Beklenmeyen bir hata oldu. Kod: ${id}${tur ? ` · ${tur}` : ""}`,
+      500,
+    );
   }
 }
