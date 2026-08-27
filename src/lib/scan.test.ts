@@ -161,6 +161,21 @@ describe("serialFromScan", () => {
     expect(serialFromScan("https://marka.com/q?kod=ABC-123").ok).toBe(false);
   });
 
+  it("kayıt adresindeki tek harfli alanları çözer", () => {
+    // Gerçek bir etiket: Shark süpürgenin "Scan to Register" QR'ı.
+    expect(
+      serialFromScan(
+        "http://www.registeryourshark.com/reg/?m=FA300EU&s=A20XX712Z1Q1",
+      ),
+    ).toEqual({ ok: true, serial: "A20XX712Z1Q1", model: "FA300EU" });
+  });
+
+  it("arama sorgusunu seri no sanmaz", () => {
+    // `s` çoğu sitede arama alanı; seri noya benzemeyen değeri almıyoruz.
+    expect(serialFromScan("https://marka.com/ara?s=robot süpürge").ok).toBe(false);
+    expect(serialFromScan("https://marka.com/ara?s=shark").ok).toBe(false);
+  });
+
   it("adresi ve boş kodu geri çevirir", () => {
     expect(serialFromScan("https://ornek.com/urun").ok).toBe(false);
     expect(serialFromScan("mailto:a@b.c").ok).toBe(false);

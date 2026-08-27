@@ -70,6 +70,7 @@ export function ItemFields({
 
   // Seri no barkoddan okunabildiği için denetimli: okunan değer alana yazılıyor.
   const [serialNo, setSerialNo] = useState(defaults.serialNo ?? "");
+  const [model, setModel] = useState(defaults.model ?? "");
 
   // Satıcı tek alan gibi davranıyor: listeden seç ya da "yeni" deyip adını yaz.
   // Faturadan bir ad geldiyse ya da lokasyonun hiç satıcısı yoksa doğrudan
@@ -119,11 +120,19 @@ export function ItemFields({
           <input name="brand" defaultValue={defaults.brand} className={inputClass} />
         </Field>
         <Field label="Model">
-          <input name="model" defaultValue={defaults.model} className={inputClass} />
+          <input
+            name="model"
+            value={model}
+            onChange={(event) => setModel(event.target.value)}
+            className={inputClass}
+          />
         </Field>
       </div>
 
-      <Field label="Seri no" hint="Cihazın üstündeki barkoddan okutabilirsin.">
+      <Field
+        label="Seri no"
+        hint="Cihazın üstündeki barkod ya da QR koddan okutabilirsin."
+      >
         <div className="flex items-center gap-2">
           <input
             name="serialNo"
@@ -133,7 +142,14 @@ export function ItemFields({
             autoCorrect="off"
             className={inputClass}
           />
-          <SerialScanButton onRead={setSerialNo} />
+          <SerialScanButton
+            onRead={(serial, kod) => {
+              setSerialNo(serial);
+              // Kayıt QR'ı modeli de taşıyor. Kullanıcının yazdığının üstüne
+              // yazmıyoruz: okunan model tahmin, elle girilen bilgi değil.
+              if (kod) setModel((now) => now.trim() || kod);
+            }}
+          />
         </div>
       </Field>
 

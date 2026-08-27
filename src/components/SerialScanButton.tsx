@@ -14,7 +14,12 @@ import { serialFromScan } from "@/lib/scan";
  * karar veriyor — kendi QR etiketimizi okutan kullanıcının alanına ürün
  * adresi yazılmıyor.
  */
-export function SerialScanButton({ onRead }: { onRead: (serial: string) => void }) {
+export function SerialScanButton({
+  onRead,
+}: {
+  /** Model yalnız kodun içinde varsa geliyor; kayıt QR'ları ikisini birden taşır. */
+  onRead: (serial: string, model?: string) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
@@ -42,7 +47,7 @@ export function SerialScanButton({ onRead }: { onRead: (serial: string) => void 
                 // Okuma sürsün: kullanıcı doğru barkodu çerçeveye alabilir.
                 return false;
               }
-              onRead(sonuc.serial);
+              onRead(sonuc.serial, sonuc.model);
               setOpen(false);
               return true;
             }}
@@ -50,9 +55,11 @@ export function SerialScanButton({ onRead }: { onRead: (serial: string) => void 
             onError={setNote}
           />
           <p className="pt-3 text-footnote text-muted">
-            Barkodu çerçeveye al; küçükse yakınlaştır. Okunan kod seri no
-            alanına yazılır, kaydetmeden önce kontrol edersin. Etiket parlıyorsa
-            telefonu hafif yan tut — parlama okumayı engelliyor.
+            Barkod ya da QR&apos;ı çerçeveye al; küçükse yakınlaştır. Üreticinin
+            &quot;kaydol&quot; QR&apos;ında seri no adresin içinde duruyor, onu da
+            çıkarıyoruz. Okunan kod seri no alanına yazılır, kaydetmeden önce
+            kontrol edersin. Etiket parlıyorsa telefonu hafif yan tut — parlama
+            okumayı engelliyor.
           </p>
         </div>
       </Sheet>

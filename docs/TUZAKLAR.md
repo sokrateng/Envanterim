@@ -440,3 +440,25 @@ aynı renk olduğu için "kırpılmış yazı" gibi görünüyor, hangi öğenin
 belli olmuyordu (`elementFromPoint` söyledi). Esnek satırdaki sabit boyutlu her
 öğe `shrink-0` olmalı.
 
+
+**67. "QR okunmuyor" sanılan şey aslında okunuyordu.** Kullanıcı gerçek bir
+ürün etiketinin fotoğrafını gönderdi: parlak gümüş sticker, yan yatmış QR.
+Refleks, çözümleyiciyi kurcalamaktı — binarizer, `tryHarder`, parlama. Önce
+ölçtük: aynı fotoğraf Node'da zxing ile **ilk denemede**, `tryHarder` bile
+kapalıyken çözüldü. Sorun kamerada değil, çözülen metnin sonrasındaydı:
+
+    http://www.registeryourshark.com/reg/?m=FA300EU&s=A20XX712Z1Q1
+
+`serialFromScan` bunu "adres" sayıp geri çeviriyordu, çünkü tanıdığı parametre
+adları `sn`/`serial` ile başlıyordu; kayıt adresleri ise tek harf kullanıyor
+(`s`, `m`). Kullanıcıya bu, "QR algılanmıyor" diye görünüyordu.
+
+İki ders: (1) "okumuyor" şikâyetinde önce **hangi aşamada** düştüğünü ölç —
+kamera, çözümleme ve yorumlama ayrı üç aşama; (2) tek harfli parametre adı tek
+başına kanıt değil (`?s=` çoğu sitede arama), o yüzden `s`/`sno` yalnız değeri
+seri noya benziyorsa (boşluksuz, en az bir rakam, 5–32 karakter) kabul ediliyor.
+Aynı QR modeli de taşıdığı için model alanı — boşsa — o değerle doluyor.
+
+Node'da zxing'i çalıştırmanın yolu `tests/e2e/sahte/y4m.mjs` içindeki
+`instantiateWasm` numarası; `readBarcodes` ham JPEG baytlarını da alıyor, tuval
+gerekmiyor.

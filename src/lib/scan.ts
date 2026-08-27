@@ -95,7 +95,7 @@ export function scanSummary(target: ScanTarget): string {
 }
 
 export type SerialRead =
-  | { ok: true; serial: string }
+  | { ok: true; serial: string; model?: string }
   | { ok: false; message: string };
 
 /**
@@ -110,24 +110,81 @@ export type SerialRead =
  * duruyor: `https://marka.com/dogrula?sn=FD9901123456`. Adı belli olan
  * parametreyi almak tahmin değil; adresin geri kalanını seri no saymıyoruz.
  */
-const SERIAL_PARAMS = ["sn", "s/n", "seri", "serial", "serialno", "serialnumber"];
+const SERIAL_PARAMS = [
+  "sn",
+  "s/n",
+  "s-n",
+  "snr",
+  "seri",
+  "serino",
+  "serial",
+  "serialno",
+  "serialnum",
+  "serialnumber",
+  "sernum",
+];
 
-function serialFromUrl(text: string): string | null {
+/**
+ * Kayıt adreslerinde alan adları tek harfe iniyor — gerçek bir etiket:
+ * `http://www.registeryourshark.com/reg/?m=FA300EU&s=A20XX712Z1Q1`. `s` tek
+ * başına "search" de olabildiği için burada ad yetmiyor, değerin seri noya
+ * benzemesi de gerekiyor.
+ */
+const SHORT_SERIAL_PARAMS = ["s", "sno"];
+
+/** Aynı QR çoğu zaman modeli de taşıyor; boş model alanını o dolduruyor. */
+const MODEL_PARAMS = ["m", "mn", "model", "modelno", "modelnumber"];
+
+/**
+ * Seri no biçimi: boşluksuz, en az bir rakamlı, makul boyda. Arama sorgusunu
+ * ("shark", "buzdolabı fiyat") bu eleme dışarıda bırakıyor.
+ */
+function looksLikeSerial(value: string): boolean {
+  return /^[A-Za-z0-9][A-Za-z0-9._/-]{4,31}$/.test(value) && /\d/.test(value);
+}
+
+function params(text: string): Map<string, string> | null {
   let url: URL;
   try {
-    url = new URL(text);
+    // Göreli yol da URL olarak çözülsün diye taban adres veriliyor; hangi
+    // taban olduğu önemli değil, yalnız sorgu dizesi okunuyor.
+    url = new URL(text, "https://envanterim.local");
   } catch {
     return null;
   }
 
+  const found = new Map<string, string>();
   for (const [key, value] of url.searchParams) {
     const name = key.trim().toLowerCase();
     const candidate = value.trim();
-    if (!SERIAL_PARAMS.includes(name)) continue;
-    if (candidate.length === 0 || candidate.length > MAX_QUERY_LENGTH) continue;
-    return candidate;
+    if (!candidate || candidate.length > MAX_QUERY_LENGTH) continue;
+    if (!found.has(name)) found.set(name, candidate);
+  }
+  return found;
+}
+
+function pick(found: Map<string, string>, names: string[]): string | null {
+  for (const name of names) {
+    const value = found.get(name);
+    if (value) return value;
   }
   return null;
+}
+
+/** Adresin içindeki seri no ve model — bulunamayan null döner. */
+export function serialFromUrl(
+  text: string,
+): { serial: string; model: string | null } | null {
+  const found = params(text);
+  if (!found) return null;
+
+  const named = pick(found, SERIAL_PARAMS);
+  const short = pick(found, SHORT_SERIAL_PARAMS);
+  const serial = named ?? (short && looksLikeSerial(short) ? short : null);
+  if (!serial) return null;
+
+  const model = pick(found, MODEL_PARAMS);
+  return { serial, model: model && model.length <= 64 ? model : null };
 }
 
 export function serialFromScan(raw: string): SerialRead {
@@ -143,8 +200,15 @@ export function serialFromScan(raw: string): SerialRead {
   }
   if (/^[a-z][a-z0-9+.-]*:/i.test(text) || text.startsWith("/")) {
     const fromUrl = serialFromUrl(text);
-    if (fromUrl) return { ok: true, serial: fromUrl };
-    return { ok: false, message: "Bu bir adres, seri no değil" };
+    if (fromUrl) {
+      return fromUrl.model
+        ? { ok: true, serial: fromUrl.serial, model: fromUrl.model }
+        : { ok: true, serial: fromUrl.serial };
+    }
+    return {
+      ok: false,
+      message: "Bu adreste seri no yok. Cihazın üstündeki barkodu okut.",
+    };
   }
   if (text.length > MAX_QUERY_LENGTH) {
     return { ok: false, message: "Kod seri no olamayacak kadar uzun" };
