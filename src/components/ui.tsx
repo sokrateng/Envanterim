@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EnvanterLink } from "@/components/EnvanterLink";
 import { TITLE_BOX } from "@/lib/typography";
 import { Children, Fragment, type ReactNode } from "react";
 
@@ -11,6 +12,10 @@ export function Screen({ children }: { children: ReactNode }) {
   return <div className="mx-auto w-full max-w-[430px] pb-28">{children}</div>;
 }
 
+/** Başlıktaki geri bağlantısının biçimi; iki bağlantı da aynı görünüyor. */
+const BACK_LINK =
+  "-ml-1 inline-flex h-touch items-center gap-1 text-body text-blue active:opacity-60";
+
 export function ScreenHeader({
   title,
   action,
@@ -21,7 +26,15 @@ export function ScreenHeader({
 }: {
   title: string;
   action?: ReactNode;
-  back?: { href: string; label: string };
+  back?: {
+    href: string;
+    label: string;
+    /**
+     * Envanter listesine dönerken kullanıcının bıraktığı süzme korunuyor.
+     * Düz bağlantı sorguyu baştan yazıyordu (TUZAKLAR #75).
+     */
+    keepFilters?: boolean;
+  };
   /** Başlığın solundaki görsel (ekipman fotoğrafı). */
   leading?: ReactNode;
   /** Uzun adlarda küçülen punto; src/lib/typography.ts'ten geliyor. */
@@ -32,13 +45,17 @@ export function ScreenHeader({
   return (
     <header className="px-4 pt-[calc(env(safe-area-inset-top)+12px)]">
       {back ? (
-        <Link
-          href={back.href}
-          className="-ml-1 inline-flex h-touch items-center gap-1 text-body text-blue active:opacity-60"
-        >
-          <span aria-hidden>‹</span>
-          {back.label}
-        </Link>
+        back.keepFilters ? (
+          <EnvanterLink className={BACK_LINK}>
+            <span aria-hidden>‹</span>
+            {back.label}
+          </EnvanterLink>
+        ) : (
+          <Link href={back.href} className={BACK_LINK}>
+            <span aria-hidden>‹</span>
+            {back.label}
+          </Link>
+        )
       ) : null}
       <div className="flex items-end justify-between gap-3">
         <div

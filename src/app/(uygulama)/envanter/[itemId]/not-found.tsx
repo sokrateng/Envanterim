@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EnvanterLink } from "@/components/EnvanterLink";
 import { Screen, ScreenHeader } from "@/components/ui";
 import { currentUser } from "@/lib/session";
 
@@ -19,7 +20,7 @@ export default async function EkipmanBulunamadi() {
 
   return (
     <Screen>
-      <ScreenHeader title="Ekipman açılamadı" back={{ href: "/envanter", label: "Envanter" }} />
+      <ScreenHeader title="Ekipman açılamadı" back={{ href: "/envanter", label: "Envanter", keepFilters: true }} />
 
       <div className="px-4 pt-2">
         <p className="text-body">
@@ -38,12 +39,9 @@ export default async function EkipmanBulunamadi() {
         ) : null}
 
         <div className="pt-5">
-          <Link
-            href="/envanter"
-            className="grid min-h-touch place-items-center rounded-card bg-blue px-4 text-headline text-white transition active:scale-95"
-          >
+          <EnvanterLink className="grid min-h-touch place-items-center rounded-card bg-blue px-4 text-headline text-white transition active:scale-95">
             Envantere dön
-          </Link>
+          </EnvanterLink>
           <Link
             href="/hesap"
             className="grid min-h-touch place-items-center pt-3 text-body text-blue active:opacity-60"

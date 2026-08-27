@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { EnvanterLink } from "@/components/EnvanterLink";
 import { ItemPhoto } from "@/components/ItemPhoto";
 import { Favorite } from "./Favorite";
 
@@ -41,13 +41,12 @@ export function Hero({
 
       {/* Çentiğin altında kalmasınlar; bant güvenli alanın içine uzanıyor. */}
       <div className="pointer-events-none absolute inset-x-0 top-[calc(env(safe-area-inset-top)+8px)] flex justify-between px-3">
-        <Link
-          href="/envanter"
-          aria-label="Envantere dön"
+        <EnvanterLink
+          label="Envantere dön"
           className="pointer-events-auto grid h-touch w-touch place-items-center rounded-full bg-black/35 text-title text-white backdrop-blur active:opacity-60"
         >
           <span aria-hidden>‹</span>
-        </Link>
+        </EnvanterLink>
         <div className="pointer-events-auto">
           <Favorite itemId={itemId} favorite={favorite} />
         </div>

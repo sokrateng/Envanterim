@@ -209,15 +209,25 @@ try {
     throw new Error(`+ düğmesi süzmeyi taşımıyor: ${fabAdres}`);
   }
 
+  // Ekipmana girip geri dönmek de silmiyor: ekrandaki geri düğmesi yeni bir
+  // gezinti, donanım "geri"si gibi geçmişteki adresi geri getirmiyor.
+  await page.goto(`${BASE}/envanter?durum=IN_USE`);
+  await page.waitForSelector(`a:has-text("${URUN}")`, { timeout: 15000 });
+  await page.locator(`a:has-text("${URUN}")`).first().tap();
+  await page.waitForURL(/\/envanter\/[a-z0-9]+/i, { timeout: 15000 });
+  await page.locator('a[aria-label="Envantere dön"]').tap();
+  await page.waitForURL(/durum=IN_USE/, { timeout: 15000 });
+  log("detaydan dönünce süzme yerinde");
+
   // "Temizle" de bir tercih: dönüşte süzme geri gelmemeli.
   await page.tap('button[aria-label="Filtreler — 1 açık"]');
   await page.getByRole("button", { name: "Temizle", exact: true }).tap();
-  await page.waitForURL((url) => !url.searchParams.has("garanti"));
+  await page.waitForURL((url) => !url.searchParams.has("durum"));
   await page.locator('nav a:has-text("Hesap")').tap();
   await page.waitForURL("**/hesap");
   await page.locator('nav a:has-text("Envanter")').tap();
   await page.waitForTimeout(1200);
-  if (new URL(page.url()).searchParams.has("garanti")) {
+  if (new URL(page.url()).searchParams.has("durum")) {
     throw new Error(`temizlenen süzme geri geldi: ${page.url()}`);
   }
   log("temizlenen süzme geri gelmiyor");

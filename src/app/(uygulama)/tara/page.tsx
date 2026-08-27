@@ -9,7 +9,7 @@ export default async function TaraPage() {
 
   return (
     <Screen>
-      <ScreenHeader title="Tara" back={{ href: "/envanter", label: "Envanter" }} />
+      <ScreenHeader title="Tara" back={{ href: "/envanter", label: "Envanter", keepFilters: true }} />
       <Scanner />
     </Screen>
   );

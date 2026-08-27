@@ -544,9 +544,17 @@ Silen alt çubuktaki sekmeydi: `<Link href="/envanter">` sorgusuz bir adres, yan
 her dokunuşta süzmeyi sıfırlıyordu. Kimse böyle karar vermemişti; varsayılan
 buydu.
 
+Aynı hata dört ayrı kapıda birden vardı ve ilk düzeltmede yalnız sekmeyi
+gördük: ekipman detayının geri düğmesi, tarama sayfasının geri bağlantısı ve
+"ekipman açılamadı" sayfası da düz `/envanter` diyordu. Donanım "geri"si
+çalıştığı için gözden kaçıyor — o geçmişteki adresi geri getiriyor, oysa
+ekrandaki geri düğmesi yeni bir gezinti.
+
 **Ders:** durumu adreste tutmak yetmiyor, o adrese giden **her** yolun onu
-taşıması gerekiyor. **Çözüm:** son hâl saklanıp sekme bağlantısına geri konuyor
-(`src/lib/last-filter.ts`). "Temizle" de bir tercih olduğu için boş hâl de
+taşıması gerekiyor; birini düzeltince `grep` ile kalanları da ara.
+**Çözüm:** son hâl saklanıp sekme bağlantısına geri konuyor
+(`src/lib/last-filter.ts`); listeye dönen bağlantılar `EnvanterLink` üstünden
+geçiyor. "Temizle" de bir tercih olduğu için boş hâl de
 saklanıyor; yoksa temizlenen süzme ilk dönüşte geri gelirdi. Saklanan değer
 tarayıcıda okunuyor, bu yüzden bağlanmadan sonraki ilk çizimde tazeleniyor —
 sunucu çizimiyle aynı kalsın diye.

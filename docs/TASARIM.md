@@ -87,8 +87,10 @@ görünen sıra da kaydırılabildiğini söylüyor.
 **Süzme kullanıcının bıraktığı gibi kalıyor.** Süzme adres çubuğunda duruyor —
 bağlantı paylaşılabiliyor, geri tuşu çalışıyor, sunucu bileşeni doğrudan
 okuyor — bu yüzden yenileme zaten koruyor. Kaybolduğu tek yer alt çubuktaki
-sekmeydi: düz bir `/envanter` bağlantısı sorguyu baştan yazıyordu. Son hâl
-saklanıp sekme bağlantısına geri konuyor (`src/lib/last-filter.ts`).
+sekme ve geri düğmeleriydi: düz bir `/envanter` bağlantısı sorguyu baştan
+yazıyordu. Son hâl saklanıp listeye dönen bütün bağlantılara geri konuyor —
+sekme, ekipman detayının geri düğmesi, tarama sayfası, "ekipman açılamadı"
+(`src/lib/last-filter.ts`, `src/components/EnvanterLink.tsx`).
 "Temizle" de bir tercih: boş hâl saklanıyor, dönüşte süzme geri gelmiyor.
 
 **Kaydırarak eylem.** Liste satırında sağa/sola kaydırma — GeziPay'deki

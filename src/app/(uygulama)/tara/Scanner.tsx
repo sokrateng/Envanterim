@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import { inventoryHref, readFilters } from "@/lib/last-filter";
 import { CodeCamera } from "@/components/CodeCamera";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { readScan, scanSummary, type ScanTarget } from "@/lib/scan";
@@ -123,7 +124,9 @@ export function Scanner() {
         onConfirm={() => setUnknownCode(null)}
         onCancel={() => {
           setUnknownCode(null);
-          router.push("/envanter");
+          // Süzme korunuyor: taramadan vazgeçen kullanıcı listeyi bıraktığı
+          // gibi bulmalı (src/lib/last-filter.ts).
+          router.push(inventoryHref(readFilters()));
         }}
       />
 
