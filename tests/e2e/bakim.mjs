@@ -1,5 +1,6 @@
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
+import { bolumAc } from "./ortak.mjs";
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/bakim"; fs.mkdirSync(out, { recursive: true });
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 const iphone = { ...devices["iPhone 13"], viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 };
@@ -18,7 +19,7 @@ try {
 
   // Araç: sayaç kuralı için
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   const arac = `Araç ${damga}`;
   await page.fill('input[name="name"]', arac);
   await page.fill('input[name="purchaseDate"]', gun(-400));
@@ -42,6 +43,7 @@ try {
 
   // İki okuma: 100.000 ve 105.000 km
   const kayit = async (doldur) => {
+    await bolumAc(page, "Zaman çizelgesi");
     await page.tap('button:has-text("+ Kayıt")');
     await doldur();
     await page.tap('form button[type="submit"]');

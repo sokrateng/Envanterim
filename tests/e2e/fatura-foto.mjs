@@ -10,7 +10,7 @@ try {
   await page.tap('button[type="submit"]');
   await page.waitForURL("**/lokasyonlar");
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   const ad = "Fatura fotoğrafı " + Date.now();
   await page.fill('input[name="name"]', ad);
   await page.tap('button[type="submit"]');

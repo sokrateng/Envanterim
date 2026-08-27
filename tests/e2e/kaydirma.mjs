@@ -1,5 +1,6 @@
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
+import { bolumAc } from "./ortak.mjs";
 
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/kaydirma";
 fs.mkdirSync(out, { recursive: true });
@@ -91,7 +92,7 @@ try {
   // Kendi ekipmanımız: durum değiştirmeyi burada deneyeceğiz.
   const AD = "Kaydırma " + damga;
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', AD);
   await page.tap('form button[type="submit"]');
   await page.waitForSelector(`text=${AD}`, { timeout: 15000 });
@@ -171,6 +172,7 @@ try {
   await page.goto(`${BASE}/envanter?q=${encodeURIComponent(damga)}`);
   await page.locator('a[href^="/envanter/"]').first().tap();
   await page.waitForURL(/\/envanter\/[^/?#]+$/);
+  await bolumAc(page, "Zaman çizelgesi");
   await page.tap('button:has-text("+ Kayıt")');
   await page.fill('textarea[name="note"], input[name="note"]', "Silinecek kayıt");
   await page.tap('form button[type="submit"]');

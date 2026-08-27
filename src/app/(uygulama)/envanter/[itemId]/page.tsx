@@ -42,7 +42,7 @@ import { Hero } from "./Hero";
 import { canDeleteNote, canEditNote } from "@/lib/notes";
 import { averageStars } from "@/lib/rating";
 import { paymentLabel, serviceLabel, serviceState } from "@/lib/service";
-import { TITLE_BOX, titleClass } from "@/lib/typography";
+import { titleClass } from "@/lib/typography";
 
 export const dynamic = "force-dynamic";
 
@@ -457,12 +457,11 @@ export default async function EkipmanPage({
         favorite={favorite}
       />
 
-      {/* Ad alanı sabit yükseklikte: uzun ad altındaki her şeyi aşağı
-          kaydırmasın, punto küçülsün (src/lib/typography.ts). */}
+      {/* Ad uzadıkça punto küçülüyor (src/lib/typography.ts) ama alan sabit
+          değil: iki satırlık kutu kısa adlarda yıldızlarla arasında boş bir
+          şerit bırakıyordu. Kırpma zaten iki satırı geçmesini engelliyor. */}
       <div className="flex items-start justify-between gap-3 px-4 pt-3">
-        <h1
-          className={`min-w-0 break-words ${TITLE_BOX} ${titleClass(item.name)}`}
-        >
+        <h1 className={`min-w-0 break-words ${titleClass(item.name)}`}>
           {item.name}
         </h1>
         {editable ? (
@@ -648,17 +647,18 @@ export default async function EkipmanPage({
             attachments={ownAttachments as AttachmentView[]}
           />
           <ShareLinks itemId={item.id} links={shares} editable={editable} />
+          <Timeline
+            itemId={item.id}
+            events={timeline}
+            vendors={vendors}
+            members={members.map((member) => member.user)}
+            currency={item.currency}
+            editable={editable}
+          />
         </Rows>
       </Group>
 
-      <Timeline
-        itemId={item.id}
-        events={timeline}
-        vendors={vendors}
-        members={members.map((member) => member.user)}
-        currency={item.currency}
-        editable={editable}
-      />
+
 
     </Screen>
     </FillProvider>

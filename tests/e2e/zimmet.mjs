@@ -37,7 +37,7 @@ async function giris(context, kullanici, sifre) {
 
 async function ekipmanEkle(page, ad) {
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', ad);
   await page.tap('form button[type="submit"]');
   await page.waitForSelector(`text=${ad}`, { timeout: 15000 });
@@ -180,6 +180,7 @@ try {
   if (eylulMetni.includes(EYLUL_AD)) throw new Error("devir sonrası eski sorumlu duruyor");
 
   // 7) Zaman çizelgesinde teslim izi
+  await bolumAc(sahip, "Zaman çizelgesi");
   const cizelge = await sahip.locator("body").innerText();
   if (!cizelge.includes("Devir ·")) throw new Error("devir zaman çizelgesinde yok");
   log("teslim izi zaman çizelgesinde");

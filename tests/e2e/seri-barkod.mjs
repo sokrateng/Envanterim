@@ -45,7 +45,7 @@ try {
   await page.waitForURL("**/lokasyonlar");
 
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.waitForSelector('input[name="serialNo"]');
 
   await page.tap('button[aria-label="Seri numarasını barkoddan oku"]');
@@ -105,7 +105,7 @@ if (ETIKET_KAMERA) {
     await page.waitForURL("**/lokasyonlar");
 
     await page.goto(`${BASE}/envanter`);
-    await page.tap('button[aria-label="Ekipman ekle"]');
+    await page.tap('a[aria-label="Yeni ekipman"]');
     await page.tap('button[aria-label="Seri numarasını barkoddan oku"]');
     await page.waitForSelector("text=Bu Envanterim etiketi", { timeout: 30_000 });
 

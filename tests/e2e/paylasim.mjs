@@ -19,7 +19,7 @@ try {
 
   // Servis geçmişi, fotoğrafı ve tutarı olan bir ekipman
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   const ad = `Kombi ${damga}`;
   await page.fill('input[name="name"]', ad);
   await page.fill('input[name="brand"]', "Vaillant");
@@ -33,6 +33,7 @@ try {
   const itemUrl = page.url();
 
   // Tutarlı bir servis kaydı ekle
+  await bolumAc(page, "Zaman çizelgesi");
   await page.tap('button:has-text("+ Kayıt")');
   await page.selectOption('select:near(:text("Tür"))', "SERVICE");
   await page.fill('input[name="date"]', gun(-30));
@@ -107,7 +108,7 @@ try {
 
   // Başka ekipmanın dosyası bu anahtarla açılmamalı
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', `Başka ekipman ${damga}`);
   await page.tap('button[type="submit"]');
   await page.waitForSelector(`text=Başka ekipman ${damga}`);

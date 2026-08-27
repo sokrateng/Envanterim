@@ -25,7 +25,7 @@ try {
 
   // Yeni ekipman: satıcı adı yazılarak açılır
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', "Klima");
   await yeniSatici(page, "Teknosa");
   await page.fill('input[name="purchasePrice"]', "31.250");
@@ -43,7 +43,8 @@ try {
 
   // İkinci ekipman: aynı satıcı listeden seçilebilmeli (tekrar açılmamalı)
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
+  await page.waitForSelector('div[role="dialog"] select[name="sellerId"]');
   const options = await page.locator('select[name="sellerId"] option').allInnerTexts();
   if (!options.includes("Teknosa")) throw new Error("satıcı listede yok: " + options.join(","));
   await page.fill('input[name="name"]', "Televizyon");
@@ -53,12 +54,13 @@ try {
   log("var olan satıcı listeden seçildi");
 
   // Aynı adı tekrar yazmak yeni satıcı açmamalı
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', "Fırın");
   await yeniSatici(page, "teknosa");
   await page.tap('button[type="submit"]');
   await page.waitForSelector("text=Fırın");
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
+  await page.waitForSelector('div[role="dialog"] select[name="sellerId"]');
   const options2 = await page.locator('select[name="sellerId"] option').allInnerTexts();
   const count = options2.filter((o) => o.toLowerCase() === "teknosa").length;
   if (count !== 1) throw new Error(`satıcı ${count} kez var, tekilleşmedi`);

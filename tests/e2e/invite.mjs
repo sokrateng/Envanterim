@@ -52,7 +52,7 @@ try {
 
   // EDITOR rolü geldi mi: ekipman ekleyebilmeli
   await guest.goto(`${BASE}/envanter`);
-  if (!(await guest.locator('button[aria-label="Ekipman ekle"]').count())) {
+  if (!(await guest.locator('a[aria-label="Yeni ekipman"]').count())) {
     throw new Error("EDITOR rolü gelmemiş");
   }
   log("rol EDITOR olarak geldi");

@@ -18,6 +18,7 @@ import {
 import type { CategoryOption } from "@/components/ItemFields";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { favoritePage } from "@/lib/favorite-page";
 import { statusView } from "@/lib/item-status";
 import { warrantyStatus } from "@/lib/warranty";
 import {
@@ -151,53 +152,89 @@ export default async function EnvanterPage({
 
   const page = Math.max(1, Number(filters.sayfa) || 1);
 
-  // Sayım ve liste tek işlemde gidiyor: ayrı ayrı beklemek uzak bölgedeki
-  // veritabanında iki tur demek.
+  /** Satır için çekilen alanlar; iki sorgu da aynısını istiyor. */
+  const satirSecimi = {
+    id: true,
+    name: true,
+    brand: true,
+    model: true,
+    serialNo: true,
+    status: true,
+    warrantyEndDate: true,
+    purchasePriceMinor: true,
+    currency: true,
+    location: { select: { id: true, name: true, icon: true } },
+    category: { select: { name: true, icon: true } },
+    // Listedeki küçük görsel: ilk fotoğraf yeter, tümünü çekmiyoruz.
+    attachments: {
+      where: { kind: "PHOTO" as const },
+      select: { url: true },
+      orderBy: { uploadedAt: "asc" as const },
+      take: 1,
+    },
+    parentId: true,
+    assignments: {
+      where: { closedAt: null },
+      select: {
+        id: true,
+        holderUserId: true,
+        holderName: true,
+        assignedAt: true,
+        acceptedAt: true,
+        closedAt: true,
+        closedReason: true,
+        holderUser: { select: { name: true } },
+      },
+    },
+  };
+
+  const favorimMi = { favorites: { some: { userId: user.id } } };
+
+  /**
+   * Favoriler listenin başında duruyor. Tek sorguda sıralanamıyor: ilişki
+   * sayısına göre sıralamak başkasının işaretini de sayardı, favori ise
+   * kişisel. Bu yüzden iki dilim — hangi sayfanın nereye denk geldiğini
+   * `favoritePage` söylüyor (saf ve testli).
+   */
   const listeIstegi = memberLocationIds.length
-    ? prisma.$transaction([
-        prisma.item.count({ where }),
-        prisma.item.findMany({
-          where,
-          select: {
-            id: true,
-            name: true,
-            brand: true,
-            model: true,
-            serialNo: true,
-            status: true,
-            warrantyEndDate: true,
-            purchasePriceMinor: true,
-            currency: true,
-            location: { select: { id: true, name: true, icon: true } },
-            category: { select: { name: true, icon: true } },
-            // Listedeki küçük görsel: ilk fotoğraf yeter, tümünü çekmiyoruz.
-            attachments: {
-              where: { kind: "PHOTO" },
-              select: { url: true },
-              orderBy: { uploadedAt: "asc" },
-              take: 1,
-            },
-            parentId: true,
-            assignments: {
-              where: { closedAt: null },
-              select: {
-                id: true,
-                holderUserId: true,
-                holderName: true,
-                assignedAt: true,
-                acceptedAt: true,
-                closedAt: true,
-                closedReason: true,
-                holderUser: { select: { name: true } },
-              },
-            },
-          },
-          orderBy: [{ updatedAt: "desc" }],
-          skip: (page - 1) * PAGE_SIZE,
-          take: PAGE_SIZE,
-        }),
-      ])
-    : Promise.resolve([0, []] as const);
+    ? (async () => {
+        const [total, favoriteCount] = await prisma.$transaction([
+          prisma.item.count({ where }),
+          prisma.item.count({ where: { ...where, ...favorimMi } }),
+        ]);
+
+        const dilim = favoritePage({
+          offset: (page - 1) * PAGE_SIZE,
+          size: PAGE_SIZE,
+          favoriteCount,
+        });
+
+        const [favoriler, kalanlar] = await prisma.$transaction([
+          prisma.item.findMany({
+            where: { ...where, ...favorimMi },
+            select: satirSecimi,
+            orderBy: [{ updatedAt: "desc" }],
+            skip: dilim.favoriteSkip,
+            take: dilim.favoriteTake,
+          }),
+          prisma.item.findMany({
+            where: { ...where, favorites: { none: { userId: user.id } } },
+            select: satirSecimi,
+            orderBy: [{ updatedAt: "desc" }],
+            skip: dilim.otherSkip,
+            take: dilim.otherTake,
+          }),
+        ]);
+
+        return [
+          total,
+          [
+            ...favoriler.map((item) => ({ ...item, favorite: true })),
+            ...kalanlar.map((item) => ({ ...item, favorite: false })),
+          ],
+        ] as const;
+      })()
+    : Promise.resolve([0, [] as Array<never>] as const);
 
   // Birbirine bağlı olmayan sorgular birlikte gidiyor: sırayla beklemek
   // uzak bölgedeki veritabanında her biri için ayrı bir tur demek.
@@ -359,25 +396,25 @@ export default async function EnvanterPage({
 
   return (
     <Screen>
-      <ScreenHeader
-        title="Envanter"
-        action={
-          editableLocations.length ? (
-            <NewItemButton
-              locations={editableLocations.map((l) => ({
-                id: l.id,
-                name: l.name,
-              }))}
-              defaultLocationId={selectedLocation ?? editableLocations[0].id}
-              categoriesByLocation={categoriesByLocation}
-              vendorsByLocation={vendorsByLocation}
-              extractionEnabled={isExtractionConfigured()}
-              autoOpen={filters.yeni === "1"}
-              presetSerial={filters.seri ?? ""}
-            />
-          ) : undefined
-        }
-      />
+      <ScreenHeader title="Envanter" />
+
+      {/* Panel burada duruyor ama düğmesi yok: ekleme yolu sekme çubuğundaki
+          düğme (adrese `yeni=1` koyuyor). Başlıkta ikinci bir kapı gereksizdi. */}
+      {editableLocations.length ? (
+        <NewItemButton
+          trigger={false}
+          locations={editableLocations.map((l) => ({
+            id: l.id,
+            name: l.name,
+          }))}
+          defaultLocationId={selectedLocation ?? editableLocations[0].id}
+          categoriesByLocation={categoriesByLocation}
+          vendorsByLocation={vendorsByLocation}
+          extractionEnabled={isExtractionConfigured()}
+          autoOpen={filters.yeni === "1"}
+          presetSerial={filters.seri ?? ""}
+        />
+      ) : null}
 
       <div className="flex items-center gap-2 px-4 pt-3">
         <SearchField defaultValue={query} />
@@ -430,7 +467,7 @@ export default async function EnvanterPage({
           description={
             query || status
               ? "Bu filtreyle eşleşen ekipman bulunamadı."
-              : "Sağ üstteki + ile ilk ekipmanını ekle."
+              : "Alttaki + ile ilk ekipmanını ekle."
           }
         />
       ) : (
@@ -487,7 +524,22 @@ export default async function EnvanterPage({
                         )}
                       />
                     }
-                    title={item.name}
+                    title={
+                      item.favorite ? (
+                        <>
+                          {/* Favori satırda küçük bir işaret: liste başında
+                              olduğunu görmek için sıralamaya güvenmek yetmiyor,
+                              filtre değişince sıra da değişiyor. */}
+                          <span aria-hidden className="text-red">
+                            ♥
+                          </span>{" "}
+                          <span className="sr-only">Favori: </span>
+                          {item.name}
+                        </>
+                      ) : (
+                        item.name
+                      )
+                    }
                     subtitle={details || "Ayrıntı girilmemiş"}
                     trailing={
                       <StatusMark

@@ -1,5 +1,6 @@
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
+import { bolumAc } from "./ortak.mjs";
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/zaman"; fs.mkdirSync(out, { recursive: true });
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 const iphone = { ...devices["iPhone 13"], viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 };
@@ -16,7 +17,7 @@ try {
   await page.waitForURL("**/lokasyonlar");
 
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   const ad = "Servis testi " + Date.now();
   await page.fill('input[name="name"]', ad);
   await page.fill('input[name="purchasePrice"]', "18.400,50");
@@ -24,7 +25,7 @@ try {
   await page.waitForSelector(`text=${ad}`);
   await page.locator(`a:has-text("${ad}")`).first().tap();
   await page.waitForSelector(`h1:has-text("${ad}")`);
-  await page.waitForSelector('button:has-text("+ Kayıt")');
+  await bolumAc(page, "Zaman çizelgesi");
   const itemUrl = page.url();
   log("ekipman açıldı, zaman çizelgesi boş");
 

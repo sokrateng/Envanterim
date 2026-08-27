@@ -43,8 +43,14 @@ export function filledStars(average: number | null): number {
   return Math.min(MAX_STARS, Math.max(0, Math.round(average)));
 }
 
-/** "3 kişi · ortalama 4,3" — puan yoksa çağırma. */
+/**
+ * Yıldızların yanındaki kısa özet.
+ *
+ * Puan yokken "Henüz puan yok" demek boşluğu tarif ediyordu; oysa oradaki
+ * asıl bilgi yıldızlara dokunulabildiği. Puan varken ortalama önce geliyor:
+ * kaç kişi verdiği ikincil.
+ */
 export function ratingSummary(count: number, average: number | null): string {
-  if (count === 0 || average === null) return "Henüz puan yok";
-  return `${count} kişi · ortalama ${formatStars(average)}`;
+  if (count === 0 || average === null) return "Puan ver";
+  return `${formatStars(average)} · ${count} kişi`;
 }

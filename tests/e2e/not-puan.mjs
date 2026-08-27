@@ -35,7 +35,7 @@ try {
 
   const AD = "Dondurma makinesi " + damga;
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', AD);
   await page.tap('div[role="dialog"] button[type="submit"]');
   await page.waitForSelector(`text=${AD}`, { timeout: 15000 });
@@ -81,16 +81,16 @@ try {
 
   // 3) Puan
   await page.tap('button[aria-label="4 yıldız ver"]');
-  await page.waitForSelector("text=senin puanın 4", { timeout: 15000 });
-  await page.waitForSelector("text=1 kişi · ortalama 4");
+  await page.waitForSelector("text=seninki 4", { timeout: 15000 });
+  await page.waitForSelector("text=4 · 1 kişi");
   log("puan verildi");
   await page.screenshot({ path: `${out}/2-puan.png` });
 
   // Aynı yıldıza tekrar dokunmak puanı kaldırıyor
   await page.tap('button[aria-label="4 yıldız ver"]');
-  await page.waitForSelector("text=Henüz puan yok", { timeout: 15000 });
+  await page.waitForSelector("text=Puan ver", { timeout: 15000 });
   await page.tap('button[aria-label="5 yıldız ver"]');
-  await page.waitForSelector("text=senin puanın 5", { timeout: 15000 });
+  await page.waitForSelector("text=seninki 5", { timeout: 15000 });
   log("puan kaldırılıp yeniden verilebiliyor");
 
   // 4) Başka üye: notu düzenleyemez, kendi puanını verir
@@ -111,7 +111,7 @@ try {
   log("başkasının notu düzenlenemiyor");
 
   await diger.tap('button[aria-label="3 yıldız ver"]');
-  await diger.waitForSelector("text=2 kişi · ortalama 4", { timeout: 15000 });
+  await diger.waitForSelector("text=4 · 2 kişi", { timeout: 15000 });
   log("ikinci puan ortalamaya girdi");
   await diger.screenshot({ path: `${out}/3-ortalama.png` });
 

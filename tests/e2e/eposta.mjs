@@ -104,7 +104,7 @@ try {
   const oncekiEkleme = postalar().length;
   const yeniAd = `Ortak ekipman ${damga}`;
   await uye.goto(`${BASE}/envanter`);
-  await uye.tap('button[aria-label="Ekipman ekle"]');
+  await uye.tap('a[aria-label="Yeni ekipman"]');
   await uye.fill('input[name="name"]', yeniAd);
   await uye.tap('div[role="dialog"] button[type="submit"]');
   await uye.waitForSelector(`text=${yeniAd}`, { timeout: 15000 });
@@ -126,7 +126,7 @@ try {
   const kapaliOncesi = postalar().length;
   const sessizAd = `Sessiz ekipman ${damga}`;
   await uye.goto(`${BASE}/envanter`);
-  await uye.tap('button[aria-label="Ekipman ekle"]');
+  await uye.tap('a[aria-label="Yeni ekipman"]');
   await uye.fill('input[name="name"]', sessizAd);
   await uye.tap('div[role="dialog"] button[type="submit"]');
   await uye.waitForSelector(`text=${sessizAd}`, { timeout: 15000 });
@@ -169,7 +169,7 @@ try {
 
   // Garanti uyarısı olacak bir ekipman: 30 gün kala
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   const ad = `E-posta testi ${damga}`;
   await page.fill('input[name="name"]', ad);
   await page.fill('input[name="warrantyEndDate"]', gun(30));
@@ -210,7 +210,7 @@ try {
   );
 
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   const ad2 = `Kapalı tercih ${damga}`;
   await page.fill('input[name="name"]', ad2);
   await page.fill('input[name="warrantyEndDate"]', gun(7));

@@ -31,7 +31,7 @@ try {
   // 10.000,00 ₺'lik bir ekipman: maliyet toplamını izleyeceğiz.
   const AD = "Bulaşık makinesi " + damga;
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', AD);
   await page.fill('input[name="purchasePrice"]', "10.000");
   await page.tap('div[role="dialog"] button[type="submit"]');

@@ -49,7 +49,7 @@ try {
 
   // Zorunlu alan boş bırakılamaz
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', URUN);
   await page.selectOption('select[name="categoryId"]', { label: `🧺 ${KAT}` });
   await page.waitForSelector('input[name="ozel_kapasite_kg"]');

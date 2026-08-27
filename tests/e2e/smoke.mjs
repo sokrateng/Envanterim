@@ -68,7 +68,7 @@ try {
   log("son sahip korumalı");
 
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', URUN);
   await page.fill('input[name="brand"]', "Bosch");
   await page.fill('input[name="model"]', "WGG24400TR");
@@ -132,7 +132,7 @@ try {
 
   // Panel açıkken geri tuşu paneli kapatmalı, sayfadan atmamalı (TUZAKLAR #17).
   // Boş formda soru sorulmuyor: kaybolacak bir şey yok.
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.waitForSelector('role=dialog');
   await page.goBack();
   await page.waitForSelector('role=dialog', { state: "detached", timeout: 5000 });
@@ -144,7 +144,7 @@ try {
   let tarayiciKutusu = false;
   page.on("dialog", async (d) => { tarayiciKutusu = true; await d.dismiss(); });
 
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.waitForSelector('role=dialog');
   await page.fill('input[name="name"]', "Yarım kalan kayıt");
   await page.goBack();
@@ -172,7 +172,7 @@ try {
 
   // "Kaydet ve çık": aynı yerden kaydedip çıkabilmeli.
   const kaydedilen = `Kaydet ve çık ${Date.now().toString().slice(-6)}`;
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.waitForSelector('role=dialog');
   await page.fill('input[name="name"]', kaydedilen);
   await page.goBack();

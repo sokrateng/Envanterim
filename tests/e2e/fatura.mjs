@@ -16,7 +16,7 @@ try {
 
   // Yeni ekipman: sadece ad
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   const etiket = `Faturadan gelen ${process.argv[2] ?? "1"}`;
   await page.fill('input[name="name"]', etiket);
   await page.tap('button[type="submit"]');

@@ -87,7 +87,7 @@ try {
   // fotoğrafı olandan büyütme.
   const AD = "Foto kısayolu " + Date.now().toString().slice(-6);
   await page.goto(`${BASE}/envanter`);
-  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.tap('a[aria-label="Yeni ekipman"]');
   await page.fill('input[name="name"]', AD);
   await page.tap('div[role="dialog"] button[type="submit"]');
   await page.waitForSelector(`text=${AD}`, { timeout: 15000 });

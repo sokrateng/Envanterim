@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
-import { Badge } from "@/components/ui";
+import { Badge, Fold } from "@/components/ui";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { EVENT_KINDS, type EventKind } from "@/lib/constants";
 import { EVENT_KIND_LABELS, eventSummary, type TimelineEvent } from "@/lib/events";
@@ -136,25 +136,13 @@ export function Timeline({
   const todayValue = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   return (
-    <section className="mt-6">
-      <div className="flex items-center justify-between px-8 pb-2">
-        <h2 className="text-footnote uppercase text-muted">Zaman çizelgesi</h2>
-        {editable ? (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="min-h-touch px-2 text-body text-blue active:opacity-60"
-          >
-            + Kayıt
-          </button>
-        ) : null}
-      </div>
+    <Fold title="Zaman çizelgesi" count={events.length}>
 
       {events.length ? (
         <div
           role="tablist"
           aria-label="Kayıt türü filtresi"
-          className="mx-4 mb-2 flex gap-1 overflow-x-auto rounded-card bg-separator/40 p-1"
+          className="mb-2 flex gap-1 overflow-x-auto rounded-card bg-separator/40 p-1"
         >
           {[null, ...EVENT_KINDS].map((option) => {
             const active = option === filter;
@@ -177,13 +165,13 @@ export function Timeline({
       ) : null}
 
       {shown.length === 0 ? (
-        <p className="px-8 text-footnote text-muted">
+        <p className="text-footnote text-muted">
           {events.length
             ? "Bu türde kayıt yok."
             : "Servis, sayaç okuması, olay günlüğü ve zimmet kayıtları burada birikir."}
         </p>
       ) : (
-        <ul className="mx-4 divide-y divide-separator overflow-hidden rounded-card bg-surface">
+        <ul className="divide-y divide-separator overflow-hidden rounded-card bg-bg">
           {shown.map((row) => {
             const event: TimelineEvent = { ...row, date: new Date(row.date) };
             const summary = eventSummary(event, currency);
@@ -238,9 +226,19 @@ export function Timeline({
       ) : null}
 
       {error ? (
-        <p role="alert" className="px-8 pt-2 text-footnote text-red">
+        <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
+      ) : null}
+
+      {editable ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="min-h-touch pt-2 text-body text-blue active:opacity-60"
+        >
+          + Kayıt
+        </button>
       ) : null}
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Yeni kayıt" guardUnsaved>
@@ -337,6 +335,6 @@ export function Timeline({
           <SubmitButton pending={pending}>Kaydet</SubmitButton>
         </form>
       </Sheet>
-    </section>
+    </Fold>
   );
 }

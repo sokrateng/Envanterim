@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
-import { useCloseAndRefresh, useCloseThen } from "@/lib/history-layer";
+import { useCloseAndRefresh } from "@/lib/history-layer";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { InvoiceLines } from "@/components/InvoiceLines";
 import {
@@ -24,6 +24,7 @@ export function NewItemButton({
   extractionEnabled,
   autoOpen = false,
   presetSerial = "",
+  trigger = true,
 }: {
   locations: Array<{ id: string; name: string }>;
   defaultLocationId: string;
@@ -34,13 +35,48 @@ export function NewItemButton({
   autoOpen?: boolean;
   /** Taranan barkod: yeni ekipmanın seri no alanına düşüyor. */
   presetSerial?: string;
+  /**
+   * Kendi düğmesini çizsin mi. Envanter listesinde çizmiyor: aynı işi sekme
+   * çubuğundaki düğme yapıyor, iki giriş kapısı gereksiz.
+   */
+  trigger?: boolean;
 }) {
   const closeAndRefresh = useCloseAndRefresh();
-  const closeThen = useCloseThen();
-  const router = useRouter();
-  const pathname = usePathname();
   const params = useSearchParams();
   const [open, setOpen] = useState(autoOpen);
+
+  /**
+   * Sekme çubuğundaki düğme adrese `yeni=1` koyuyor. Envanter listesindeyken
+   * bileşen yeniden kurulmadığı için başlangıç durumu bunu görmüyor; efekt
+   * görüyor.
+   *
+   * İşaret açılışta **hemen** siliniyor: adreste kalsaydı aynı düğmeye ikinci
+   * kez dokunmak adresi değiştirmez, dolayısıyla hiçbir şey olmazdı (panel
+   * geri tuşuyla kapatıldıktan sonra tam olarak bu oluyordu). Silme
+   * `history.replaceState` ile, çünkü eşzamanlı: panelin kendi geçmiş kaydını
+   * itmesinden önce bitiyor. `router.replace` asenkron, sonra düşüp panelin
+   * kaydını eziyordu (TUZAKLAR #60'ın komşusu).
+   */
+  const yeniIstegi = params.get("yeni");
+  useEffect(() => {
+    if (yeniIstegi !== "1") return;
+
+    const kalan = new URLSearchParams(window.location.search);
+    kalan.delete("yeni");
+    kalan.delete("seri");
+    const sorgu = kalan.toString();
+    window.history.replaceState(
+      window.history.state,
+      "",
+      sorgu ? `${window.location.pathname}?${sorgu}` : window.location.pathname,
+    );
+
+    reset();
+    setOpen(true);
+    // reset her render'da yeniden kuruluyor; efektin bağımlılığı olsaydı
+    // panel açıkken gelen her çizimde formu sıfırlardı.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [yeniIstegi]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locationId, setLocationId] = useState(defaultLocationId);
@@ -59,30 +95,6 @@ export function NewItemButton({
   // Alanlar `defaultValue` ile kurulu; doldurulan değerin görünmesi için
   // yeniden kurulmaları gerekiyor (lokasyon değişiminde olduğu gibi).
   const [fillCount, setFillCount] = useState(0);
-
-  /**
-   * Panel adresten açıldıysa (`?yeni=1`) kapanırken izini siliyoruz: kalırsa
-   * sayfa yenilendiğinde panel yeniden açılır. Adres değişimi kapanıştan
-   * **sonra** yapılmalı — önce yapılırsa panelin history.back()'i geri alıyor
-   * (TUZAKLAR #60).
-   */
-  function close() {
-    const kirli = params.get("yeni") ?? params.get("seri");
-    if (!kirli) {
-      setOpen(false);
-      return;
-    }
-    closeThen(
-      () => setOpen(false),
-      () => {
-        const next = new URLSearchParams(params.toString());
-        next.delete("yeni");
-        next.delete("seri");
-        const query = next.toString();
-        router.replace(query ? `${pathname}?${query}` : pathname);
-      },
-    );
-  }
 
   function reset() {
     setError(null);
@@ -215,19 +227,21 @@ export function NewItemButton({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => {
-          reset();
-          setOpen(true);
-        }}
-        className="min-h-touch px-2 text-body text-blue active:opacity-60"
-        aria-label="Ekipman ekle"
-      >
-        + Yeni
-      </button>
+      {trigger ? (
+        <button
+          type="button"
+          onClick={() => {
+            reset();
+            setOpen(true);
+          }}
+          className="min-h-touch px-2 text-body text-blue active:opacity-60"
+          aria-label="Ekipman ekle"
+        >
+          + Yeni
+        </button>
+      ) : null}
 
-      <Sheet open={open} onClose={close} title="Yeni ekipman" guardUnsaved>
+      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni ekipman" guardUnsaved>
         {savedWarning ? (
           <div className="pb-2">
             <p role="alert" className="py-2 text-body text-orange">

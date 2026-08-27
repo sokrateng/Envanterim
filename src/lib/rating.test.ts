@@ -54,10 +54,10 @@ describe("filledStars", () => {
 
 describe("ratingSummary", () => {
   it("puan yoksa bunu söyler", () => {
-    expect(ratingSummary(0, null)).toBe("Henüz puan yok");
+    expect(ratingSummary(0, null)).toBe("Puan ver");
   });
 
   it("kişi sayısını ve ortalamayı verir", () => {
-    expect(ratingSummary(3, 4.3)).toBe("3 kişi · ortalama 4,3");
+    expect(ratingSummary(3, 4.3)).toBe("4,3 · 3 kişi");
   });
 });

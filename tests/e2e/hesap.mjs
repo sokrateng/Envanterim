@@ -4,6 +4,7 @@
  */
 import { chromium } from "playwright";
 import { BASE, girisYap, iphone, launchOptions, log } from "./ortak.mjs";
+import { bolumAc } from "./ortak.mjs";
 
 const damga = Date.now().toString().slice(-6);
 const YENI_SIFRE = "yeni-sifre-" + damga;
@@ -149,6 +150,7 @@ try {
   await page.waitForURL(/\/envanter\/[^/?#]+$/);
   const urunAdi = await page.locator("h1").first().innerText();
 
+  await bolumAc(page, "Zaman çizelgesi");
   await page.tap('button:has-text("+ Kayıt")');
   await page.fill('input[name="note"], textarea[name="note"]', "Denetim " + damga);
   await page.tap('form button[type="submit"]');

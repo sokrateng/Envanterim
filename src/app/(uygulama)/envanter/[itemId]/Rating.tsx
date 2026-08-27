@@ -59,8 +59,11 @@ export function Rating({
   const shown = mine ?? filledStars(average);
 
   return (
-    <section className="px-4 pt-3">
-      <div className="flex items-center gap-2">
+    // Dokunma hedefi 44 piksel kalıyor ama satır görsel olarak daralıyor:
+    // negatif dikey boşluk düğmenin taşan yarısını geri alıyor. Başlıkla
+    // kartların arasında bir avuç boşluk duruyordu.
+    <section className="px-4 pt-1">
+      <div className="-my-2 flex items-center gap-2">
         <div role="group" aria-label="Beğeni puanı" className="flex">
           {Array.from({ length: MAX_STARS }, (_, index) => index + 1).map((star) => (
             <button
@@ -78,9 +81,9 @@ export function Rating({
             </button>
           ))}
         </div>
-        <span className="text-footnote text-muted">
+        <span className="truncate text-footnote text-muted">
           {ratingSummary(count, average)}
-          {mine ? ` · senin puanın ${mine}` : ""}
+          {mine ? ` · seninki ${mine}` : ""}
         </span>
       </div>
       {error ? (
