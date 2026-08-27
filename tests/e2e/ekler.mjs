@@ -126,10 +126,39 @@ try {
 
   // Detay başlığında da aynı kısayol: fotoğrafı olan büyütüyor.
   await page.locator(`a:has-text("${AD}")`).first().tap();
+  // Adres değişmeden beklemek gerekiyor: liste sayfasında da bir `h1` var,
+  // yalnız onu beklemek testi hâlâ listedeyken sürdürüyordu.
+  await page.waitForURL(/\/envanter\/[a-z0-9]+/i, { timeout: 15000 });
   await page.waitForSelector("h1", { timeout: 15000 });
   // Fotoğraf artık sayfanın tepesindeki tam genişlik bandında.
   const basliktaki = page.locator(`button[aria-label="${AD} fotoğrafını büyüt"]`);
   if (!(await basliktaki.count())) throw new Error("detay bandında fotoğraf düğmesi yok");
+
+  // Bant fotoğrafı kırpmıyor: sabit yükseklik + `object-cover` ürünün
+  // ortasından bir şerit gösteriyordu, dikey fotoğraflarda cihazın yalnız
+  // gövdesi görünüyordu.
+  const bant = await page.evaluate((ad) => {
+    // Bant sayfanın tepesinde: fotoğrafı olan ekipmanda ilk görsel o.
+    const img = [...document.images].find((el) => el.alt === ad);
+    if (!img) return null;
+    const r = img.getBoundingClientRect();
+    return {
+      fit: getComputedStyle(img).objectFit,
+      oran: +(r.height / r.width).toFixed(2),
+      dogalOran: +(img.naturalHeight / img.naturalWidth).toFixed(2),
+    };
+  }, AD);
+  if (!bant) throw new Error("bant görseli bulunamadı");
+  if (bant.fit !== "contain") {
+    throw new Error(`bant fotoğrafı kırpıyor: object-fit ${bant.fit}`);
+  }
+  // Ekran sınırına dayanmayan fotoğrafta kutu tam fotoğrafın oranında.
+  if (bant.oran < 1.2 && Math.abs(bant.oran - bant.dogalOran) > 0.03) {
+    throw new Error(
+      `bant oranı fotoğrafla uyuşmuyor: ${bant.oran} ≠ ${bant.dogalOran}`,
+    );
+  }
+  log("bant fotoğrafı kırpmıyor, boyu fotoğrafa uyuyor");
 
   // Başlıktaki görsel adın üstüne binmemeli (TUZAKLAR #66).
   const cakisma = await page.evaluate(() => {

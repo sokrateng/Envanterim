@@ -31,12 +31,27 @@ export function Thumb({
   const box = boxes[size];
 
   if (url) {
-    return (
+    return size === "hero" ? (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        src={url}
+        alt={alt}
+        // Bant fotoğrafın boyuna uyuyor ve fotoğraf **kırpılmıyor**: sabit
+        // yükseklik + `object-cover` ürünün ortasından bir şerit gösteriyordu,
+        // dikey çekilmiş bir yazıcının yalnız gövdesi görünüyordu. Oysa bandın
+        // işi "hangi cihazdı bu" sorusunu cevaplamak — ürünün tamamı görünmeli.
+        // Alt sınır sayfanın yüklenirken zıplamasını, üst sınır dikey bir
+        // fotoğrafın ekranı yemesini engelliyor.
+        className="min-h-[220px] max-h-[60dvh] w-full bg-fill object-contain"
+      />
+    ) : (
       /* eslint-disable-next-line @next/next/no-img-element */
       <img
         src={url}
         alt={alt}
         loading="lazy"
+        // Küçük kutuda kırpma doğru: 44 pikselde sığdırmak fotoğrafı iyice
+        // küçültür, liste hizası da bozulurdu.
         className={`${box} shrink-0 bg-fill object-cover`}
       />
     );
