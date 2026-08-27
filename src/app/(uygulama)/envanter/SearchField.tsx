@@ -33,7 +33,9 @@ export function SearchField({ defaultValue }: { defaultValue: string }) {
       onChange={(e) => setValue(e.target.value)}
       placeholder="Ara: ad, marka, model, seri no"
       aria-label="Envanterde ara"
-      className="w-full rounded-card border border-separator bg-surface px-3 py-2.5 text-body outline-none focus:border-blue"
+      /* Kenarlıklı kutu yerine dolgulu alan: iOS arama alanı böyle ve
+         listenin kart yüzeyiyle karışmıyor. */
+      className="min-h-touch w-full rounded-card bg-surface-pressed px-3 text-body outline-none placeholder:text-muted"
     />
   );
 }

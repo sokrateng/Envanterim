@@ -527,14 +527,14 @@ export default async function EkipmanPage({
           {item.category ? (
             <Row
               title="Kategori"
-              trailing={`${item.category.icon ?? "🏷"} ${item.category.name}`}
+              value={`${item.category.icon ?? "🏷"} ${item.category.name}`}
             />
           ) : null}
-          {item.brand ? <Row title="Marka" trailing={item.brand} /> : null}
-          {item.model ? <Row title="Model" trailing={item.model} /> : null}
-          {item.serialNo ? <Row title="Seri no" trailing={item.serialNo} /> : null}
-          {item.place ? <Row title="Yer" trailing={item.place} /> : null}
-          <Row title="Lokasyon" trailing={item.location.name} />
+          {item.brand ? <Row title="Marka" value={item.brand} /> : null}
+          {item.model ? <Row title="Model" value={item.model} /> : null}
+          {item.serialNo ? <Row title="Seri no" value={item.serialNo} /> : null}
+          {item.place ? <Row title="Yer" value={item.place} /> : null}
+          <Row title="Lokasyon" value={item.location.name} />
           <Row
             href={`/envanter/${item.id}/etiket`}
             title="QR etiket"
@@ -547,12 +547,12 @@ export default async function EkipmanPage({
         <Rows>
           <Row
             title="Alış tarihi"
-            trailing={item.purchaseDate ? trDate.format(item.purchaseDate) : "—"}
+            value={item.purchaseDate ? trDate.format(item.purchaseDate) : "—"}
           />
-          <Row title="Satıcı" trailing={item.seller?.name ?? "—"} />
+          <Row title="Satıcı" value={item.seller?.name ?? "—"} />
           <Row
             title="Alış tutarı"
-            trailing={
+            value={
               item.purchasePriceMinor != null
                 ? formatMoney(item.purchasePriceMinor, item.currency)
                 : "—"
@@ -561,13 +561,13 @@ export default async function EkipmanPage({
           <Row
             title="Sahip olma maliyeti"
             subtitle="Alış + servis + parça"
-            trailing={formatMoney(totalCost, item.currency)}
+            value={formatMoney(totalCost, item.currency)}
           />
           {componentCosts.some((cost) => cost > 0) ? (
             <Row
               title="Bileşenlerle birlikte"
               subtitle={`${componentCosts.length} bileşen dahil`}
-              trailing={formatMoney(
+              value={formatMoney(
                 totalWithComponents(totalCost, componentCosts),
                 item.currency,
               )}
@@ -575,7 +575,7 @@ export default async function EkipmanPage({
           ) : null}
           <Row
             title="Garanti bitişi"
-            trailing={
+            value={
               item.warrantyEndDate ? trDate.format(item.warrantyEndDate) : "—"
             }
           />
@@ -586,7 +586,7 @@ export default async function EkipmanPage({
         <Group title={`${item.category?.name ?? "Özel"} alanları`}>
           <Rows>
             {customRows.map((row) => (
-              <Row key={row.key} title={row.label} trailing={row.text} />
+              <Row key={row.key} title={row.label} value={row.text} />
             ))}
           </Rows>
         </Group>

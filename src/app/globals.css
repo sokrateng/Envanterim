@@ -15,6 +15,9 @@
   --separator: #c6c6c8;
   --text: #000000;
   --text-secondary: #8e8e93;
+  /* Fotoğrafı olmayan görsel kutusu. Basılı yüzeyden bir ton açık: dolu bir
+     kutu değil, boş bir yer tutucu olduğu anlaşılmalı. */
+  --fill: #e5e5ea;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,6 +33,9 @@
     --separator: #38383a;
     --text: #ffffff;
     --text-secondary: #8e8e93;
+    /* Koyu temada basılı yüzeyle aynı: siyah zeminde daha açık bir gri
+       yer tutucuyu içerikten daha görünür yapardı. */
+    --fill: #2c2c2e;
   }
 }
 

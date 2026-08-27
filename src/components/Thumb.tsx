@@ -4,6 +4,9 @@
  * Listede ve detayda aynı kutu kullanılıyor; fotoğrafı olmayan satır da aynı
  * yeri kaplıyor, böylece liste hizası bozulmuyor.
  *
+ * Boş kutunun zemini `fill` jetonu: sayfa zeminiyle aynı olsaydı satırın
+ * kart yüzeyinde bir delik gibi görünürdü, dolu bir kutu gibi de durmamalı.
+ *
  * Ekler kimlik doğrulamalı uçtan gelebiliyor; next/image yerine düz img —
  * uzak yükleyici yapılandırması gerekmesin (Attachments'taki kuralın aynısı).
  */
@@ -31,7 +34,7 @@ export function Thumb({
         src={url}
         alt={alt}
         loading="lazy"
-        className={`${box} shrink-0 bg-bg object-cover`}
+        className={`${box} shrink-0 bg-fill object-cover`}
       />
     );
   }
@@ -39,7 +42,7 @@ export function Thumb({
   return (
     <div
       aria-hidden
-      className={`${box} grid shrink-0 place-items-center bg-bg text-muted`}
+      className={`${box} grid shrink-0 place-items-center bg-fill text-muted`}
     >
       {icon ?? "📦"}
     </div>

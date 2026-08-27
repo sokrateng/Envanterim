@@ -16,6 +16,7 @@ const config: Config = {
         surface: "var(--surface)",
         "surface-pressed": "var(--surface-pressed)",
         separator: "var(--separator)",
+        fill: "var(--fill)",
         ink: "var(--text)",
         muted: "var(--text-secondary)",
         blue: "var(--ios-blue)",

@@ -427,7 +427,7 @@ export default async function EnvanterPage({
               : `${total} ekipman`
           }
         >
-          <Rows>
+          <Rows divider="leading">
             {visible.map((item) => {
               const warranty = warrantyStatus(item.warrantyEndDate);
               const details = [

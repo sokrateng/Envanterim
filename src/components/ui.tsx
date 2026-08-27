@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { TITLE_BOX } from "@/lib/typography";
-import type { ReactNode } from "react";
+import { Children, Fragment, type ReactNode } from "react";
 
 /**
  * iOS "Inset Grouped" liste deseni ve temel kabuk (docs/TASARIM.md).
@@ -16,7 +16,7 @@ export function ScreenHeader({
   action,
   back,
   leading,
-  titleClassName = "text-large-title tracking-tight",
+  titleClassName = "text-title tracking-tight",
   fixedTitle = false,
 }: {
   title: string;
@@ -79,14 +79,40 @@ export function Group({
   );
 }
 
-/** Satır ayracı soldan 16px içeriden başlar — iOS deseni. */
 /**
  * Satır listesi. Yatay boşluk satırın kendi içinde: kaydırma jestli satır
  * kenardan kenara olmalı, yoksa altındaki işlem paneli boşluktan sızıyor
  * (TUZAKLAR #63).
+ *
+ * Ayraç iOS'ta kartın soluna kadar gitmez, metnin hizasından başlar. Çizgi
+ * satırların arasında gerçek bir öğe: satırın kendi kenarlığı olsaydı
+ * kaydırma jestinde satırla birlikte kayardı, kardeş seçicili bir pseudo-öğe
+ * ise girintiyi görünmez bir yere saklardı — burada girinti okunur olmalı.
  */
-export function Rows({ children }: { children: ReactNode }) {
-  return <div className="divide-y divide-separator">{children}</div>;
+export function Rows({
+  children,
+  divider = "text",
+}: {
+  children: ReactNode;
+  /** Ayracın başladığı yer: metin hizası (16px) ya da görselin sağı (80px). */
+  divider?: "text" | "leading";
+}) {
+  // Koşullu satırlar null dönüyor; toArray onları eleyince ayraç da çıkmıyor.
+  const rows = Children.toArray(children);
+  const inset = divider === "leading" ? "ml-20" : "ml-4";
+
+  return (
+    <div>
+      {rows.map((row, index) => (
+        <Fragment key={index}>
+          {index > 0 ? (
+            <div aria-hidden className={`h-px bg-separator ${inset}`} />
+          ) : null}
+          {row}
+        </Fragment>
+      ))}
+    </div>
+  );
 }
 
 export function Row({
@@ -94,6 +120,7 @@ export function Row({
   title,
   subtitle,
   trailing,
+  value,
   badge,
   badgesBelow = false,
   leading,
@@ -102,6 +129,12 @@ export function Row({
   title: ReactNode;
   subtitle?: ReactNode;
   trailing?: ReactNode;
+  /**
+   * Değer satırı: "Marka → Apple". Gezinme satırından farklı okunuyor —
+   * ağırlık başlıkta değil değerde, çünkü kullanıcının aradığı şey değer.
+   * `trailing` ise gezinme satırının yanındaki ikincil bilgi (sayı, tarih).
+   */
+  value?: ReactNode;
   badge?: ReactNode;
   /** Rozetler adın yanına sığmıyorsa alt satıra alınır — ad kırpılmasın. */
   badgesBelow?: boolean;
@@ -116,7 +149,18 @@ export function Row({
     <div className="flex min-h-touch items-center gap-3 py-2.5 pr-4">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-headline">{title}</span>
+          <span
+            className={
+              value ? "shrink-0 text-subheadline text-muted" : "truncate text-headline"
+            }
+          >
+            {title}
+          </span>
+          {value ? (
+            <span className="min-w-0 flex-1 break-words text-right text-body">
+              {value}
+            </span>
+          ) : null}
           {badgesBelow ? null : badge}
         </div>
         {subtitle ? (
