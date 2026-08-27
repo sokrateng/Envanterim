@@ -51,9 +51,24 @@ try {
   if (await liste.count()) await liste.selectOption("__yeni__");
   await page.fill('input[name="vendorName"]', "Bosch Yetkili Servisi " + damga);
   await page.fill('input[name="trackingNo"]', "FIS-" + damga);
+  // Şemasız adres: alan type="url" olsaydı tarayıcı formu sessizce
+  // göndermezdi (TUZAKLAR #74).
+  await page.fill('input[name="trackingUrl"]', "servis.example.com/takip?no=" + damga);
   await page.tap('div[role="dialog"] button[type="submit"]');
   await page.waitForSelector('div[role="dialog"]', { state: "detached", timeout: 20000 });
   await page.waitForSelector("text=Bugün gönderildi", { timeout: 15000 });
+
+  // Takip adresi verildiyse fiş numarası bağlantının kendisi oluyor.
+  const takip = page.locator('a:has-text("takip et")').first();
+  await takip.waitFor({ timeout: 15000 });
+  const adres = await takip.getAttribute("href");
+  if (adres !== `https://servis.example.com/takip?no=${damga}`) {
+    throw new Error(`takip adresi yanlış: ${adres}`);
+  }
+  if (!(await takip.innerText()).includes(`FIS-${damga}`)) {
+    throw new Error("takip bağlantısında fiş numarası yok");
+  }
+  log("takip adresi bağlantı olarak duruyor");
   const durum = await page.locator("body").innerText();
   if (!durum.includes("Serviste")) throw new Error("ekipman servise alınmadı");
   log("servise gönderildi, durum Serviste oldu");

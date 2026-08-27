@@ -394,6 +394,9 @@ olarak düşürmüyorum.
   olma maliyetine oradan giriyor; ayrıca `ItemEvent` açılmıyor, yoksa aynı
   gider iki kez sayılırdı. Garanti kapsamındaki iş toplama girmiyor — kimse
   ödemedi.
+- `ServiceJob.trackingUrl`: servisin durum sayfası. Adres verildiyse fiş
+  numarası bağlantının kendisi oluyor — kullanıcı numarayı kopyalayıp sitede
+  aratmıyor.
 - Servis firması `Vendor` (satıcıyla aynı tablo, `isService` bayrağı); servis
   formunda yalnız `isService` olanlar listeleniyor. Telefon ve web adresi
   servis kaydının yanında dokunulabilir bağlantı olarak duruyor: servisteki

@@ -309,9 +309,10 @@ model ServiceJob {
   itemId   String
   vendorId String? // yetkili servis; adı yazılırsa Vendor açılıyor
 
-  complaint  String // arıza: kullanıcının anlattığı
-  sentAt     DateTime
-  trackingNo String? // servis fişi / takip numarası
+  complaint   String // arıza: kullanıcının anlattığı
+  sentAt      DateTime
+  trackingNo  String? // servis fişi / takip numarası
+  trackingUrl String? // servisin takip sayfası; numarayla birlikte veriliyor
 
   // Sonuç. Doluysa iş kapandı.
   returnedAt    DateTime?

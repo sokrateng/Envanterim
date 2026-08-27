@@ -132,6 +132,10 @@ export const serviceCreateSchema = z.object({
   // Listede olmayan servis formda adıyla yazılır; sunucu varsa bulur, yoksa açar.
   vendorName: emptyToUndefined(trimmed.max(80, "En çok 80 karakter")),
   trackingNo: emptyToUndefined(trimmed.max(60, "En çok 60 karakter")),
+  // Takip sayfası: servis çoğu zaman numarayla birlikte bir adres veriyor.
+  // Adresin bağlantıya çevrilip çevrilmeyeceğine `vendor-contact` karar
+  // veriyor; burada yalnız boyu sınırlanıyor.
+  trackingUrl: emptyToUndefined(trimmed.max(300, "En çok 300 karakter")),
 });
 
 export const serviceCloseSchema = z.object({

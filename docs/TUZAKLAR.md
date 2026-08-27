@@ -527,3 +527,11 @@ gönderip iki saniye bekliyor, sonra sayıyordu. Sunucu turu yavaşlayınca test
 "silinmedi" dedi — oysa silinmişti, henüz çizilmemişti. Sabit süre yerine
 sonucun kendisini beklemek gerekiyor (`waitForFunction`); yavaşlığı da ayrıca
 kovala, testi uzatarak susturma.
+
+**74. `type="url"` şemasız adresi sessizce reddediyor.** Firma web sitesi alanı
+`type="url"` idi ve yer tutucusu "bosch.com.tr" diyordu; kullanıcı tam da öyle
+yazınca tarayıcı alanı geçersiz sayıp formu **hiç göndermiyordu** — ne hata
+çıkıyordu ne kayıt oluyordu. Aynısı servis takip adresinde de olacaktı.
+**Çözüm:** alan `type="text"` + `inputMode="url"`; şemayı biz tamamlıyoruz ve
+adresi kendimiz doğruluyoruz (`src/lib/vendor-contact.ts`). Uçtan uca testler
+bilerek şemasız adres yazıyor.

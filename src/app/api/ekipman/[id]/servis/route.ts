@@ -59,6 +59,7 @@ export async function POST(
           complaint: data.complaint,
           sentAt,
           trackingNo: data.trackingNo ?? null,
+          trackingUrl: data.trackingUrl ?? null,
           createdById: user?.id ?? null,
         },
         select: { id: true },

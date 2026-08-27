@@ -25,6 +25,8 @@ export type ServiceRow = {
   complaint: string;
   sentAt: string;
   trackingNo: string | null;
+  /** Servisin takip sayfası; numarayla birlikte veriliyor. */
+  trackingUrl: string | null;
   returnedAt: string | null;
   work: string | null;
   /** Biçimlendirilmiş tutar; garanti kapsamındaysa null. */
@@ -73,6 +75,7 @@ export function Service({
         vendorId: text("vendorId"),
         vendorName: text("vendorName"),
         trackingNo: text("trackingNo"),
+        trackingUrl: text("trackingUrl"),
       }),
     });
 
@@ -180,9 +183,25 @@ export function Service({
 
               <p className="pt-1 text-footnote text-muted">
                 {job.sentAt} tarihinde gönderildi
-                {job.trackingNo ? ` · fiş ${job.trackingNo}` : ""}
+                {job.trackingNo && !websiteHref(job.trackingUrl)
+                  ? ` · fiş ${job.trackingNo}`
+                  : ""}
                 {job.returnedAt ? ` · ${job.returnedAt} döndü` : ""}
               </p>
+
+              {/* Takip adresi varsa fiş numarası bağlantının kendisi oluyor:
+                  kullanıcı numarayı kopyalayıp sitede aratmak yerine
+                  doğrudan gidiyor. */}
+              {websiteHref(job.trackingUrl) ? (
+                <a
+                  href={websiteHref(job.trackingUrl) ?? undefined}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="inline-flex min-h-touch items-center text-footnote text-blue active:opacity-60"
+                >
+                  {job.trackingNo ? `Fiş ${job.trackingNo} · takip et` : "Takip et"}
+                </a>
+              ) : null}
 
               {job.work ? (
                 <p className="whitespace-pre-wrap pt-2 text-body">{job.work}</p>
@@ -314,6 +333,23 @@ export function Service({
               <input name="trackingNo" className={inputClass} />
             </Field>
           </div>
+
+          <Field
+            label="Takip adresi"
+            hint="Servisin durum sayfası varsa; kayıttan tek dokunuşla açılır."
+          >
+            {/* type="url" değil: tarayıcı şemasız adresi reddedip formu
+                sessizce göndermiyor (TUZAKLAR #74). */}
+            <input
+              name="trackingUrl"
+              type="text"
+              inputMode="url"
+              autoCapitalize="off"
+              autoCorrect="off"
+              placeholder="servis.example.com/takip"
+              className={inputClass}
+            />
+          </Field>
 
           <FormError message={error} />
           <SubmitButton pending={pending}>Kaydet</SubmitButton>
