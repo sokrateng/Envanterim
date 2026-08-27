@@ -392,3 +392,12 @@ yalnız `src/app` ve `src/components` vardı; başlık puntosunu seçen saf mod�
 yok, her şey varsayılan puntoda çiziliyor. Sınıf adı üreten her dosya `content`
 listesinde olmalı.
 
+## Test yazarken
+
+**62. `text=` metin alanının içeriğine de eşleşiyor.** "Notu kaydettim, ekranda
+görünsün" beklemesi (`waitForSelector("text=<not>")`), panel hâlâ açıkken
+`textarea`'nın içindeki aynı metne eşleşip anında dönüyordu; fotoğraf yüklenirken
+kontroller erken koşuyor ve "fotoğraf yok" diye patlıyordu. Kayıt sonrası
+beklemesi **panelin kapanması** olmalı (`div[role="dialog"]` → `detached`),
+metnin görünmesi değil.
+

@@ -36,6 +36,7 @@ const TEMEL = [
   "kaydirma",
   "hesap",
   "cevrimdisi",
+  "not-puan",
 ];
 
 /** Sahte servis ya da özel sunucu bayrağı isteyenler. */

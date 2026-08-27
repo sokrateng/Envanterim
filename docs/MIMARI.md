@@ -358,6 +358,22 @@ olarak düşürmüyorum.
   makul bir sayıda çağrıyla sınırlanmalı.
 - Claude belge girdisi sınırı: istek başına 32 MB, 600 sayfa.
 
+### Notlar ve puan
+
+`ItemNote` ekipmanın "nasıl kullanılıyor" tarafı: tarif, ayar, uyarı. Yazarın
+adı kayda düşüyor (`authorName`) — hesap silinse de "kim yazmış" kalsın.
+Fotoğraflar ayrı bir tabloya değil, `Attachment.noteId` ile aynı tabloya
+gidiyor: depolama yolu, silme ve boyut kuralı tek yerde kalsın. `noteId` dolu
+olan dosya ekipmanın genel ekler bölümünde çıkmıyor.
+
+`ItemRating` kişi başına tek puan (`@@unique([itemId, userId])`). Ortalama
+saklanmıyor, `averageStars` ile hesaplanıyor (CLAUDE.md).
+
+Not yazmak ve puan vermek **üyeliğe** bağlı, düzenleme yetkisine değil:
+ekipmanı kullanan kişi çoğu zaman düzenleyen değil, tarifi ve beğeniyi o
+biliyor. Notu yalnız yazarı düzenleyebiliyor; silmeyi yazar ve lokasyon sahibi
+yapabiliyor (`src/lib/notes.ts`, testli).
+
 ## 7. Test stratejisi
 
 - **Saf mantık → Vitest.** Garanti günü hesabı, sahip olma maliyeti,

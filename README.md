@@ -20,6 +20,10 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
 - **Arama ve filtre.** Ada/markaya/modele/seri numarasına göre arama; durum,
   lokasyon ve kategori filtresi; kalan garanti günü rozeti.
 - **Fotoğraf ve belge.** Ürün fotoğrafı, fatura, garanti belgesi, kılavuz.
+- **Notlar.** Tarif, doğru ayar, uyarı — fotoğraflı, yazan ve tarihiyle.
+  Zaman çizelgesi olan biteni tutuyor, notlar bilgiyi.
+- **Beğeni yıldızı.** Kişi başına tek puan, ortalama herkese açık: hangi
+  ekipman gerçekten kullanılıyor.
 - **Para birimi.** Varsayılan TRY; yurtdışından alınan ekipman USD, EUR ya da
   GBP olarak kaydedilir. Kur çevrilmiyor: raporda her birim ayrı toplanır.
 - **Barkodla seri no.** Seri no alanının yanındaki tarayıcı düğmesi cihazın

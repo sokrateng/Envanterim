@@ -36,7 +36,11 @@ import { Timeline, type TimelineRow } from "./Timeline";
 import { FillProvider } from "./fill-context";
 import { EditItemButton } from "./EditItemButton";
 import { StatusPicker } from "./StatusPicker";
+import { Notes, type NoteView } from "./Notes";
+import { Rating } from "./Rating";
 import { Thumb } from "@/components/Thumb";
+import { canDeleteNote, canEditNote } from "@/lib/notes";
+import { averageStars } from "@/lib/rating";
 import { titleClass } from "@/lib/typography";
 
 export const dynamic = "force-dynamic";
@@ -82,9 +86,21 @@ export default async function EkipmanPage({
       warrantyEndDate: true,
       customFields: true,
       attachments: {
-        select: { id: true, url: true, name: true, kind: true, mimeType: true },
+        select: { id: true, url: true, name: true, kind: true, mimeType: true, noteId: true },
         orderBy: { uploadedAt: "desc" },
       },
+      notes: {
+        select: {
+          id: true,
+          body: true,
+          authorName: true,
+          userId: true,
+          createdAt: true,
+          attachments: { select: { id: true, url: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      },
+      ratings: { select: { userId: true, stars: true } },
       shareLinks: {
         select: {
           id: true,
@@ -192,8 +208,24 @@ export default async function EkipmanPage({
   if (!access) notFound();
   const editable = canEdit(access);
 
-  // Başlıktaki küçük görsel: ekipmanın ilk fotoğrafı.
-  const photo = item.attachments.find((file) => file.kind === "PHOTO") ?? null;
+  // Başlıktaki küçük görsel: ekipmanın ilk fotoğrafı. Nota eklenen fotoğraflar
+  // notun içinde çıkıyor; genel ekler bölümüne ve başlığa karışmıyorlar.
+  const ownAttachments = item.attachments.filter((file) => !file.noteId);
+  const photo = ownAttachments.find((file) => file.kind === "PHOTO") ?? null;
+
+  const notes: NoteView[] = item.notes.map((note) => ({
+    id: note.id,
+    body: note.body,
+    authorName: note.authorName,
+    createdAt: trDate.format(note.createdAt),
+    canEdit: canEditNote(note, access),
+    canDelete: canDeleteNote(note, access),
+    photos: note.attachments,
+  }));
+
+  const myRating =
+    item.ratings.find((rating) => rating.userId === access.userId)?.stars ?? null;
+  const average = averageStars(item.ratings.map((rating) => rating.stars));
 
   const fieldDefs: FieldDef[] = (item.category?.fields ?? []).map((field) => ({
     key: field.key,
@@ -446,6 +478,14 @@ export default async function EkipmanPage({
         </Badge>
       </div>
 
+      <Rating
+        itemId={item.id}
+        mine={myRating}
+        count={item.ratings.length}
+        average={average}
+        canRate
+      />
+
       <Group title="Ekipman">
         <Rows>
           {item.category ? (
@@ -566,8 +606,10 @@ export default async function EkipmanPage({
         itemId={item.id}
         editable={editable}
         extractionEnabled={isExtractionConfigured()}
-        attachments={item.attachments as AttachmentView[]}
+        attachments={ownAttachments as AttachmentView[]}
       />
+
+      <Notes itemId={item.id} notes={notes} canWrite />
 
       {editable ? (
         <StatusPicker itemId={item.id} status={item.status as ItemStatus} />

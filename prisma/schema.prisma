@@ -46,6 +46,8 @@ model User {
   invoiceReads      InvoiceRead[]
   auditLogs         AuditLog[]
   inviteUsed        LocationInvite?    @relation("InviteUser")
+  notes             ItemNote[]
+  ratings           ItemRating[]
 }
 
 model Location {
@@ -184,6 +186,8 @@ model Item {
   maintenance MaintenanceRule[]
   shareLinks  ShareLink[]
   assignments ItemAssignment[]
+  notes       ItemNote[]
+  ratings     ItemRating[]
 
   @@index([locationId, status])
   @@index([locationId, categoryId])
@@ -272,8 +276,51 @@ model Attachment {
   mimeType   String?
   uploadedAt DateTime @default(now())
 
-  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  // Not fotoğrafı da burada duruyor: depolama yolu ve silme tek yerde kalsın.
+  // Doluysa dosya ekipmanın genel ekler bölümünde değil, notun içinde çıkıyor.
+  noteId String?
 
+  item Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  note ItemNote? @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@index([noteId])
+}
+
+// Kullanıcı notu: tarif, deneme, ayar, uyarı… Ekipmanın "nasıl kullanılıyor"
+// tarafı. Zaman çizelgesi olayları olan biteni tutuyor, notlar bilgiyi.
+model ItemNote {
+  id         String   @id @default(cuid())
+  itemId     String
+  userId     String? // kullanıcı silinse de not kalsın
+  // Yazarın o günkü adı: kullanıcı silinirse "kim yazmış" kaybolmasın.
+  authorName String
+  body       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  item        Item         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  attachments Attachment[]
+
+  @@index([itemId, createdAt])
+}
+
+// Beğeni yıldızı: kullanıcı başına tek puan. "Hangi makine gerçekten
+// kullanılıyor" sorusunun cevabı; ortalama hesaplanıyor, saklanmıyor
+// (CLAUDE.md: türetilmiş değer saklanmaz).
+model ItemRating {
+  id        String   @id @default(cuid())
+  itemId    String
+  userId    String
+  stars     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, userId])
   @@index([itemId])
 }
 
@@ -334,8 +381,8 @@ model ItemReminder {
 // Fatura okuma kullanım kaydı. İki işi var: kullanıcı başına hız sınırı
 // (TUZAKLAR #37 — açık bir uç faturayı şişirir) ve harcamanın izi.
 model InvoiceRead {
-  id     String @id @default(cuid())
-  userId String
+  id           String   @id @default(cuid())
+  userId       String
   // Okuma ekipman açılmadan da yapılabiliyor (yeni ekipman formunda faturayı
   // taratıp alanları doldurmak): o durumda bağlanacak kayıt henüz yok.
   itemId       String?

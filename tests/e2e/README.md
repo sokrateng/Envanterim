@@ -42,6 +42,9 @@ imzasını alıyor ve bir uçta `410 Gone` dönüyor, mock-smtp gelen postayı
 
 ## Yazarken
 
+- **Kayıttan sonra panelin kapanmasını bekle**, metnin görünmesini değil:
+  `text=` açık paneldeki metin alanına da eşleşiyor ve bekleme anında dönüyor
+  (TUZAKLAR #62).
 - **Dokunma kullan.** `page.tap`, `page.mouse.click` değil; hover'a bağlı hiçbir
   şey yok (CLAUDE.md) ve fare olayları kaydırma jestini tetiklemiyor
   (TUZAKLAR #45).
