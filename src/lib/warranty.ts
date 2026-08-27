@@ -1,3 +1,5 @@
+import { addMonths, parseDateOnly, toInputDate } from "@/lib/dates";
+
 /**
  * Garanti gün hesabı. Saat dilimi kayması TUZAKLAR #27'de yaşandı:
  * karşılaştırma tek yerde ve günün başına normalize edilerek yapılır.
@@ -114,4 +116,30 @@ export function warrantyRange(
   const end = new Date(today);
   end.setDate(end.getDate() + Number(key) + 1);
   return { gte: today, lt: end };
+}
+
+/**
+ * Alış tarihi girildiğinde önerilen garanti bitişi. Türkiye'de tüketici
+ * ürünlerinin yasal asgari garantisi iki yıl; çoğu cihazda yazan da bu.
+ */
+export const DEFAULT_WARRANTY_MONTHS = 24;
+
+/**
+ * Formda alış tarihinden garanti bitişi önerir — girdi de çıktı da tarih
+ * girdisinin "YYYY-MM-DD" biçiminde.
+ *
+ * Öneri, hesaplanmış bir değer değil **doldurulmuş bir alan**: kullanıcı
+ * görüyor, değiştirebiliyor ve kaydeden o. Türetilmiş değeri saklamama kuralı
+ * (CLAUDE.md) burayı kapsamıyor; garanti bitişi gerçek bir veri, alış
+ * tarihinden mekanik olarak çıkmıyor — bazı ürünlerde üç yıl, bazılarında altı
+ * ay. Bu yüzden hesaplanıp gösterilmiyor, öneriliyor.
+ *
+ * Ay sonu taşması `addMonths`ta çözülü: 29 Şubat + 24 ay = 28 Şubat.
+ */
+export function suggestedWarrantyEnd(
+  purchaseInput: string,
+  months: number = DEFAULT_WARRANTY_MONTHS,
+): string {
+  const purchase = parseDateOnly(purchaseInput);
+  return purchase ? toInputDate(addMonths(purchase, months)) : "";
 }

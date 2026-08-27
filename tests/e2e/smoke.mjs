@@ -74,9 +74,28 @@ try {
   await page.fill('input[name="model"]', "WGG24400TR");
   await page.fill('input[name="serialNo"]', SERI);
   await page.fill('input[name="purchasePrice"]', "18.400,50");
+
+  // Alış tarihi girilince garanti bitişi 24 ay sonrası olarak öneriliyor.
+  await page.fill('input[name="purchaseDate"]', "2026-03-14");
+  await page.waitForTimeout(200);
+  const onerilen = await page.inputValue('input[name="warrantyEndDate"]');
+  if (onerilen !== "2028-03-14") {
+    throw new Error(`garanti önerisi yanlış: ${onerilen}`);
+  }
+  log("garanti bitişi alış tarihinden önerildi:", onerilen);
+
+  // Öneri bir öneri: kullanıcının yazdığı kalıyor, alış tarihi sonra değişse
+  // bile üstüne yazılmıyor.
   const soon = new Date();
   soon.setDate(soon.getDate() + 12);
   await page.fill('input[name="warrantyEndDate"]', soon.toISOString().slice(0, 10));
+  await page.fill('input[name="purchaseDate"]', "2026-04-01");
+  await page.waitForTimeout(200);
+  if ((await page.inputValue('input[name="warrantyEndDate"]')) !==
+      soon.toISOString().slice(0, 10)) {
+    throw new Error("elle girilen garanti tarihinin üstüne yazıldı");
+  }
+  log("elle girilen garanti tarihi korunuyor");
   await page.screenshot({ path: `${out}/5-ekipman-formu.png` });
   await page.tap('button[type="submit"]');
   await page.waitForSelector(`text=${URUN}`, { timeout: 10000 });

@@ -5,7 +5,8 @@ import { requireLocationEditor } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError } from "@/lib/api";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import { parseUblInvoice, unitCount } from "@/lib/einvoice";
-import { parseDateOnly, priceToMinor } from "@/lib/invoice";
+import { parseDateOnly } from "@/lib/dates";
+import { priceToMinor } from "@/lib/invoice";
 import { resolveVendor } from "@/lib/vendors";
 
 export const maxDuration = 60;

@@ -11,6 +11,10 @@ import {
   ITEM_STATUS_LABELS,
 } from "@/lib/constants";
 import { visibleFields, type FieldDef } from "@/lib/custom-fields";
+import {
+  DEFAULT_WARRANTY_MONTHS,
+  suggestedWarrantyEnd,
+} from "@/lib/warranty";
 import type { VendorOption } from "@/lib/vendors";
 
 export type CategoryOption = {
@@ -72,6 +76,24 @@ export function ItemFields({
   // Seri no barkoddan okunabildiği için denetimli: okunan değer alana yazılıyor.
   const [serialNo, setSerialNo] = useState(defaults.serialNo ?? "");
   const [model, setModel] = useState(defaults.model ?? "");
+
+  /**
+   * Garanti bitişi alış tarihinden öneriliyor: kullanıcı alış tarihini
+   * seçtiğinde alan 24 ay sonrasıyla doluyor, isterse değiştiriyor.
+   *
+   * Öneri yalnız **alana dokunulmadıysa** yazılıyor. Kayıtlı bir tarihle açılan
+   * düzenleme formu baştan "dokunulmuş" sayılıyor: var olan garanti tarihi
+   * gerçek veri, alış tarihini düzelten kullanıcının üstüne yazmamalı. Aynı
+   * sebeple öneri yalnız kullanıcının değiştirmesiyle çıkıyor, açılışta değil
+   * — yoksa düzenleme formunu açıp kaydetmek, garantisi bilerek boş bırakılan
+   * bir ekipmana sessizce tarih koyardı.
+   */
+  const [warrantyEnd, setWarrantyEnd] = useState(defaults.warrantyEndDate ?? "");
+  const [warrantyTouched, setWarrantyTouched] = useState(
+    Boolean(defaults.warrantyEndDate),
+  );
+  /** Alandaki değer bizim önerimiz mi; ipucu buna bakıyor. */
+  const [suggested, setSuggested] = useState(false);
 
   // Satıcı tek alan gibi davranıyor: listeden seç ya da "yeni" deyip adını yaz.
   // Faturadan bir ad geldiyse ya da lokasyonun hiç satıcısı yoksa doğrudan
@@ -169,14 +191,32 @@ export function ItemFields({
             type="date"
             name="purchaseDate"
             defaultValue={defaults.purchaseDate}
+            onChange={(event) => {
+              if (warrantyTouched) return;
+              const oneri = suggestedWarrantyEnd(event.target.value);
+              setWarrantyEnd(oneri);
+              setSuggested(oneri !== "");
+            }}
             className={inputClass}
           />
         </Field>
-        <Field label="Garanti bitişi">
+        <Field
+          label="Garanti bitişi"
+          hint={
+            suggested
+              ? `Alıştan ${DEFAULT_WARRANTY_MONTHS} ay sonrası önerildi; değiştirebilirsin.`
+              : undefined
+          }
+        >
           <input
             type="date"
             name="warrantyEndDate"
-            defaultValue={defaults.warrantyEndDate}
+            value={warrantyEnd}
+            onChange={(event) => {
+              setWarrantyTouched(true);
+              setSuggested(false);
+              setWarrantyEnd(event.target.value);
+            }}
             className={inputClass}
           />
         </Field>

@@ -8,6 +8,7 @@ import {
 import { readCustomFields, type FieldDef } from "@/lib/custom-fields";
 import { formatMoney } from "@/lib/money";
 import { canEdit } from "@/lib/permissions";
+import { toInputDate } from "@/lib/dates";
 import { prisma } from "@/lib/prisma";
 import { ownershipCostMinor, type TimelineEvent } from "@/lib/events";
 import { ruleStatus, statusText } from "@/lib/maintenance";
@@ -52,14 +53,6 @@ const trDate = new Intl.DateTimeFormat("tr-TR", {
   month: "long",
   year: "numeric",
 });
-
-/** Tarih girdisi "YYYY-MM-DD" bekler; yerel gün kayması olmasın. */
-function toInputDate(date: Date | null): string {
-  if (!date) return "";
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${date.getFullYear()}-${month}-${day}`;
-}
 
 export default async function EkipmanPage({
   params,

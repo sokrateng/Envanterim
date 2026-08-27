@@ -1,4 +1,4 @@
-import { addMonths } from "@/lib/invoice";
+import { addMonths } from "@/lib/dates";
 import { daysBetween } from "@/lib/warranty";
 import type { TimelineEvent } from "@/lib/events";
 

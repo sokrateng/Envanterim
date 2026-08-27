@@ -4,6 +4,7 @@ import {
   daysUntilWarrantyEnd,
   isReminderDue,
   startOfDay,
+  suggestedWarrantyEnd,
   warrantyRange,
   warrantyStatus,
 } from "./warranty";
@@ -137,5 +138,25 @@ describe("warrantyRange", () => {
     const genis = warrantyRange("180", now)!;
     expect(dar.gte!.getTime()).toBe(genis.gte!.getTime());
     expect(dar.lt.getTime()).toBeLessThan(genis.lt.getTime());
+  });
+});
+
+describe("suggestedWarrantyEnd", () => {
+  it("alış tarihine 24 ay ekler", () => {
+    expect(suggestedWarrantyEnd("2026-03-14")).toBe("2028-03-14");
+  });
+
+  it("ay sonu taşmasını çeker", () => {
+    // 29 Şubat + 24 ay = 28 Şubat; "1 Mart" değil.
+    expect(suggestedWarrantyEnd("2024-02-29")).toBe("2026-02-28");
+    expect(suggestedWarrantyEnd("2026-01-31", 1)).toBe("2026-02-28");
+  });
+
+  it("boş ya da geçersiz tarihte öneri yok", () => {
+    // Alan boşken garanti alanına bir şey yazmak, kullanıcının silmediği bir
+    // değeri geri getirirdi.
+    expect(suggestedWarrantyEnd("")).toBe("");
+    expect(suggestedWarrantyEnd("14.03.2026")).toBe("");
+    expect(suggestedWarrantyEnd("2026-02-31")).toBe("");
   });
 });

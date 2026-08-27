@@ -183,6 +183,13 @@ fiske hızlıysa açık kalır, değilse kapanır.
 - **Durum tek satır**, seçenekler panelde: yılda bir iki kez değişen bir şey
   için dört satır ayırmıyoruz.
 
+**Akıllı varsayılan, sessiz değişiklik değil.** Alış tarihi girilince garanti
+bitişi 24 ay sonrasıyla doluyor (Türkiye'de yasal asgari garanti iki yıl) ve
+alanın altında "önerildi; değiştirebilirsin" yazıyor. Öneri yalnız kullanıcı
+alış tarihini **değiştirdiğinde** ve garanti alanına dokunmadıysa çıkıyor:
+kayıtlı bir tarihin üstüne yazmıyor, düzenleme formunu açıp kaydetmek de
+garantisi bilerek boş bırakılmış bir ekipmana tarih koymuyor.
+
 ## Onay kutusu
 
 Tarayıcının `confirm()` kutusu kullanılmıyor: masaüstü görünümlü, adres
