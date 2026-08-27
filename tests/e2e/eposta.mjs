@@ -40,6 +40,13 @@ try {
   // Önceki koşudan kalan adres varsa temizle: test tekrarlanabilir olmalı.
   await page.evaluate(async () => {
     await fetch("/api/hesap/eposta", { method: "DELETE" });
+    // Olay tercihleri de varsayılana: test bunları değiştiriyor, tekrar
+    // koşulabilir olmalı.
+    await fetch("/api/hesap/bildirim", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ yeniEkipman: true, degisiklik: false }),
+    });
   });
   await page.reload();
   await page.waitForSelector("text=E-posta bildirimi");
@@ -108,6 +115,56 @@ try {
   );
   if (!haber) throw new Error("yeni ekipman bildirimi gitmedi");
   log("başka üyenin eklediği ekipman haber verildi");
+
+  // Tercih kapatılınca haber kesilmeli.
+  await page.goto(`${BASE}/hesap`);
+  await page
+    .locator('label:has-text("Yeni ekipman eklenince") input[type="checkbox"]')
+    .uncheck();
+  await page.waitForTimeout(1200);
+
+  const kapaliOncesi = postalar().length;
+  const sessizAd = `Sessiz ekipman ${damga}`;
+  await uye.goto(`${BASE}/envanter`);
+  await uye.tap('button[aria-label="Ekipman ekle"]');
+  await uye.fill('input[name="name"]', sessizAd);
+  await uye.tap('div[role="dialog"] button[type="submit"]');
+  await uye.waitForSelector(`text=${sessizAd}`, { timeout: 15000 });
+  if (
+    postalar()
+      .slice(kapaliOncesi)
+      .some((m) => duzMetin(m.govde).includes(sessizAd))
+  ) {
+    throw new Error("tercih kapalıyken yeni ekipman maili gitti");
+  }
+  log("tercih kapalıyken yeni ekipman haberi gitmiyor");
+
+  // Değişiklik haberi varsayılan kapalı; açınca gelmeli.
+  await page.goto(`${BASE}/hesap`);
+  await page
+    .locator('label:has-text("Ekipman değişince") input[type="checkbox"]')
+    .check();
+  await page.waitForTimeout(1200);
+
+  const degisiklikOncesi = postalar().length;
+  const yeniIsim = `${sessizAd} v2`;
+  await uye.locator(`a:has-text("${sessizAd}")`).first().tap();
+  await uye.waitForSelector('button:has-text("Düzenle")', { timeout: 15000 });
+  await uye.tap('button:has-text("Düzenle")');
+  await uye.waitForSelector('div[role="dialog"]');
+  await uye.fill('input[name="name"]', yeniIsim);
+  await uye.tap('div[role="dialog"] button[type="submit"]');
+  await uye.waitForSelector('div[role="dialog"]', { state: "detached", timeout: 20000 });
+
+  const degisiklikMaili = postalar()
+    .slice(degisiklikOncesi)
+    .find((m) => m.alicilar.includes(adres) && duzMetin(m.govde).includes(yeniIsim));
+  if (!degisiklikMaili) throw new Error("değişiklik bildirimi gitmedi");
+  if (!duzMetin(degisiklikMaili.govde).includes(`Ad: ${sessizAd} → ${yeniIsim}`)) {
+    throw new Error("değişiklik maili ne değiştiğini yazmıyor");
+  }
+  log("değişiklik haberi ne değiştiğini yazarak geldi");
+
   await uyeCtx.close();
 
   // Garanti uyarısı olacak bir ekipman: 30 gün kala

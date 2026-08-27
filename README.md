@@ -30,8 +30,9 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   ücret ve ödeme. Kayıt açılınca ekipman "Serviste" oluyor, sonuç girilince
   kullanıma dönüyor; ücret sahip olma maliyetine giriyor, garanti kapsamındaki
   iş girmiyor.
-- **Yeni ekipman bildirimi.** Lokasyona ekipman ekleyen dışındaki üyelere push
-  ve e-posta gidiyor.
+- **Envanter bildirimleri.** Lokasyona ekipman eklenince ve ekipman değişince
+  diğer üyelere push ve e-posta gidiyor; değişiklik haberinde **ne değiştiği**
+  yazıyor. Her kullanıcı hesabında iki olayı ayrı ayrı açıp kapatıyor.
 - **Para birimi.** Varsayılan TRY; yurtdışından alınan ekipman USD, EUR ya da
   GBP olarak kaydedilir. Kur çevrilmiyor: raporda her birim ayrı toplanır.
 - **Barkodla seri no.** Seri no alanının yanındaki tarayıcı düğmesi cihazın

@@ -22,9 +22,15 @@ model User {
 
   // E-posta bildirimi. Adres doğrulanmadan bildirim gitmiyor: yanlış yazılan
   // adrese envanter bilgisi gönderilmesin.
-  email              String?   @unique
-  emailVerifiedAt    DateTime?
-  emailReminders     Boolean   @default(true)
+  email           String?   @unique
+  emailVerifiedAt DateTime?
+  emailReminders  Boolean   @default(true)
+
+  // Envanter olayları için kişisel tercih. Kanaldan bağımsız: kapalıysa ne
+  // push ne e-posta gider. Yeni ekipman haberi varsayılan açık; değişiklik
+  // haberi kapalı — düzenleme sık yapılıyor, herkesin telefonu ötmesin.
+  notifyNewItem      Boolean   @default(true)
+  notifyItemChange   Boolean   @default(false)
   emailCodeHash      String? // doğrulama kodu düz metin saklanmıyor
   emailCodeExpiresAt DateTime?
   emailCodeTries     Int       @default(0)

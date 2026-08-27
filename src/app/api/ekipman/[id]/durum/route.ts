@@ -4,6 +4,7 @@ import { requireLocationEditor } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError, parseBody } from "@/lib/api";
 import { logAudit } from "@/lib/audit";
 import { ITEM_STATUS_LABELS, type ItemStatus } from "@/lib/constants";
+import { notifyItemChange } from "@/lib/item-notify";
 import { itemStatusSchema } from "@/lib/validation";
 
 // Ekipman silinmez; yaşam döngüsünden durumla çıkar (CLAUDE.md).
@@ -33,15 +34,30 @@ export async function PATCH(
   });
 
   if (item.status !== updated.status) {
+    const degisiklik =
+      `Durum: ${ITEM_STATUS_LABELS[item.status as ItemStatus]} → ` +
+      `${ITEM_STATUS_LABELS[updated.status as ItemStatus]}`;
+
+    const editor = await prisma.user.findUnique({
+      where: { id: access.userId },
+      select: { name: true },
+    });
+    // Yanıttan sonra iş yapılmıyor (TUZAKLAR #1).
+    await notifyItemChange(
+      item,
+      item.locationId,
+      access.userId,
+      editor?.name ?? "Bir üye",
+      [degisiklik],
+    );
+
     await logAudit({
       locationId: item.locationId,
       userId: access.userId,
       action: "UPDATE",
       entity: "ITEM",
       entityId: item.id,
-      summary:
-        `${item.name}: durum ${ITEM_STATUS_LABELS[item.status as ItemStatus]} → ` +
-        `${ITEM_STATUS_LABELS[updated.status as ItemStatus]}`,
+      summary: `${item.name}: ${degisiklik.toLocaleLowerCase("tr")}`,
     });
   }
 

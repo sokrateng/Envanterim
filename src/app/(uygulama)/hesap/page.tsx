@@ -3,6 +3,7 @@ import { isEmailConfigured } from "@/lib/mailer";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { EmailSettings, type EmailState } from "./EmailSettings";
+import { EventSettings } from "./EventSettings";
 import { PasswordChange } from "./PasswordChange";
 import { PushToggle } from "./PushToggle";
 import { SignOutButton } from "./SignOutButton";
@@ -14,14 +15,19 @@ export default async function HesapPage() {
   // Anahtar yoksa bildirim bölümü hiç görünmüyor.
   const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
 
-  // SMTP tanımsızsa e-posta bölümü hiç görünmüyor.
+  // SMTP tanımsızsa e-posta bölümü hiç görünmüyor. Olay tercihleri iki kanalı
+  // birden kapsadığı için ayrıca okunuyor.
   const emailEnabled = isEmailConfigured();
-  const account = emailEnabled
-    ? await prisma.user.findUnique({
-        where: { id: user.id },
-        select: { email: true, emailVerifiedAt: true, emailReminders: true },
-      })
-    : null;
+  const account = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      email: true,
+      emailVerifiedAt: true,
+      emailReminders: true,
+      notifyNewItem: true,
+      notifyItemChange: true,
+    },
+  });
 
   const emailState: EmailState = {
     email: account?.email ?? null,
@@ -42,6 +48,10 @@ export default async function HesapPage() {
         <Group title="Bildirimler">
           {vapidPublicKey ? <PushToggle publicKey={vapidPublicKey} /> : null}
           {emailEnabled ? <EmailSettings state={emailState} /> : null}
+          <EventSettings
+            newItem={account?.notifyNewItem ?? true}
+            itemChange={account?.notifyItemChange ?? false}
+          />
         </Group>
       ) : null}
 

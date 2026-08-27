@@ -132,6 +132,27 @@ export function newItemMail(
   };
 }
 
+/**
+ * Ekipmanda değişiklik. Ne değiştiğini yazıyoruz: "güncellendi" demek
+ * kullanıcıyı uygulamayı açıp aramaya zorluyor.
+ */
+export function itemChangeMail(
+  item: { id: string; name: string },
+  locationName: string,
+  changedByName: string,
+  changes: string[],
+  baseUrl?: string | null,
+): Mail {
+  return {
+    subject: `${locationName}: ${item.name} güncellendi`,
+    text:
+      `${changedByName}, "${item.name}" ekipmanını güncelledi.\n\n` +
+      changes.map((change) => `- ${change}`).join("\n") +
+      `\n\nÜrün sayfası: ${itemLink(baseUrl, item.id)}` +
+      IMZA,
+  };
+}
+
 /** Atayan tarafa: zimmet kabul edildi ya da geri çevrildi. */
 export function assignmentAnswerMail(
   item: { id: string; name: string },

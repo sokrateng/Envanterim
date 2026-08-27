@@ -196,9 +196,21 @@ aynı hatırlatma iki kez gitmiyor. E-posta yalnız doğrulanmış adrese gider.
 push ve e-posta gidiyor, cevabı (kabul/red) atayana dönüyor. Damga yok, çünkü
 her atama tek seferlik bir olay.
 
-**Yeni ekipman bildirimi** aynı desende: lokasyona ekipman eklenince diğer
-üyelere gidiyor, ekleyene gitmiyor (kendi yaptığı işin bildirimi gürültü).
-Bildirim yan iş — başarısız olsa da ekipman açılmış oluyor (TUZAKLAR #51).
+**Envanter bildirimleri** (yeni ekipman, ekipman değişikliği) aynı desende:
+lokasyonun diğer üyelerine gidiyor, işi yapana gitmiyor (kendi yaptığı işin
+bildirimi gürültü). Bildirim yan iş — başarısız olsa da kayıt yazılmış oluyor
+(TUZAKLAR #51).
+
+Tercih **kullanıcıda ve kanaldan bağımsız**: `User.notifyNewItem` /
+`notifyItemChange` kapalıysa ne push ne e-posta gider. Aynı lokasyondaki iki
+kişi farklı seçebiliyor. E-posta ayrıca doğrulanmış adres ve açık
+`emailReminders` istiyor — yani iki kapı: "bu olayı duymak istiyorum" ve "bana
+e-posta gönderilebilir".
+
+Değişiklik bildirimi **ne değiştiğini** yazıyor (`src/lib/item-changes.ts`,
+saf ve testli): "güncellendi" demek kullanıcıyı uygulamayı açıp aramaya
+zorluyor. Değişmeyen alan listeye girmiyor; hiçbir alan değişmediyse bildirim
+hiç gönderilmiyor.
 
 ### Çevrimdışı
 
