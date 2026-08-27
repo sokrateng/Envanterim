@@ -111,6 +111,27 @@ export function assignmentMail(
   };
 }
 
+/**
+ * Lokasyona yeni ekipman eklendi.
+ *
+ * Paylaşılan bir envanterde "bu ne zaman girdi, kim ekledi" sorusu sonradan
+ * sorulmuyor; haberi anında vermek envanterin ortak kalmasını sağlıyor.
+ */
+export function newItemMail(
+  item: { id: string; name: string },
+  locationName: string,
+  addedByName: string,
+  baseUrl?: string | null,
+): Mail {
+  return {
+    subject: `${locationName}: yeni ekipman — ${item.name}`,
+    text:
+      `${addedByName}, "${locationName}" lokasyonuna "${item.name}" ekipmanını ekledi.\n\n` +
+      `Ürün sayfası: ${itemLink(baseUrl, item.id)}` +
+      IMZA,
+  };
+}
+
 /** Atayan tarafa: zimmet kabul edildi ya da geri çevrildi. */
 export function assignmentAnswerMail(
   item: { id: string; name: string },

@@ -58,19 +58,29 @@ export function eventSummary(event: TimelineEvent, currency = "TRY"): string {
 }
 
 /**
- * Sahip olma maliyeti: alış + servis (+ yedek parça, listesi geldiğinde).
+ * Sahip olma maliyeti: alış + servis + yedek parça.
  * Türetilmiş değer saklanmaz, hesaplanır (CLAUDE.md).
+ *
+ * İki tür servis gideri var: zaman çizelgesine elle yazılan SERVICE olayı ve
+ * yetkili servis kaydı (`ServiceJob`). Garanti kapsamındaki iş toplama
+ * girmiyor — kimse ödemedi (src/lib/service.ts).
  */
 export function ownershipCostMinor(
   purchasePriceMinor: number | null | undefined,
   events: Array<Pick<TimelineEvent, "kind" | "costMinor">>,
   partsMinor: Array<number | null | undefined> = [],
+  serviceJobsMinor: Array<number | null | undefined> = [],
 ): number {
   const service = events
     .filter((event) => event.kind === "SERVICE")
     .map((event) => event.costMinor);
 
-  return sumMinor([purchasePriceMinor, ...service, ...partsMinor]);
+  return sumMinor([
+    purchasePriceMinor,
+    ...service,
+    ...partsMinor,
+    ...serviceJobsMinor,
+  ]);
 }
 
 /** Son sayaç okuması — bakım kuralı buna bakacak (MIMARI §3). */

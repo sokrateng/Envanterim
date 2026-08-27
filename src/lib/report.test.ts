@@ -26,6 +26,7 @@ const item = (over: Partial<ReportItem> = {}): ReportItem => ({
   photoUrl: null,
   events: [],
   partPricesMinor: [],
+  servicePricesMinor: [],
   ...over,
 });
 

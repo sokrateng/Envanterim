@@ -196,6 +196,10 @@ aynı hatırlatma iki kez gitmiyor. E-posta yalnız doğrulanmış adrese gider.
 push ve e-posta gidiyor, cevabı (kabul/red) atayana dönüyor. Damga yok, çünkü
 her atama tek seferlik bir olay.
 
+**Yeni ekipman bildirimi** aynı desende: lokasyona ekipman eklenince diğer
+üyelere gidiyor, ekleyene gitmiyor (kendi yaptığı işin bildirimi gürültü).
+Bildirim yan iş — başarısız olsa da ekipman açılmış oluyor (TUZAKLAR #51).
+
 ### Çevrimdışı
 
 Service worker uygulama açılınca kaydoluyor (bildirimden bağımsız). Gezinme
@@ -358,6 +362,21 @@ olarak düşürmüyorum.
   makul bir sayıda çağrıyla sınırlanmalı.
 - Claude belge girdisi sınırı: istek başına 32 MB, 600 sayfa.
 
+### Yetkili servis
+
+`ServiceJob` süren bir işi tutuyor: gönderildi → bekliyor → döndü. Zaman
+çizelgesindeki `SERVICE` olayı tek bir ana ait, bu yüzden ayrı model.
+
+- **Durum kayıtla birlikte değişiyor.** Kayıt açılınca `IN_REPAIR`, sonuç
+  girilince `IN_USE` — açık başka iş yoksa. Kararı `statusAfterService` veriyor
+  (saf, testli); pasif ve satılmış ekipman kullanıma dönmüyor, o karar servis
+  kaydından daha yeni ve daha bilinçli.
+- **Ücret tek yerde.** Servis ücreti `ServiceJob.costMinor`'da duruyor ve sahip
+  olma maliyetine oradan giriyor; ayrıca `ItemEvent` açılmıyor, yoksa aynı
+  gider iki kez sayılırdı. Garanti kapsamındaki iş toplama girmiyor — kimse
+  ödemedi.
+- Servis firması `Vendor` (satıcıyla aynı tablo, `isService` bayrağı).
+
 ### Notlar ve puan
 
 `ItemNote` ekipmanın "nasıl kullanılıyor" tarafı: tarif, ayar, uyarı. Yazarın
@@ -369,7 +388,8 @@ olan dosya ekipmanın genel ekler bölümünde çıkmıyor.
 `ItemRating` kişi başına tek puan (`@@unique([itemId, userId])`). Ortalama
 saklanmıyor, `averageStars` ile hesaplanıyor (CLAUDE.md).
 
-Not yazmak ve puan vermek **üyeliğe** bağlı, düzenleme yetkisine değil:
+Servis kaydı **düzenleme** yetkisi istiyor (envanter verisi); not ve puan
+**üyelik** yetiyor. Not yazmak ve puan vermek üyeliğe bağlı, düzenleme yetkisine değil:
 ekipmanı kullanan kişi çoğu zaman düzenleyen değil, tarifi ve beğeniyi o
 biliyor. Notu yalnız yazarı düzenleyebiliyor; silmeyi yazar ve lokasyon sahibi
 yapabiliyor (`src/lib/notes.ts`, testli).

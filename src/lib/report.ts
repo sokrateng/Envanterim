@@ -27,6 +27,8 @@ export type ReportItem = {
   photoUrl: string | null;
   events: Array<Pick<TimelineEvent, "kind" | "costMinor">>;
   partPricesMinor: Array<number | null>;
+  /** Yetkili servis ücretleri; garanti kapsamındakiler dışarıda bırakılmış. */
+  servicePricesMinor: Array<number | null>;
 };
 
 export type CategoryTotal = {
@@ -87,7 +89,12 @@ function groupCurrency(items: ReportItem[]): CurrencyGroup {
     ownershipTotalMinor: items.reduce(
       (total, item) =>
         total +
-        ownershipCostMinor(item.purchasePriceMinor, item.events, item.partPricesMinor),
+        ownershipCostMinor(
+          item.purchasePriceMinor,
+          item.events,
+          item.partPricesMinor,
+          item.servicePricesMinor,
+        ),
       0,
     ),
     // Değeri yüksek kategori üstte: sigortacı önce oraya bakıyor.

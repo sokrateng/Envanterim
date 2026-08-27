@@ -150,3 +150,9 @@ describe("sortTimeline / filterByKind / countByKind", () => {
     });
   });
 });
+
+describe("ownershipCostMinor · yetkili servis", () => {
+  it("servis kaydının ücreti de toplama giriyor", () => {
+    expect(ownershipCostMinor(1000, [], [], [500, null])).toBe(1500);
+  });
+});

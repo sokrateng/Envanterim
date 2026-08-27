@@ -123,6 +123,25 @@ export const itemCreateSchema = z.object({
 
 export const itemUpdateSchema = itemCreateSchema;
 
+export const serviceCreateSchema = z.object({
+  complaint: trimmed
+    .min(1, "Arıza açıklaması gerekli")
+    .max(500, "En çok 500 karakter"),
+  sentAt: emptyToUndefined(dateOnly),
+  vendorId: emptyToUndefined(trimmed),
+  // Listede olmayan servis formda adıyla yazılır; sunucu varsa bulur, yoksa açar.
+  vendorName: emptyToUndefined(trimmed.max(80, "En çok 80 karakter")),
+  trackingNo: emptyToUndefined(trimmed.max(60, "En çok 60 karakter")),
+});
+
+export const serviceCloseSchema = z.object({
+  returnedAt: emptyToUndefined(dateOnly),
+  work: emptyToUndefined(trimmed.max(1000, "En çok 1000 karakter")),
+  cost: emptyToUndefined(moneyMinor),
+  paid: z.coerce.boolean().default(false),
+  underWarranty: z.coerce.boolean().default(false),
+});
+
 export const categorySchema = z.object({
   name: trimmed.min(1, "Kategori adı gerekli").max(60, "En çok 60 karakter"),
   icon: emptyToUndefined(trimmed.max(8)),

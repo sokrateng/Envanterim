@@ -48,6 +48,7 @@ model User {
   inviteUsed        LocationInvite?    @relation("InviteUser")
   notes             ItemNote[]
   ratings           ItemRating[]
+  serviceJobs       ServiceJob[]       @relation("ServiceJobCreator")
 }
 
 model Location {
@@ -139,10 +140,11 @@ model Vendor {
   isSeller   Boolean @default(true)
   isService  Boolean @default(false)
 
-  location  Location    @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  soldItems Item[]      @relation("ItemSeller")
-  events    ItemEvent[]
-  parts     Part[]
+  location    Location     @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  soldItems   Item[]       @relation("ItemSeller")
+  events      ItemEvent[]
+  parts       Part[]
+  serviceJobs ServiceJob[] @relation("ServiceJobVendor")
 
   @@index([locationId])
 }
@@ -188,6 +190,7 @@ model Item {
   assignments ItemAssignment[]
   notes       ItemNote[]
   ratings     ItemRating[]
+  serviceJobs ServiceJob[]
 
   @@index([locationId, status])
   @@index([locationId, categoryId])
@@ -285,6 +288,38 @@ model Attachment {
 
   @@index([itemId])
   @@index([noteId])
+}
+
+// Yetkili servise gönderim: arızadan sonuca kadar tek kayıt.
+//
+// Zaman çizelgesindeki SERVICE olayı tek bir ana ait; servis ise süren bir iş:
+// gönderildi, bekliyor, döndü. Ücret bu kayıtta duruyor ve sahip olma
+// maliyetine buradan giriyor — aynı gideri iki yere yazmıyoruz.
+model ServiceJob {
+  id       String  @id @default(cuid())
+  itemId   String
+  vendorId String? // yetkili servis; adı yazılırsa Vendor açılıyor
+
+  complaint  String // arıza: kullanıcının anlattığı
+  sentAt     DateTime
+  trackingNo String? // servis fişi / takip numarası
+
+  // Sonuç. Doluysa iş kapandı.
+  returnedAt    DateTime?
+  work          String? // servisin yaptığı iş
+  costMinor     Int? // kuruş; ekipmanın para biriminde
+  paid          Boolean   @default(false)
+  underWarranty Boolean   @default(false)
+
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  item      Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  vendor    Vendor? @relation("ServiceJobVendor", fields: [vendorId], references: [id])
+  createdBy User?   @relation("ServiceJobCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([itemId, sentAt])
 }
 
 // Kullanıcı notu: tarif, deneme, ayar, uyarı… Ekipmanın "nasıl kullanılıyor"

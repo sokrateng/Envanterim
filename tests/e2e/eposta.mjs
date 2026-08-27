@@ -84,6 +84,32 @@ try {
   log("adres doğrulandı");
   await page.screenshot({ path: `${out}/2-dogrulandi.png` });
 
+  // Başka bir üye lokasyona ekipman eklerse haber gelmeli. Kendi eklediğine
+  // bildirim gitmiyor, o yüzden ikinci kullanıcıyla açıyoruz.
+  const uyeCtx = await browser.newContext(iphone);
+  const uye = await uyeCtx.newPage();
+  await uye.goto(`${BASE}/giris`);
+  await uye.fill('input[name="username"]', "buketc");
+  await uye.fill('input[name="password"]', process.env.E2E_PASSWORD ?? "cok-uzun-sifre");
+  await uye.tap('button[type="submit"]');
+  await uye.waitForURL("**/lokasyonlar");
+
+  const oncekiEkleme = postalar().length;
+  const yeniAd = `Ortak ekipman ${damga}`;
+  await uye.goto(`${BASE}/envanter`);
+  await uye.tap('button[aria-label="Ekipman ekle"]');
+  await uye.fill('input[name="name"]', yeniAd);
+  await uye.tap('div[role="dialog"] button[type="submit"]');
+  await uye.waitForSelector(`text=${yeniAd}`, { timeout: 15000 });
+
+  const eklemeMailleri = postalar().slice(oncekiEkleme);
+  const haber = eklemeMailleri.find(
+    (m) => m.alicilar.includes(adres) && duzMetin(m.govde).includes(yeniAd),
+  );
+  if (!haber) throw new Error("yeni ekipman bildirimi gitmedi");
+  log("başka üyenin eklediği ekipman haber verildi");
+  await uyeCtx.close();
+
   // Garanti uyarısı olacak bir ekipman: 30 gün kala
   await page.goto(`${BASE}/envanter`);
   await page.tap('button[aria-label="Ekipman ekle"]');

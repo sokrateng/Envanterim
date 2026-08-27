@@ -24,6 +24,12 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   Zaman çizelgesi olan biteni tutuyor, notlar bilgiyi.
 - **Beğeni yıldızı.** Kişi başına tek puan, ortalama herkese açık: hangi
   ekipman gerçekten kullanılıyor.
+- **Yetkili servis kaydı.** Arıza, gönderim, kaç gündür serviste, yapılan iş,
+  ücret ve ödeme. Kayıt açılınca ekipman "Serviste" oluyor, sonuç girilince
+  kullanıma dönüyor; ücret sahip olma maliyetine giriyor, garanti kapsamındaki
+  iş girmiyor.
+- **Yeni ekipman bildirimi.** Lokasyona ekipman ekleyen dışındaki üyelere push
+  ve e-posta gidiyor.
 - **Para birimi.** Varsayılan TRY; yurtdışından alınan ekipman USD, EUR ya da
   GBP olarak kaydedilir. Kur çevrilmiyor: raporda her birim ayrı toplanır.
 - **Barkodla seri no.** Seri no alanının yanındaki tarayıcı düğmesi cihazın

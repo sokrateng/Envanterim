@@ -57,6 +57,7 @@ export default async function RaporPage({
           category: { select: { name: true } },
           events: { select: { kind: true, costMinor: true } },
           parts: { select: { priceMinor: true } },
+          serviceJobs: { select: { costMinor: true, underWarranty: true } },
           attachments: {
             where: { kind: "PHOTO" },
             select: { url: true },
@@ -88,6 +89,10 @@ export default async function RaporPage({
       costMinor: event.costMinor,
     })),
     partPricesMinor: item.parts.map((part) => part.priceMinor),
+    // Garanti kapsamındaki servis toplama girmiyor (src/lib/service.ts).
+    servicePricesMinor: item.serviceJobs.map((job) =>
+      job.underWarranty ? null : job.costMinor,
+    ),
   }));
 
   const listed = sortForReport(reportable(items));

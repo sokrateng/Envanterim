@@ -45,6 +45,7 @@ export async function GET(
           seller: { select: { name: true } },
           events: { select: { kind: true, costMinor: true } },
           parts: { select: { priceMinor: true } },
+          serviceJobs: { select: { costMinor: true, underWarranty: true } },
         },
         orderBy: { name: "asc" },
       },
@@ -73,6 +74,8 @@ export async function GET(
           costMinor: event.costMinor,
         })),
         item.parts.map((part) => part.priceMinor),
+        // Garanti kapsamındaki servis toplama girmiyor (src/lib/service.ts).
+        item.serviceJobs.map((job) => (job.underWarranty ? null : job.costMinor)),
       ),
     }),
   );

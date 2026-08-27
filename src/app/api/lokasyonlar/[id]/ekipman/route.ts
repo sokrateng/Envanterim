@@ -4,6 +4,7 @@ import { requireLocationEditor } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError, parseBody } from "@/lib/api";
 import { loadFieldDefs, validateCustomFields } from "@/lib/item-fields";
 import { resolveSeller } from "@/lib/seller";
+import { notifyNewItem } from "@/lib/item-notify";
 import { itemCreateSchema } from "@/lib/validation";
 
 export async function POST(
@@ -55,6 +56,14 @@ export async function POST(
     },
     select: { id: true, name: true },
   });
+
+  // Lokasyondaki diğer üyelere haber. Yanıttan sonra iş yapılmıyor
+  // (TUZAKLAR #1); bildirim başarısız olsa da ekipman açıldı.
+  const adder = await prisma.user.findUnique({
+    where: { id: access.userId },
+    select: { name: true },
+  });
+  await notifyNewItem(item, id, access.userId, adder?.name ?? "Bir üye");
 
   return NextResponse.json(item, { status: 201 });
 }

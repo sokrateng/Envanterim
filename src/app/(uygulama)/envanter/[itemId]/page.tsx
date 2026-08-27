@@ -37,10 +37,12 @@ import { FillProvider } from "./fill-context";
 import { EditItemButton } from "./EditItemButton";
 import { StatusPicker } from "./StatusPicker";
 import { Notes, type NoteView } from "./Notes";
+import { Service, type ServiceRow } from "./Service";
 import { Rating } from "./Rating";
 import { Thumb } from "@/components/Thumb";
 import { canDeleteNote, canEditNote } from "@/lib/notes";
 import { averageStars } from "@/lib/rating";
+import { paymentLabel, serviceLabel, serviceState } from "@/lib/service";
 import { titleClass } from "@/lib/typography";
 
 export const dynamic = "force-dynamic";
@@ -101,6 +103,21 @@ export default async function EkipmanPage({
         orderBy: { createdAt: "desc" },
       },
       ratings: { select: { userId: true, stars: true } },
+      serviceJobs: {
+        select: {
+          id: true,
+          complaint: true,
+          sentAt: true,
+          trackingNo: true,
+          returnedAt: true,
+          work: true,
+          costMinor: true,
+          paid: true,
+          underWarranty: true,
+          vendor: { select: { name: true } },
+        },
+        orderBy: { sentAt: "desc" },
+      },
       shareLinks: {
         select: {
           id: true,
@@ -227,6 +244,21 @@ export default async function EkipmanPage({
     item.ratings.find((rating) => rating.userId === access.userId)?.stars ?? null;
   const average = averageStars(item.ratings.map((rating) => rating.stars));
 
+  const serviceJobs: ServiceRow[] = item.serviceJobs.map((job) => ({
+    id: job.id,
+    vendorName: job.vendor?.name ?? null,
+    complaint: job.complaint,
+    sentAt: trDate.format(job.sentAt),
+    trackingNo: job.trackingNo,
+    returnedAt: job.returnedAt ? trDate.format(job.returnedAt) : null,
+    work: job.work,
+    cost:
+      job.costMinor != null ? formatMoney(job.costMinor, item.currency) : null,
+    durum: serviceLabel(job),
+    odeme: paymentLabel(job),
+    open: serviceState(job) === "open",
+  }));
+
   const fieldDefs: FieldDef[] = (item.category?.fields ?? []).map((field) => ({
     key: field.key,
     label: field.label,
@@ -300,6 +332,8 @@ export default async function EkipmanPage({
       costMinor: event.costMinor,
     })),
     item.parts.map((part) => part.priceMinor),
+    // Garanti kapsamındaki servis toplama girmiyor (src/lib/service.ts).
+    item.serviceJobs.map((job) => (job.underWarranty ? null : job.costMinor)),
   );
 
   // Zimmet: durum kayıttan türetiliyor, saklanmıyor (CLAUDE.md).
@@ -607,6 +641,13 @@ export default async function EkipmanPage({
         editable={editable}
         extractionEnabled={isExtractionConfigured()}
         attachments={ownAttachments as AttachmentView[]}
+      />
+
+      <Service
+        itemId={item.id}
+        jobs={serviceJobs}
+        vendors={vendors}
+        editable={editable}
       />
 
       <Notes itemId={item.id} notes={notes} canWrite />

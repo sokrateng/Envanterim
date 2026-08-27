@@ -37,6 +37,7 @@ const TEMEL = [
   "hesap",
   "cevrimdisi",
   "not-puan",
+  "servis",
 ];
 
 /** Sahte servis ya da özel sunucu bayrağı isteyenler. */
