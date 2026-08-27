@@ -17,6 +17,7 @@ export function ConfirmDialog({
   confirmLabel,
   cancelLabel = "Vazgeç",
   tone = "red",
+  primary,
   onConfirm,
   onCancel,
 }: {
@@ -26,6 +27,12 @@ export function ConfirmDialog({
   confirmLabel: string;
   cancelLabel?: string;
   tone?: "red" | "blue";
+  /**
+   * Üçüncü ve tercih edilen seçenek (örn. "Kaydet ve çık"). Verilince düğmeler
+   * alt alta diziliyor: üç düğme yan yana 390 pikselde okunmuyor, iOS uyarıları
+   * da ikiden fazlasını dikey diziyor.
+   */
+  primary?: { label: string; onSelect: () => void };
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -64,25 +71,54 @@ export function ConfirmDialog({
             <p className="pt-1 text-footnote text-muted">{message}</p>
           ) : null}
         </div>
-        <div className="grid grid-cols-2 border-t border-separator divide-x divide-separator">
-          <button
-            ref={cancelButton}
-            type="button"
-            onClick={onCancel}
-            className="min-h-touch px-3 text-body text-blue active:bg-surface-pressed"
-          >
-            {cancelLabel}
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className={`min-h-touch px-3 text-headline active:bg-surface-pressed ${
-              tone === "red" ? "text-red" : "text-blue"
-            }`}
-          >
-            {confirmLabel}
-          </button>
-        </div>
+        {primary ? (
+          <div className="flex flex-col border-t border-separator divide-y divide-separator">
+            <button
+              type="button"
+              onClick={primary.onSelect}
+              className="min-h-touch px-3 text-headline text-blue active:bg-surface-pressed"
+            >
+              {primary.label}
+            </button>
+            <button
+              type="button"
+              onClick={onConfirm}
+              className={`min-h-touch px-3 text-body active:bg-surface-pressed ${
+                tone === "red" ? "text-red" : "text-blue"
+              }`}
+            >
+              {confirmLabel}
+            </button>
+            <button
+              ref={cancelButton}
+              type="button"
+              onClick={onCancel}
+              className="min-h-touch px-3 text-body text-blue active:bg-surface-pressed"
+            >
+              {cancelLabel}
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 border-t border-separator divide-x divide-separator">
+            <button
+              ref={cancelButton}
+              type="button"
+              onClick={onCancel}
+              className="min-h-touch px-3 text-body text-blue active:bg-surface-pressed"
+            >
+              {cancelLabel}
+            </button>
+            <button
+              type="button"
+              onClick={onConfirm}
+              className={`min-h-touch px-3 text-headline active:bg-surface-pressed ${
+                tone === "red" ? "text-red" : "text-blue"
+              }`}
+            >
+              {confirmLabel}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -168,3 +168,10 @@ Esc, boşluğa dokunma ve donanım "geri"si önce soruyor. Geri tuşundan gelen
 istek iptal edilirse panelin geçmiş kaydı geri konuyor, yoksa ikinci geri tuşu
 sayfayı kapatırdı.
 
+Soru **üç seçenekli**: "Kaydet ve çık", "Kaydetme", "Geri dön". Çıkmak isteyen
+kullanıcının asıl niyeti çoğu zaman kaydetmek; iki seçenekte tek yol formu
+kapatıp yeniden açmaktı. Üç düğme yan yana 390 pikselde okunmuyor, alt alta
+diziliyor. Kaydetme işini `Sheet` yapmıyor: paneldeki formu `requestSubmit()`
+ile gönderiyor, böylece tarayıcı doğrulaması da çalışıyor ve zorunlu alan
+boşsa panel açık kalıyor.
+

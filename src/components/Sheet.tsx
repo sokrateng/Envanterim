@@ -38,12 +38,15 @@ export function Sheet({
   const panel = useRef<HTMLDivElement>(null);
   const dirty = useRef(false);
   const [asking, setAsking] = useState(false);
+  /** Panelde kaydedilebilir bir form var mı: "Kaydet ve çık" ona bağlı. */
+  const [savable, setSavable] = useState(false);
 
   const layer = useRef<{ restore: () => void }>({ restore: () => undefined });
 
   /** Kullanıcının kapatma isteği: kirliyse önce sorulur. */
   const close = useCallback(() => {
     if (guardUnsaved && dirty.current) {
+      setSavable(Boolean(panel.current?.querySelector("form")));
       setAsking(true);
       // Geri tuşundan geldiyse katmanın kaydı düşmüş olur; iptal edilirse
       // panel açık kalacağı için kaydı hemen geri koyuyoruz.
@@ -54,6 +57,19 @@ export function Sheet({
   }, [guardUnsaved, onClose]);
 
   layer.current = useHistoryLayer(open, close, id);
+
+  /**
+   * Formu paneldeki `<form>` üzerinden gönderiyoruz; `Sheet` içeriğin ne
+   * olduğunu bilmiyor. `requestSubmit` tarayıcı doğrulamasını da çalıştırıyor:
+   * zorunlu alan boşsa gönderim olmuyor, alan işaretleniyor ve panel açık
+   * kalıyor. Kapanışı formun kendi başarı yolu yapıyor — kaydetme başarısız
+   * olursa panel kapanmamalı.
+   */
+  const saveAndClose = useCallback(() => {
+    const form = panel.current?.querySelector("form");
+    setAsking(false);
+    form?.requestSubmit();
+  }, []);
 
   // Panel her açılışta temiz başlıyor.
   useEffect(() => {
@@ -119,9 +135,14 @@ export function Sheet({
       <ConfirmDialog
         open={asking}
         title="Kaydedilmemiş değişiklikler"
-        message="Girdiklerin kaybolacak. Yine de çıkmak istiyor musun?"
-        confirmLabel="Çık"
-        cancelLabel="Kalmaya devam et"
+        message="Kaydetmeden çıkarsan girdiklerin kaybolacak."
+        primary={
+          savable
+            ? { label: "Kaydet ve çık", onSelect: saveAndClose }
+            : undefined
+        }
+        confirmLabel="Kaydetme"
+        cancelLabel="Geri dön"
         onConfirm={() => {
           setAsking(false);
           dirty.current = false;

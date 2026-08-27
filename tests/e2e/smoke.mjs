@@ -151,8 +151,8 @@ try {
   if (tarayiciKutusu) throw new Error("tarayıcının confirm kutusu açıldı");
   await page.screenshot({ path: `${out}/8-onay.png` });
 
-  // "Kalmaya devam et": panel açık kalıyor ve yazdığımız duruyor.
-  await page.getByRole("button", { name: "Kalmaya devam et", exact: true }).tap();
+  // "Geri dön": panel açık kalıyor ve yazdığımız duruyor.
+  await page.getByRole("button", { name: "Geri dön", exact: true }).tap();
   await page.waitForSelector("text=Kaydedilmemiş değişiklikler", { state: "detached" });
   if ((await page.inputValue('input[name="name"]')) !== "Yarım kalan kayıt") {
     throw new Error("vazgeçince form sıfırlandı");
@@ -161,13 +161,25 @@ try {
   // Geçmiş kaydı geri konmuş olmalı: ikinci geri tuşu yine paneli kapatmalı.
   await page.goBack();
   await page.waitForSelector("text=Kaydedilmemiş değişiklikler", { timeout: 5000 });
-  await page.getByRole("button", { name: "Çık", exact: true }).tap();
+  await page.getByRole("button", { name: "Kaydetme", exact: true }).tap();
   await page.waitForSelector('role=dialog', { state: "detached", timeout: 5000 });
   if (!page.url().includes("/envanter")) throw new Error(`onaydan sonra sayfadan attı: ${page.url()}`);
   if (await page.locator('a:has-text("Yarım kalan kayıt")').count()) {
     throw new Error("kaydedilmemiş form yine de kaydedilmiş");
   }
   log("kaydedilmemiş çıkış kendi onay kutumuzla soruldu");
+
+  // "Kaydet ve çık": aynı yerden kaydedip çıkabilmeli.
+  const kaydedilen = `Kaydet ve çık ${Date.now().toString().slice(-6)}`;
+  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.waitForSelector('role=dialog');
+  await page.fill('input[name="name"]', kaydedilen);
+  await page.goBack();
+  await page.waitForSelector("text=Kaydedilmemiş değişiklikler", { timeout: 5000 });
+  await page.getByRole("button", { name: "Kaydet ve çık", exact: true }).tap();
+  await page.waitForSelector('role=dialog', { state: "detached", timeout: 15000 });
+  await page.waitForSelector(`text=${kaydedilen}`, { timeout: 20000 });
+  log("kaydet ve çık kaydediyor");
 
   // --- 2. EDITOR: görüyor, üye ekleyemiyor ---
   const editorCtx = await browser.newContext(iphone);
