@@ -535,3 +535,18 @@ yazınca tarayıcı alanı geçersiz sayıp formu **hiç göndermiyordu** — ne
 **Çözüm:** alan `type="text"` + `inputMode="url"`; şemayı biz tamamlıyoruz ve
 adresi kendimiz doğruluyoruz (`src/lib/vendor-contact.ts`). Uçtan uca testler
 bilerek şemasız adres yazıyor.
+
+**75. Adres çubuğu durumu tutuyor, ama sekme bağlantısı onu siliyor.** Süzme
+bilerek adres çubuğunda tutuluyor: bağlantı paylaşılabiliyor, geri tuşu
+çalışıyor, sunucu bileşeni doğrudan okuyor. Yenileme de bu yüzden süzmeyi
+koruyordu — kullanıcı "yenileyince siliniyor" dediğinde ölçtük, silinmiyordu.
+Silen alt çubuktaki sekmeydi: `<Link href="/envanter">` sorgusuz bir adres, yani
+her dokunuşta süzmeyi sıfırlıyordu. Kimse böyle karar vermemişti; varsayılan
+buydu.
+
+**Ders:** durumu adreste tutmak yetmiyor, o adrese giden **her** yolun onu
+taşıması gerekiyor. **Çözüm:** son hâl saklanıp sekme bağlantısına geri konuyor
+(`src/lib/last-filter.ts`). "Temizle" de bir tercih olduğu için boş hâl de
+saklanıyor; yoksa temizlenen süzme ilk dönüşte geri gelirdi. Saklanan değer
+tarayıcıda okunuyor, bu yüzden bağlanmadan sonraki ilk çizimde tazeleniyor —
+sunucu çizimiyle aynı kalsın diye.

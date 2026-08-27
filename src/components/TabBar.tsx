@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { inventoryHref, readFilters } from "@/lib/last-filter";
 
 /**
  * Alt sekme çubuğu — güvenli alan hesaba katılmazsa ana ekran göstergesinin
@@ -30,15 +32,26 @@ export function TabBar() {
   const pathname = usePathname();
   const params = useSearchParams();
 
-  // Envanterdeyken açık filtreler korunuyor: düz bir "/envanter?yeni=1"
-  // bağlantısı sorguyu baştan yazıp süzmeyi siliyordu — panel de o zaman
-  // süzülen lokasyonla değil ilk lokasyonla açılıyordu.
-  let yeniAdres = "/envanter?yeni=1";
-  if (pathname === "/envanter") {
-    const sorgu = new URLSearchParams(params.toString());
-    sorgu.set("yeni", "1");
-    yeniAdres = `/envanter?${sorgu.toString()}`;
-  }
+  /**
+   * Sekmeye dönünce süzme geri geliyor: düz bir "/envanter" bağlantısı
+   * sorguyu baştan yazıp kullanıcının bıraktığı hâli siliyordu.
+   *
+   * Saklanan hâl ancak tarayıcıda okunabildiği için ilk çizimde yok; sunucu
+   * ile istemcinin ilk çizimi aynı kalsın diye bağlantı bağlanmadan sonra
+   * tazeleniyor (uyuşmazlık uyarısı vermesin). Yolun her değişiminde yeniden
+   * okunuyor: listeden çıkarken saklanan değer de değişiyor.
+   */
+  const sorgu = params.toString();
+  const [saklanan, setSaklanan] = useState("");
+  useEffect(() => setSaklanan(readFilters()), [pathname, sorgu]);
+
+  // Listedeyken adresteki süzme saklanandan taze: panel henüz kapanmamış
+  // olabilir. Başka sekmedeyken saklanan hâl geçerli olan.
+  const suzme = pathname === "/envanter" ? sorgu : saklanan;
+  const envanterAdres = inventoryHref(suzme);
+  // Ekleme paneli de süzmeyle açılıyor: süzülen lokasyon panele geçiyor,
+  // yoksa panel ilk lokasyonla açılırdı.
+  const yeniAdres = inventoryHref(suzme, { yeni: "1" });
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-separator bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
@@ -48,7 +61,7 @@ export function TabBar() {
           return [
             <li key={tab.href} className="flex-1">
               <Link
-                href={tab.href}
+                href={tab.href === "/envanter" ? envanterAdres : tab.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-touch flex-col items-center justify-center gap-1 py-1.5 active:opacity-60 ${
                   active ? "text-blue" : "text-muted"

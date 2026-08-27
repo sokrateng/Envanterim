@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
 import { useCloseThen } from "@/lib/history-layer";
 import { parseValues, toParam, toggleValue } from "@/lib/filter-values";
+import { rememberFilters } from "@/lib/last-filter";
 
 /**
  * Bütün filtreler tek düğmenin arkasında.
@@ -42,6 +43,12 @@ export function Filters({
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
+
+  // Bırakılan hâl saklanıyor: sekmeye dönünce geri gelsin. Yazan yer burası,
+  // çünkü liste sunucu bileşeni; panel zaten sorguyu izliyor
+  // (src/lib/last-filter.ts).
+  const sorgu = params.toString();
+  useEffect(() => rememberFilters(sorgu), [sorgu]);
 
   const closeThen = useCloseThen();
   const [open, setOpen] = useState(false);
@@ -120,7 +127,13 @@ export function Filters({
               <h3 className="pb-2 text-footnote uppercase text-muted">
                 {group.title}
               </h3>
-              <div className="flex flex-wrap gap-2">
+              {/* Uzun grup kendi içinde kayıyor: elli kategorisi olan
+                  kullanıcıda tek bir grup paneli doldurup diğer ölçütleri
+                  görünmez yapıyordu. Sınır üç sıranın biraz üstünde —
+                  yarım görünen sıra kaydırılabildiğini söylüyor.
+                  `overscroll-contain` olmadan grubun sonuna gelince
+                  kaydırma panele geçip listeyi zıplatıyor. */}
+              <div className="flex max-h-[180px] flex-wrap gap-2 overflow-y-auto overscroll-contain">
                 <ChipButton
                   label={group.anyLabel}
                   // Erişilebilir ad grubu da söylüyor: "Serviste" tek başına

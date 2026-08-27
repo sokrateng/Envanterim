@@ -191,9 +191,36 @@ try {
     throw new Error("garantisi sürüyor ama 'süresi bitmiş' filtresinde çıktı");
   }
   log("garanti filtresi çalışıyor");
+
+  // Süzme kullanıcının bıraktığı gibi kalıyor: başka sekmeye gidip dönmek
+  // silmiyor. Adres çubuğu tek kaynak, sekme bağlantısı onu geri koyuyor
+  // (src/lib/last-filter.ts).
+  await page.locator('nav a:has-text("Hesap")').tap();
+  await page.waitForURL("**/hesap");
+  await page.locator('nav a:has-text("Envanter")').tap();
+  await page.waitForURL(/garanti=bitmis/, { timeout: 15000 });
+  log("sekmeden dönünce süzme yerinde");
+
+  // Ekleme düğmesi de süzmeyi taşıyor: panel süzülen lokasyonla açılsın.
+  const fabAdres = await page
+    .locator('a[aria-label="Yeni ekipman"]')
+    .getAttribute("href");
+  if (!fabAdres.includes("garanti=bitmis") || !fabAdres.includes("yeni=1")) {
+    throw new Error(`+ düğmesi süzmeyi taşımıyor: ${fabAdres}`);
+  }
+
+  // "Temizle" de bir tercih: dönüşte süzme geri gelmemeli.
   await page.tap('button[aria-label="Filtreler — 1 açık"]');
   await page.getByRole("button", { name: "Temizle", exact: true }).tap();
   await page.waitForURL((url) => !url.searchParams.has("garanti"));
+  await page.locator('nav a:has-text("Hesap")').tap();
+  await page.waitForURL("**/hesap");
+  await page.locator('nav a:has-text("Envanter")').tap();
+  await page.waitForTimeout(1200);
+  if (new URL(page.url()).searchParams.has("garanti")) {
+    throw new Error(`temizlenen süzme geri geldi: ${page.url()}`);
+  }
+  log("temizlenen süzme geri gelmiyor");
 
   // Panel açıkken geri tuşu paneli kapatmalı, sayfadan atmamalı (TUZAKLAR #17).
   // Boş formda soru sorulmuyor: kaybolacak bir şey yok.

@@ -1,12 +1,15 @@
 "use client";
 
 import { signOut } from "next-auth/react";
+import { forgetFilters } from "@/lib/last-filter";
 
 /**
- * Çıkarken çevrimdışı önbelleği de siliniyor: ortak bir cihazda bir sonraki
- * kullanıcı öncekinin envanterini görmesin.
+ * Çıkarken çevrimdışı önbelleği ve saklanan süzme de siliniyor: ortak bir
+ * cihazda bir sonraki kullanıcı öncekinin envanterini de, hangi lokasyonu
+ * süzdüğünü de görmesin.
  */
 async function cikis() {
+  forgetFilters();
   try {
     const kayit = await navigator.serviceWorker?.getRegistration();
     kayit?.active?.postMessage("temizle");

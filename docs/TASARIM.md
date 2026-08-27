@@ -80,7 +80,16 @@ Her ölçüt kendi çerçevesinde duruyor (ince kenarlık, 10px yarıçap): çip
 art arda dizilince bir grubun son satırı bir sonrakinin ilk satırına yapışıyor
 ve hangi çipin hangi başlığa ait olduğu karışıyordu. Seçilmemiş çip dolgu
 rengiyle (`fill`) duruyor; panelin zemini `surface`, aynı rengi vermek çipi
-görünmez yapardı.
+görünmez yapardı. Uzun grup kendi içinde kayıyor (180px): elli kategorisi olan
+kullanıcıda tek grup paneli doldurup diğer ölçütleri görünmez yapıyordu, yarım
+görünen sıra da kaydırılabildiğini söylüyor.
+
+**Süzme kullanıcının bıraktığı gibi kalıyor.** Süzme adres çubuğunda duruyor —
+bağlantı paylaşılabiliyor, geri tuşu çalışıyor, sunucu bileşeni doğrudan
+okuyor — bu yüzden yenileme zaten koruyor. Kaybolduğu tek yer alt çubuktaki
+sekmeydi: düz bir `/envanter` bağlantısı sorguyu baştan yazıyordu. Son hâl
+saklanıp sekme bağlantısına geri konuyor (`src/lib/last-filter.ts`).
+"Temizle" de bir tercih: boş hâl saklanıyor, dönüşte süzme geri gelmiyor.
 
 **Kaydırarak eylem.** Liste satırında sağa/sola kaydırma — GeziPay'deki
 `SwipeRow` doğrudan taşınabilir. Envanterde: sola → Düzenle · Sil,
