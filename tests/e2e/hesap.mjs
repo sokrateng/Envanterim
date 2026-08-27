@@ -101,25 +101,33 @@ try {
   }
   log("silinmiş lokasyon 404");
 
-  // 3) Sayfalama
+  // 3) Liste aşağı indikçe uzuyor
   await page.goto(`${BASE}/envanter`);
-  const baslik = await page.locator("h2", { hasText: "ekipman" }).first().innerText();
-  log("liste başlığı:", baslik);
-  if (/sayfa \d+\/\d+/i.test(baslik)) {
-    await page.tap('a:has-text("Sonraki")');
-    await page.waitForURL(/sayfa=2/);
-    const ikinci = await page.locator("h2", { hasText: "ekipman" }).first().innerText();
-    if (!/sayfa 2\//i.test(ikinci)) throw new Error("ikinci sayfa açılmadı: " + ikinci);
-    log("ikinci sayfa açıldı");
+  await page.waitForSelector('a[href^="/envanter/"]');
+  await page.waitForTimeout(600);
+  const ilkDilim = await page.locator('a[href^="/envanter/"]').count();
+  const dahaVar = await page.locator('button:has-text("Daha fazla")').count();
 
-    // Filtre değişince sayfa başa dönmeli
+  if (dahaVar) {
+    // Sona kaydırınca kendiliğinden yükleniyor; adres kaç dilim yüklendiğini
+    // söylüyor, böylece yenileme ve geri tuşu aynı yeri gösteriyor.
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForURL(/sayfa=2/, { timeout: 20000 });
+    await page.waitForFunction(
+      (once) => document.querySelectorAll('a[href^="/envanter/"]').length > once,
+      ilkDilim,
+      { timeout: 20000 },
+    );
+    log("kaydırınca ikinci dilim kendiliğinden geldi");
+
+    // Süzme değişince liste ilk dilime dönmeli.
     await page.tap('button[aria-label="Filtreler"]');
     await page.tap('button[aria-label="Durum: Kullanımda"]');
     await page.getByRole("button", { name: "Uygula", exact: true }).tap();
     await page.waitForFunction(() => !location.search.includes("sayfa="));
-    log("filtre değişince sayfa başa döndü");
+    log("süzme değişince liste başa döndü");
   } else {
-    log("tek sayfalık liste, sayfalama denenemedi");
+    log("tek dilimlik liste, kaydırarak yükleme denenemedi");
   }
 
   // 4) Yedek

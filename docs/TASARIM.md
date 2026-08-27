@@ -174,6 +174,17 @@ fiske hızlıysa açık kalır, değilse kapanır.
   başındaki kullanıcı için ekipmanı açıp ekler bölümüne inmek uzun yol.
 - **Kaydırma jestli satır kenardan kenara.** Yatay boşluk satırın içinde;
   kapta olursa işlem paneli boşluktan sızıyor (TUZAKLAR #63).
+- **Liste aşağı indikçe uzuyor.** "Önceki / Sonraki" telefonda yanlış bir
+  hareket: parmak zaten kaydırıyor, sayfa sonunda durup küçük bir bağlantıya
+  nişan almak gerekiyordu. Listenin sonu görününce bir sonraki dilim (50 satır)
+  kendiliğinden geliyor. Kaç dilim yüklendiği adres çubuğunda (`sayfa=3` = 150
+  satır) ve satırları yine sunucu çiziyor — yenileme, geri tuşu ve paylaşılan
+  bağlantı aynı yeri gösteriyor, kaydırma konumunu da tarayıcı geri getiriyor.
+  Onuncu dilimden sonra kullanıcı basarak devam ediyor: sınırsız kendiliğinden
+  yükleme kalabalık bir envanterde tarayıcıyı boğuyor, aranan şey de çoğu zaman
+  süzmekle bulunuyor. Yükleme düğmesi hep çiziliyor, gözlemci ona basıyor —
+  ekran okuyucuda ve IntersectionObserver'ı olmayan tarayıcıda gerçek bir
+  denetim kalsın.
 - **Filtreler tek düğmenin arkasında.** Dört çip sırası 390 pikselde ekranın
   yarısını yiyordu. Düğmedeki sayı kaç filtrenin açık olduğunu söylüyor; açık
   filtreyi kaldırmanın yolu panelin "Temizle"si — listenin üstünde ayrı bir çip

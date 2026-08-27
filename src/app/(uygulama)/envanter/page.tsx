@@ -40,6 +40,7 @@ import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { NewItemButton } from "./NewItemButton";
 import { SearchField } from "./SearchField";
 import { Filters, type FilterGroup } from "./Filters";
+import { MoreRows } from "./MoreRows";
 
 export const metadata = { title: "Envanter — Envanterim" };
 export const dynamic = "force-dynamic";
@@ -57,8 +58,22 @@ type Search = {
   sayfa?: string;
 };
 
-/** Bir sayfada kaç ekipman. iPhone'da 50 satır kaydırmakla bitiyor. */
+/**
+ * Bir dilimde kaç ekipman. Liste aşağı indikçe uzuyor: adresteki `sayfa`
+ * kaçıncı sayfa değil, **kaç dilim yüklendiği** demek (`sayfa=3` → 150 satır).
+ * Satırları hep sunucu çiziyor, istemci yalnız "bir dilim daha" diyor.
+ */
 const PAGE_SIZE = 50;
+
+/**
+ * Kaçıncı dilimden sonra kullanıcı basarak devam ediyor. Sınırsız
+ * kendiliğinden yükleme, kalabalık bir envanterde tarayıcıyı boğuyor: her
+ * dilimde liste baştan çiziliyor.
+ */
+const AUTO_PAGES = 10;
+
+/** Adresle istenebilecek en çok dilim; ötesi süzmenin işi. */
+const MAX_PAGES = 40;
 
 const ZIMMET_FILTERS = ["bende", "bekleyen", "zimmetsiz"] as const;
 type ZimmetFilter = (typeof ZIMMET_FILTERS)[number];
@@ -170,7 +185,11 @@ export default async function EnvanterPage({
     ...(onlyFavorites ? { favorites: { some: { userId: user.id } } } : {}),
   };
 
-  const page = Math.max(1, Number(filters.sayfa) || 1);
+  // Adresteki `sayfa` kaç dilimin yüklendiğini söylüyor; ilk satırdan
+  // itibaren o kadar satır çiziliyor. Üst sınır uydurma bir adresin
+  // veritabanına milyonluk bir `take` göndermesini engelliyor.
+  const page = Math.min(Math.max(1, Number(filters.sayfa) || 1), MAX_PAGES);
+  const loaded = page * PAGE_SIZE;
 
   /** Satır için çekilen alanlar; iki sorgu da aynısını istiyor. */
   const satirSecimi = {
@@ -223,9 +242,11 @@ export default async function EnvanterPage({
           prisma.item.count({ where: { ...where, ...favorimMi } }),
         ]);
 
+        // Dilimler birikiyor: pencere hep ilk satırdan başlıyor, boyu
+        // yüklenen dilim sayısı kadar.
         const dilim = favoritePage({
-          offset: (page - 1) * PAGE_SIZE,
-          size: PAGE_SIZE,
+          offset: 0,
+          size: loaded,
           favoriteCount,
         });
 
@@ -278,8 +299,6 @@ export default async function EnvanterPage({
   ]);
 
   const hasAssignments = acikZimmet > 0;
-
-  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   // Görünen satırın sorumlusu: durum kayıttan türetiliyor, saklanmıyor.
   const visible = items.map((item) => {
@@ -475,13 +494,7 @@ export default async function EnvanterPage({
           }
         />
       ) : (
-        <Group
-          title={
-            pageCount > 1
-              ? `${total} ekipman · sayfa ${page}/${pageCount}`
-              : `${total} ekipman`
-          }
-        >
+        <Group title={`${total} ekipman`}>
           <Rows divider="leading">
             {visible.map((item) => {
               const warranty = warrantyStatus(item.warrantyEndDate);
@@ -577,70 +590,12 @@ export default async function EnvanterPage({
         </Group>
       )}
 
-      {pageCount > 1 ? (
-        <nav
-          aria-label="Sayfalar"
-          className="flex items-center justify-between gap-3 px-4 pt-4"
-        >
-          <PageLink
-            href={buildHref({ ...filters, sayfa: String(page - 1) })}
-            enabled={page > 1}
-          >
-            ‹ Önceki
-          </PageLink>
-          <span className="text-footnote text-muted">
-            {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} /{" "}
-            {total}
-          </span>
-          <PageLink
-            href={buildHref({ ...filters, sayfa: String(page + 1) })}
-            enabled={page < pageCount}
-          >
-            Sonraki ›
-          </PageLink>
-        </nav>
-      ) : null}
+      <MoreRows
+        page={page}
+        shown={visible.length}
+        total={total}
+        autoPages={AUTO_PAGES}
+      />
     </Screen>
   );
 }
-
-function buildHref(params: Search) {
-  const query = new URLSearchParams();
-  if (params.q) query.set("q", params.q);
-  if (params.durum) query.set("durum", params.durum);
-  if (params.lokasyon) query.set("lokasyon", params.lokasyon);
-  if (params.kategori) query.set("kategori", params.kategori);
-  if (params.garanti) query.set("garanti", params.garanti);
-  if (params.zimmet) query.set("zimmet", params.zimmet);
-  if (params.sayfa) query.set("sayfa", params.sayfa);
-  const text = query.toString();
-  return text ? `/envanter?${text}` : "/envanter";
-}
-
-/** Sayfa bağlantısı. Sınırdaki yön bağlantı değil, soluk bir etiket. */
-function PageLink({
-  href,
-  enabled,
-  children,
-}: {
-  href: string;
-  enabled: boolean;
-  children: React.ReactNode;
-}) {
-  if (!enabled) {
-    return (
-      <span className="min-h-touch px-2 py-2 text-body text-muted opacity-40">
-        {children}
-      </span>
-    );
-  }
-  return (
-    <Link
-      href={href}
-      className="min-h-touch px-2 py-2 text-body text-blue active:opacity-60"
-    >
-      {children}
-    </Link>
-  );
-}
-
