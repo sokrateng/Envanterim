@@ -25,6 +25,10 @@ try {
   await page.waitForSelector('div[role="dialog"]');
   await page.fill('input[name="name"]', SERVIS);
   await page.fill('input[name="phone"]', "0850 111 22 33");
+  // Şemasız adres: alan type="url" olsaydı tarayıcı formu sessizce
+  // göndermezdi, kullanıcı da neden kaydedilmediğini anlamazdı.
+  await page.fill('input[name="website"]', "servis.example.com/takip");
+  await page.fill('input[name="email"]', "destek@example.com");
   await page.tap('div[role="dialog"] button[type="submit"]');
   await page.waitForSelector(`text=${SERVIS}`, { timeout: 20000 });
 
@@ -37,6 +41,14 @@ try {
   if (!servisBolumu.includes(SERVIS)) throw new Error("servis listesinde yok");
   if (saticiBolumu.includes(SERVIS)) throw new Error("servis, satıcı listesinde");
   log("yetkili servis eklendi, satıcı listesine karışmadı");
+
+  // İletişim bilgisi satırda özetleniyor
+  const satir = await page.locator(`button:has-text("${SERVIS}")`).innerText();
+  if (!satir.includes("0850 111 22 33")) throw new Error("telefon satırda yok");
+  if (!satir.includes("servis.example.com/takip")) {
+    throw new Error("web adresi satırda yok");
+  }
+  log("telefon ve web adresi firmanın satırında");
 
   // 2) Yalnız satıcı olan firma
   await page

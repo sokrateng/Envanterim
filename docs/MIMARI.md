@@ -85,7 +85,7 @@ CategoryField       id, categoryId, key, label, order, required
                     type: TEXT | NUMBER | DATE | SELECT | BOOL
                     options Json?    // SELECT için seçenekler
 
-Vendor              id, locationId, name, phone, email, address, note
+Vendor              id, locationId, name, phone, email, website, address, note
                     isSeller Bool, isService Bool
                     ↳ satıcı ve yetkili servis iki ayrı iş; listeler role göre
                       süzülüyor (src/lib/vendors.ts). Aynı tabloda duruyorlar
@@ -395,7 +395,10 @@ olarak düşürmüyorum.
   gider iki kez sayılırdı. Garanti kapsamındaki iş toplama girmiyor — kimse
   ödemedi.
 - Servis firması `Vendor` (satıcıyla aynı tablo, `isService` bayrağı); servis
-  formunda yalnız `isService` olanlar listeleniyor. Firmalar Hesap → Firmalar
+  formunda yalnız `isService` olanlar listeleniyor. Telefon ve web adresi
+  servis kaydının yanında dokunulabilir bağlantı olarak duruyor: servisteki
+  ekipmanın sahibinin ilk işi aramak. Adres `src/lib/vendor-contact.ts`'ten
+  geçiyor — kullanıcının yazdığı metin doğrudan `href` olmuyor. Firmalar Hesap → Firmalar
   ekranından yönetiliyor: kullanılan firma silinmiyor, adı düzeltiliyor ya da
   rolü kapatılıyor.
 

@@ -40,6 +40,9 @@ export async function PATCH(
         isSeller: parsed.data.isSeller,
         isService: parsed.data.isService,
         phone: parsed.data.phone ?? null,
+        email: parsed.data.email ?? null,
+        website: parsed.data.website ?? null,
+        address: parsed.data.address ?? null,
         note: parsed.data.note ?? null,
       },
     });

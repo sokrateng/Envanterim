@@ -313,6 +313,9 @@ export const vendorSchema = z
     isSeller: z.coerce.boolean().default(false),
     isService: z.coerce.boolean().default(false),
     phone: trimmed.max(40, "Telefon çok uzun").optional(),
+    email: trimmed.max(120, "E-posta çok uzun").optional(),
+    website: trimmed.max(200, "Adres çok uzun").optional(),
+    address: trimmed.max(300, "Adres çok uzun").optional(),
     note: trimmed.max(500, "Not çok uzun").optional(),
   })
   .refine((data) => data.isSeller || data.isService, {

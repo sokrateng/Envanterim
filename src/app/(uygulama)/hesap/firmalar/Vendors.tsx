@@ -7,6 +7,7 @@ import { Sheet } from "@/components/Sheet";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { Group, Rows } from "@/components/ui";
 import { useCloseAndRefresh } from "@/lib/history-layer";
+import { websiteLabel } from "@/lib/vendor-contact";
 
 /**
  * Firma yönetimi: satıcılar ve yetkili servisler.
@@ -20,6 +21,9 @@ export type VendorRow = {
   id: string;
   name: string;
   phone: string | null;
+  email: string | null;
+  website: string | null;
+  address: string | null;
   note: string | null;
   isSeller: boolean;
   isService: boolean;
@@ -30,6 +34,9 @@ export type VendorRow = {
 const BOS: Omit<VendorRow, "id" | "usage"> = {
   name: "",
   phone: null,
+  email: null,
+  website: null,
+  address: null,
   note: null,
   isSeller: true,
   isService: false,
@@ -67,6 +74,9 @@ export function Vendors({ vendors }: { vendors: VendorRow[] }) {
     const body = JSON.stringify({
       name: String(form.get("name") ?? ""),
       phone: String(form.get("phone") ?? ""),
+      email: String(form.get("email") ?? ""),
+      website: String(form.get("website") ?? ""),
+      address: String(form.get("address") ?? ""),
       note: String(form.get("note") ?? ""),
       isSeller,
       isService,
@@ -167,13 +177,53 @@ export function Vendors({ vendors }: { vendors: VendorRow[] }) {
             />
           </div>
 
-          <Field label="Telefon" hint="Servise ulaşmak gerektiğinde.">
+          <Field label="Telefon" hint="Servis kaydında aramak için düğme olur.">
             <input
               name="phone"
               type="tel"
+              inputMode="tel"
               defaultValue={alan.phone ?? ""}
               placeholder="0850 000 00 00"
               className={inputClass}
+            />
+          </Field>
+
+          <Field label="Web sitesi" hint="Randevu ve servis takibi çoğu zaman burada.">
+            {/* type="url" değil: tarayıcı şemasız adresi reddedip formu
+                sessizce göndermiyor, oysa kullanıcı "bosch.com.tr" yazıyor.
+                Şemayı biz tamamlıyoruz (src/lib/vendor-contact.ts). */}
+            <input
+              name="website"
+              type="text"
+              inputMode="url"
+              autoCapitalize="off"
+              autoCorrect="off"
+              defaultValue={alan.website ?? ""}
+              placeholder="bosch.com.tr"
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label="E-posta">
+            <input
+              name="email"
+              type="email"
+              inputMode="email"
+              autoCapitalize="off"
+              autoCorrect="off"
+              defaultValue={alan.email ?? ""}
+              placeholder="servis@firma.com"
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label="Adres">
+            <textarea
+              name="address"
+              rows={2}
+              defaultValue={alan.address ?? ""}
+              placeholder="Kadıköy, İstanbul"
+              className={`${inputClass} resize-none`}
             />
           </Field>
 
@@ -223,6 +273,13 @@ export function Vendors({ vendors }: { vendors: VendorRow[] }) {
   );
 }
 
+/** Satırın altındaki tek satırlık iletişim özeti. */
+function ozet(vendor: VendorRow): string {
+  return [vendor.phone, websiteLabel(vendor.website), vendor.note]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 function VendorGroup({
   title,
   empty,
@@ -265,9 +322,9 @@ function VendorGroup({
                   <span className="block truncate text-headline">
                     {vendor.name}
                   </span>
-                  {vendor.phone || vendor.note ? (
+                  {ozet(vendor) ? (
                     <span className="block truncate text-footnote text-muted">
-                      {[vendor.phone, vendor.note].filter(Boolean).join(" · ")}
+                      {ozet(vendor)}
                     </span>
                   ) : null}
                 </span>

@@ -7,6 +7,7 @@ import { Sheet } from "@/components/Sheet";
 import { Fold } from "@/components/ui";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { useCloseAndRefresh } from "@/lib/history-layer";
+import { phoneHref, websiteHref, websiteLabel } from "@/lib/vendor-contact";
 
 /**
  * Yetkili servis kayıtları: arızadan sonuca.
@@ -19,6 +20,8 @@ import { useCloseAndRefresh } from "@/lib/history-layer";
 export type ServiceRow = {
   id: string;
   vendorName: string | null;
+  vendorPhone: string | null;
+  vendorWebsite: string | null;
   complaint: string;
   sentAt: string;
   trackingNo: string | null;
@@ -149,6 +152,32 @@ export function Service({
               </div>
 
               <p className="pt-1 text-body">{job.complaint}</p>
+              {/* Servisteki ekipmanın sahibinin ilk işi aramak: numarayı
+                  firmalar ekranında aratmak yerine kaydın yanında duruyor. */}
+              {phoneHref(job.vendorPhone) || websiteHref(job.vendorWebsite) ? (
+                <div className="flex flex-wrap items-center gap-x-4 pt-1">
+                  {phoneHref(job.vendorPhone) ? (
+                    <a
+                      href={phoneHref(job.vendorPhone) ?? undefined}
+                      aria-label={`${job.vendorName ?? "Servis"} ara`}
+                      className="min-h-touch whitespace-nowrap text-footnote text-blue active:opacity-60"
+                    >
+                      {job.vendorPhone}
+                    </a>
+                  ) : null}
+                  {websiteHref(job.vendorWebsite) ? (
+                    <a
+                      href={websiteHref(job.vendorWebsite) ?? undefined}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="min-h-touch truncate text-footnote text-blue active:opacity-60"
+                    >
+                      {websiteLabel(job.vendorWebsite)}
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
+
               <p className="pt-1 text-footnote text-muted">
                 {job.sentAt} tarihinde gönderildi
                 {job.trackingNo ? ` · fiş ${job.trackingNo}` : ""}

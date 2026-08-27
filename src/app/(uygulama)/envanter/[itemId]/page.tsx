@@ -115,7 +115,9 @@ export default async function EkipmanPage({
           costMinor: true,
           paid: true,
           underWarranty: true,
-          vendor: { select: { name: true } },
+          // Servisteki ekipmanın sahibi "ne oldu" diye arayacak: telefon ve
+          // web sayfası kaydın yanında dursun.
+          vendor: { select: { name: true, phone: true, website: true } },
         },
         orderBy: { sentAt: "desc" },
       },
@@ -249,6 +251,8 @@ export default async function EkipmanPage({
   const serviceJobs: ServiceRow[] = item.serviceJobs.map((job) => ({
     id: job.id,
     vendorName: job.vendor?.name ?? null,
+    vendorPhone: job.vendor?.phone ?? null,
+    vendorWebsite: job.vendor?.website ?? null,
     complaint: job.complaint,
     sentAt: trDate.format(job.sentAt),
     trackingNo: job.trackingNo,

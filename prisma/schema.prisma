@@ -142,6 +142,7 @@ model Vendor {
   name       String
   phone      String?
   email      String?
+  website    String?
   address    String?
   note       String?
   isSeller   Boolean @default(true)
