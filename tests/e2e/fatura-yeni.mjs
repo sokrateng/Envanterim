@@ -8,6 +8,7 @@
  * Sahte Anthropic sunucusu gerekir (tests/e2e/README.md).
  */
 import { chromium, devices } from "playwright";
+import { bolumAc } from "./ortak.mjs";
 import fs from "node:fs";
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/fatura-yeni"; fs.mkdirSync(out, { recursive: true });
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
@@ -41,8 +42,32 @@ try {
   log("iki kalem bulundu, seçim paneli açıldı");
   await page.screenshot({ path: `${out}/2-kalemler.png` });
 
+  // Faturada garanti süresi yazmayan kalem: 24 ay varsayılıyor ve alanın
+  // altında varsayım olduğu yazıyor. Fatura tarihi 31 Ocak 2026.
+  await page.tap('button:has-text("Kurutma makinesi")');
+  await page.waitForSelector("text=Alanlar faturadan dolduruldu", { timeout: 10000 });
+  const varsayilan = await page.inputValue('input[name="warrantyEndDate"]');
+  if (varsayilan !== "2028-01-31") {
+    throw new Error(`garanti varsayımı yanlış: ${varsayilan}`);
+  }
+  const ipucu = await page.locator('label:has-text("Garanti bitişi")').innerText();
+  if (!ipucu.includes("önerildi")) {
+    throw new Error("varsayım olduğu kullanıcıya söylenmiyor");
+  }
+  log("garanti süresi yazmayan kalemde 24 ay varsayıldı ve işaretlendi");
+
+  // Baştan alıp faturada süresi yazan kalemle devam: onda varsayım yok.
+  await page.goto(`${BASE}/envanter`);
+  await page.tap('a[aria-label="Yeni ekipman"]');
+  await page.waitForSelector('button:has-text("Faturadan doldur")');
+  await page.setInputFiles('div[role="dialog"] input[type="file"]', PDF);
+  await page.waitForSelector("text=Faturadaki kalemler", { timeout: 30000 });
   await page.tap('button:has-text("Çamaşır makinesi")');
   await page.waitForSelector("text=Alanlar faturadan dolduruldu", { timeout: 10000 });
+  const faturadan = await page.locator('label:has-text("Garanti bitişi")').innerText();
+  if (faturadan.includes("önerildi")) {
+    throw new Error("faturada yazan süre varsayım gibi gösteriliyor");
+  }
 
   const gelen = {
     ad: await page.inputValue('input[name="name"]'),
@@ -80,7 +105,8 @@ try {
 
   // Fatura ekipmana belge olarak da eklenmiş olmalı.
   await page.locator(`a:has-text("${etiket}")`).first().tap();
-  await page.waitForSelector("text=FOTOĞRAF VE BELGELER", { timeout: 15000 });
+  // Bölüm kapalı geliyor (docs/TASARIM.md): içine bakmadan önce açılıyor.
+  await bolumAc(page, "Fotoğraf ve belgeler");
   const govde = await page.locator("body").innerText();
   for (const metin of ["Bosch", "FD9901123456", "18.400,50 ₺", "fatura.pdf"]) {
     if (!govde.includes(metin)) throw new Error(`eksik: ${metin}`);

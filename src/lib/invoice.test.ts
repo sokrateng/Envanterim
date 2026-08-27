@@ -56,6 +56,7 @@ describe("toFormValues", () => {
       purchasePrice: "18.400,50",
       sellerName: "Teknosa",
       currency: "TRY",
+      warrantyAssumed: false,
     });
   });
 
@@ -65,9 +66,19 @@ describe("toFormValues", () => {
     expect(toFormValues(invoice({ currency: null }), item()).currency).toBe("TRY");
   });
 
-  it("garanti süresi yoksa bitiş tarihi boş kalır", () => {
+  it("garanti süresi faturada yoksa 24 ay varsayılıyor ve işaretleniyor", () => {
+    // Boş bırakmak bedava değildi: garanti tarihi olmayan ekipman hatırlatma
+    // da almıyor. Varsayım forma yazılıyor ama "varsayım" diye işaretli —
+    // kullanıcı görüp değiştirebiliyor.
     const values = toFormValues(invoice(), item({ warrantyMonths: null }));
-    expect(values.warrantyEndDate).toBe("");
+    expect(values.warrantyEndDate).toBe("2028-03-14");
+    expect(values.warrantyAssumed).toBe(true);
+  });
+
+  it("faturada yazan süre varsayımın önüne geçiyor", () => {
+    const values = toFormValues(invoice(), item({ warrantyMonths: 36 }));
+    expect(values.warrantyEndDate).toBe("2029-03-14");
+    expect(values.warrantyAssumed).toBe(false);
   });
 
   it("fatura tarihi okunamadıysa garanti hesaplanmaz", () => {
@@ -77,6 +88,7 @@ describe("toFormValues", () => {
     );
     expect(values.purchaseDate).toBe("");
     expect(values.warrantyEndDate).toBe("");
+    expect(values.warrantyAssumed).toBe(false);
   });
 
   it("fiyat yoksa alan boş kalır — sıfır yazmaz", () => {

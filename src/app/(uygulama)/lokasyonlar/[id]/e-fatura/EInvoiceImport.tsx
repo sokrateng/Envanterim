@@ -189,8 +189,9 @@ export function EInvoiceImport({ locationId }: { locationId: string }) {
             {busy ? "Ekleniyor…" : `${toplamAdet} ekipman oluştur`}
           </button>
           <p className="pt-2 text-footnote text-muted">
-            Seri no ve garanti süresi faturada yok; ekipman sayfasından
-            eklersin.
+            Seri no faturada yok; ekipman sayfasından eklersin. Garanti bitişi
+            fatura tarihinden 24 ay sonrası varsayılıyor — farklıysa ekipman
+            sayfasından düzeltebilirsin.
           </p>
         </div>
       ) : null}

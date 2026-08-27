@@ -64,7 +64,16 @@ try {
   await page.locator('a:has-text("Dizüstü Bilgisayar 16GB")').first().click();
   await page.waitForSelector('h1:has-text("Dizüstü")');
   const detay = await page.locator("body").innerHTML();
-  for (const beklenen of ["Lenovo", "82XQ00E9TX", "50.000,00 ₺", "Vatan Bilgisayar", "9 Şubat 2026"]) {
+  // Garanti bitişi UBL'de yok: fatura tarihinden 24 ay sonrası varsayılıyor
+  // (9 Şubat 2026 → 9 Şubat 2028). Önizleme bunu söylüyor.
+  for (const beklenen of [
+    "Lenovo",
+    "82XQ00E9TX",
+    "50.000,00 ₺",
+    "Vatan Bilgisayar",
+    "9 Şubat 2026",
+    "9 Şubat 2028",
+  ]) {
     if (!detay.includes(beklenen)) throw new Error(`detayda eksik: ${beklenen}`);
   }
   log("oluşturulan ekipmanın alanları doğru");

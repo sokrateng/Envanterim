@@ -41,6 +41,11 @@ export type ItemDefaults = {
   sellerId?: string;
   /** Listede olmayan satıcının adı; faturadan da gelebiliyor. */
   sellerName?: string;
+  /**
+   * Garanti bitişi faturadan okunmadı, 24 ay varsayıldı. Alan dolu geliyor ama
+   * "dokunulmuş" sayılmıyor: alış tarihi düzeltilirse varsayım da düzelmeli.
+   */
+  warrantyAssumed?: boolean;
   customFields?: Record<string, unknown>;
 };
 
@@ -83,17 +88,19 @@ export function ItemFields({
    *
    * Öneri yalnız **alana dokunulmadıysa** yazılıyor. Kayıtlı bir tarihle açılan
    * düzenleme formu baştan "dokunulmuş" sayılıyor: var olan garanti tarihi
-   * gerçek veri, alış tarihini düzelten kullanıcının üstüne yazmamalı. Aynı
+   * gerçek veri, alış tarihini düzelten kullanıcının üstüne yazmamalı —
+   * faturadan gelen 24 ay varsayımı ise gerçek veri değil, dokunulmamış
+   * sayılıyor ve fatura tarihi düzeltilirse birlikte düzeliyor. Aynı
    * sebeple öneri yalnız kullanıcının değiştirmesiyle çıkıyor, açılışta değil
    * — yoksa düzenleme formunu açıp kaydetmek, garantisi bilerek boş bırakılan
    * bir ekipmana sessizce tarih koyardı.
    */
   const [warrantyEnd, setWarrantyEnd] = useState(defaults.warrantyEndDate ?? "");
   const [warrantyTouched, setWarrantyTouched] = useState(
-    Boolean(defaults.warrantyEndDate),
+    Boolean(defaults.warrantyEndDate) && !defaults.warrantyAssumed,
   );
   /** Alandaki değer bizim önerimiz mi; ipucu buna bakıyor. */
-  const [suggested, setSuggested] = useState(false);
+  const [suggested, setSuggested] = useState(Boolean(defaults.warrantyAssumed));
 
   // Satıcı tek alan gibi davranıyor: listeden seç ya da "yeni" deyip adını yaz.
   // Faturadan bir ad geldiyse ya da lokasyonun hiç satıcısı yoksa doğrudan

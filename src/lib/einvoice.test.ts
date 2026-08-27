@@ -181,8 +181,10 @@ describe("faturadan okuma ile aynı forma bağlanıyor", () => {
       purchaseDate: "2026-03-14",
       purchasePrice: "18.400,50",
       sellerName: "Teknosa İç ve Dış Ticaret A.Ş.",
-      // Garanti süresi faturada yok; boş kalıyor, uydurulmuyor.
-      warrantyEndDate: "",
+      // UBL kaleminde garanti süresi yok: fatura tarihinden 24 ay varsayılıyor
+      // ve varsayım olduğu işaretleniyor.
+      warrantyEndDate: "2028-03-14",
+      warrantyAssumed: true,
     });
   });
 });

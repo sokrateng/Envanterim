@@ -190,6 +190,12 @@ alış tarihini **değiştirdiğinde** ve garanti alanına dokunmadıysa çıkı
 kayıtlı bir tarihin üstüne yazmıyor, düzenleme formunu açıp kaydetmek de
 garantisi bilerek boş bırakılmış bir ekipmana tarih koymuyor.
 
+Faturadan doldurmada da aynı varsayım var: faturada garanti süresi yazıyorsa
+o, yazmıyorsa fatura tarihinden 24 ay. Varsayım olduğu forma taşınıyor
+(`warrantyAssumed`) ve aynı ipucu çıkıyor — okunan bilgiyle varsayım aynı
+şey değil. e-Fatura XML'i ekipmanı doğrudan açtığı için varsayım önizleme
+ekranında yazılı, kullanıcı onaylayarak geçiyor.
+
 ## Onay kutusu
 
 Tarayıcının `confirm()` kutusu kullanılmıyor: masaüstü görünümlü, adres

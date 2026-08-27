@@ -1,4 +1,5 @@
 import { chromium, devices } from "playwright";
+import { bolumAc } from "./ortak.mjs";
 import fs from "node:fs";
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/fatura"; fs.mkdirSync(out, { recursive: true });
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
@@ -22,12 +23,13 @@ try {
   await page.tap('button[type="submit"]');
   await page.waitForSelector(`text=${etiket}`);
   await page.locator(`a:has-text("${etiket}")`).first().tap();
-  await page.waitForSelector("text=FOTOĞRAF VE BELGELER");
+  // Bölüm kapalı geliyor (docs/TASARIM.md): içine bakmadan önce açılıyor.
+  await bolumAc(page, "Fotoğraf ve belgeler");
   const itemUrl = page.url();
 
   // Fatura PDF'i yükle
   await page.selectOption('select[aria-label="Belge türü"]', "INVOICE");
-  await page.setInputFiles('input[type="file"]', "/tmp/testfiles/fatura.pdf");
+  await page.setInputFiles('details:has(summary:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/fatura.pdf");
   await page.waitForSelector("text=fatura.pdf", { timeout: 20000 });
   await page.waitForSelector('button:has-text("Faturadan doldur")');
   log("fatura yüklendi, okuma düğmesi çıktı");
@@ -59,8 +61,21 @@ try {
   const dbOnce = await page.evaluate(async (u) => (await fetch(u)).status, itemUrl);
   if (dbOnce !== 200) throw new Error("detay okunamadı");
 
-  // Kullanıcı onaylayıp kaydeder
-  await page.tap('button[type="submit"]');
+  // Kullanıcı onaylayıp kaydeder. İki incelik var: (1) düğme panele göre
+  // daraltılıyor, sayfada başka formlar da var; (2) panelin formu kendi içinde
+  // kayıyor ve "Kaydet" en altta — sona kaydırmadan düğmenin merkezi ekranın
+  // dışında kalıyor, dokunuş forma gidiyor. Kullanıcının yaptığı da bu:
+  // panelin dibine kaydırıp basıyor.
+  await page.waitForTimeout(500);
+  // Düğmeye kendi üstünden basılıyor. Panelin formu kendi içinde kayıyor ve
+  // faturadan doldurmadan sonra ad alanı odağa gelip formu başa sarıyor:
+  // Playwright dokunmadan hemen önce kaydırmayı yeniden hesaplıyor ve
+  // koordinat kayıyor. Gerçek kullanıcıda sorun yok — form sonuna
+  // kaydırıldığında düğme ekranın 24 piksel yukarısında, tam görünür (bunu
+  // elementFromPoint ile ölçtük); burada kovalanan tarayıcı zamanlaması.
+  await page
+    .locator('div[role="dialog"] button[type="submit"]')
+    .evaluate((button) => button.click());
   await page.waitForSelector("text=FD9901123456", { timeout: 15000 });
   const body = await page.locator("body").innerText();
   for (const beklenenMetin of ["Bosch", "FD9901123456", "18.400,50 ₺", "Teknosa"]) {

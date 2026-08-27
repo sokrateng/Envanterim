@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import { addMonths, parseDateOnly, toInputDate } from "@/lib/dates";
+import { DEFAULT_WARRANTY_MONTHS } from "@/lib/warranty";
 import { formatMinor, parseMoney } from "@/lib/money";
 
 /**
@@ -133,12 +134,25 @@ export type InvoiceFormValues = {
   sellerName: string;
   /** Faturada yazan para birimi; tanımadığımız bir kod gelirse TRY. */
   currency: string;
+  /**
+   * Garanti bitişi faturadan mı okundu, yoksa 24 ay varsayımı mı. Form bunu
+   * kullanıcıya söylüyor: varsayım, okunan bilgi kadar güvenilir değil.
+   */
+  warrantyAssumed: boolean;
 };
 
 /**
- * Bir fatura kalemini forma dönüştürür. Garanti bitişi faturada ay olarak
- * verildiyse fatura tarihinden hesaplanır; ikisinden biri eksikse boş kalır —
- * uydurmuyoruz, kullanıcı görsün.
+ * Bir fatura kalemini forma dönüştürür.
+ *
+ * Garanti bitişi faturada ay olarak yazıyorsa ondan, yazmıyorsa 24 ay
+ * varsayımıyla hesaplanır (`DEFAULT_WARRANTY_MONTHS`) — ekipman formundaki
+ * öneriyle aynı kural. Fatura tarihi yoksa boş kalıyor: neye ekleyeceğimiz
+ * belli değil.
+ *
+ * Varsayım uydurmak değil çünkü kullanıcıya sorulan bir alana yazılıyor:
+ * `warrantyAssumed` ile işaretleniyor, form da "önerildi; değiştirebilirsin"
+ * diyor. Boş bırakmak da bedava değildi — garanti tarihi olmayan ekipman
+ * hatırlatma da almıyor.
  */
 export function toFormValues(
   invoice: ExtractedInvoice,
@@ -147,10 +161,11 @@ export function toFormValues(
   const purchaseDate = parseDateOnly(invoice.invoiceDate);
   const minor = priceToMinor(item.unitPrice);
 
-  const warrantyEnd =
-    purchaseDate && item.warrantyMonths && item.warrantyMonths > 0
-      ? addMonths(purchaseDate, item.warrantyMonths)
-      : null;
+  const faturadakiAy =
+    item.warrantyMonths && item.warrantyMonths > 0 ? item.warrantyMonths : null;
+  const warrantyEnd = purchaseDate
+    ? addMonths(purchaseDate, faturadakiAy ?? DEFAULT_WARRANTY_MONTHS)
+    : null;
 
   const currency = (invoice.currency ?? "").trim().toUpperCase();
 
@@ -166,5 +181,6 @@ export function toFormValues(
     currency: (CURRENCIES as readonly string[]).includes(currency)
       ? currency
       : DEFAULT_CURRENCY,
+    warrantyAssumed: warrantyEnd !== null && faturadakiAy === null,
   };
 }

@@ -5,9 +5,10 @@ import { requireLocationEditor } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError } from "@/lib/api";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import { parseUblInvoice, unitCount } from "@/lib/einvoice";
-import { parseDateOnly } from "@/lib/dates";
+import { addMonths, parseDateOnly } from "@/lib/dates";
 import { priceToMinor } from "@/lib/invoice";
 import { resolveVendor } from "@/lib/vendors";
+import { DEFAULT_WARRANTY_MONTHS } from "@/lib/warranty";
 
 export const maxDuration = 60;
 
@@ -75,6 +76,13 @@ export async function POST(
 
   const invoice = parsed.invoice;
   const purchaseDate = parseDateOnly(invoice.invoiceDate);
+  // UBL kaleminde garanti süresi yok. Fatura tarihinden 24 ay varsayılıyor:
+  // önizleme bunu söylüyor, kullanıcı ekipman sayfasından düzeltebiliyor.
+  // Boş bırakmak bedava değil — garanti tarihi olmayan ekipman hatırlatma da
+  // almıyor.
+  const warrantyEndDate = purchaseDate
+    ? addMonths(purchaseDate, DEFAULT_WARRANTY_MONTHS)
+    : null;
   const vendor = await resolveVendor({
     userId: access.userId,
     locationId: id,
@@ -104,6 +112,7 @@ export async function POST(
           brand: line.brand,
           model: line.model,
           purchaseDate,
+          warrantyEndDate,
           purchasePriceMinor: priceMinor,
           currency: invoiceCurrency,
           sellerId: vendor.ok ? vendor.vendorId : null,
