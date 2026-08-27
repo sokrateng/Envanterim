@@ -503,3 +503,27 @@ altından bir hat açığa çıktı.
 da kendi `bg-surface`ını taşıyor, açıkta kalan hat satırın rengine düşüyor.
 **Ders:** bir kenarlığı kaldırırken o kenarlığın *başka ne örttüğüne* bak;
 kenarlık kutusu mutlak konumlu çocukların da başlangıç noktası.
+
+## Başarım
+
+**72. Ekipman sayfası dört saniye bekletiyordu — sorgular değil, saf mantık.**
+Detay sayfası 3,9 saniyede açılıyordu. İlk şüpheli veritabanıydı; ölçünce
+sorguların toplamı 53 milisaniye çıktı. Zaman `linkableChildren` hesabında
+gidiyordu: sayfa, lokasyondaki **her** ekipman için `linkableParents` çağırıyor,
+o da her aday için `checkLink`, o da **her çağrıda bütün düğümlerin haritasını
+baştan kuruyordu**. Lokasyondaki ekipman sayısının küpü kadar iş: 287 ekipmanda
+23 milyon işlem.
+
+**Çözüm:** harita bir kez kuruluyor ve iç işleve veriliyor; sayfa da tersini
+dolambaçlı hesaplamak yerine `linkableChildren`i doğrudan çağırıyor. 4029 ms →
+222 ms.
+
+İki ders: (1) "yavaş sayfa" demeden önce **nerede** yavaş olduğunu ölç — burada
+tüm şüphe veritabanındaydı, suçlu saf bir fonksiyondu; (2) küçük bir `new Map()`
+sıcak döngünün içinde masum durur, dışında ise bedava.
+
+**73. Sabit bekleme testi veri büyüdükçe çürüyor.** Ek silme testi isteği
+gönderip iki saniye bekliyor, sonra sayıyordu. Sunucu turu yavaşlayınca test
+"silinmedi" dedi — oysa silinmişti, henüz çizilmemişti. Sabit süre yerine
+sonucun kendisini beklemek gerekiyor (`waitForFunction`); yavaşlığı da ayrıca
+kovala, testi uzatarak susturma.

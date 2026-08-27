@@ -24,7 +24,7 @@ import {
   isSelf,
   pendingDays,
 } from "@/lib/assignment";
-import { linkableParents, totalWithComponents } from "@/lib/components";
+import { linkableChildren, totalWithComponents } from "@/lib/components";
 import { Assignment, type AssignmentView } from "./Assignment";
 import { Components, type ComponentRow } from "./Components";
 import { Attachments, type AttachmentView } from "./Attachments";
@@ -421,15 +421,7 @@ export default async function EkipmanPage({
       ])
     : [[], [], [], []];
 
-  const linkableChildren = editable
-    ? locationItems.filter(
-        (candidate) =>
-          candidate.id !== item.id &&
-          linkableParents(locationItems, candidate.id).some(
-            (parent) => parent.id === item.id,
-          ),
-      )
-    : [];
+  const linkable = editable ? linkableChildren(locationItems, item.id) : [];
 
   const categoryOptions: CategoryOption[] = categories.map((category) => ({
     id: category.id,
@@ -616,12 +608,12 @@ export default async function EkipmanPage({
             editable={editable}
           />
           <Notes itemId={item.id} notes={notes} canWrite />
-          {item.parent || componentRows.length || (editable && linkableChildren.length) ? (
+          {item.parent || componentRows.length || (editable && linkable.length) ? (
             <Components
               itemId={item.id}
               parent={item.parent}
               components={componentRows}
-              linkable={linkableChildren.map((option) => ({
+              linkable={linkable.map((option) => ({
                 id: option.id,
                 name: option.name,
               }))}

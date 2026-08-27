@@ -62,6 +62,45 @@ export function subtreeDepth(nodes: Node[], rootId: string): number {
   return walk(rootId);
 }
 
+function nodeMap(all: Node[]): Map<string, Node> {
+  return new Map(all.map((node) => [node.id, node]));
+}
+
+/**
+ * Hazır haritayla tek bağ denetimi.
+ *
+ * Harita dışarıda kuruluyor: liste üretenler (aşağıdaki iki işlev) her aday
+ * için baştan kurunca lokasyondaki ekipman sayısının küpüyle büyüyen bir iş
+ * çıkıyordu — 287 ekipmanlı bir lokasyonda ekipman sayfası dört saniye
+ * bekletiyordu (TUZAKLAR #72).
+ */
+function linkProblem(
+  all: Node[],
+  nodes: Map<string, Node>,
+  childId: string,
+  parentId: string,
+): LinkProblem | null {
+  if (childId === parentId) return "self";
+
+  const child = nodes.get(childId);
+  const parent = nodes.get(parentId);
+  if (!child || !parent) return "self";
+
+  if (child.locationId !== parent.locationId) return "other-location";
+  if (child.parentId && child.parentId !== parentId) return "already-child";
+
+  const ustundekiler = ancestors(nodes, parentId);
+  // Ana ekipman, bağlanacak ekipmanın altındaysa çember oluşur.
+  if (ustundekiler.includes(childId)) return "cycle";
+
+  // Üstteki kademe sayısı + bağlanacak alt ağacın derinliği sınırı aşmasın.
+  if (ustundekiler.length + 1 + subtreeDepth(all, childId) > MAX_COMPONENT_DEPTH) {
+    return "depth";
+  }
+
+  return null;
+}
+
 /**
  * `child` ekipmanı `parent`ın bileşeni yapılabilir mi?
  * Döngü, derinlik, lokasyon ve "zaten bağlı" durumlarına bakar.
@@ -71,32 +110,29 @@ export function checkLink(
   childId: string,
   parentId: string,
 ): LinkProblem | null {
-  if (childId === parentId) return "self";
-
-  const nodes = new Map(all.map((node) => [node.id, node]));
-  const child = nodes.get(childId);
-  const parent = nodes.get(parentId);
-  if (!child || !parent) return "self";
-
-  if (child.locationId !== parent.locationId) return "other-location";
-  if (child.parentId && child.parentId !== parentId) return "already-child";
-
-  // Ana ekipman, bağlanacak ekipmanın altındaysa çember oluşur.
-  if (ancestors(nodes, parentId).includes(childId)) return "cycle";
-
-  // Üstteki kademe sayısı + bağlanacak alt ağacın derinliği sınırı aşmasın.
-  const above = ancestors(nodes, parentId).length + 1;
-  if (above + subtreeDepth(all, childId) > MAX_COMPONENT_DEPTH) return "depth";
-
-  return null;
+  return linkProblem(all, nodeMap(all), childId, parentId);
 }
 
-/** Ana ekipman seçenekleri: bağlanabilecek ekipmanlar. */
+/** Ana ekipman seçenekleri: bu ekipmanın bağlanabileceği ekipmanlar. */
 export function linkableParents<T extends Node & { name: string }>(
   all: T[],
   childId: string,
 ): T[] {
-  return all.filter((candidate) => checkLink(all, childId, candidate.id) === null);
+  const nodes = nodeMap(all);
+  return all.filter(
+    (candidate) => linkProblem(all, nodes, childId, candidate.id) === null,
+  );
+}
+
+/** Bileşen seçenekleri: bu ekipmanın altına bağlanabilecek ekipmanlar. */
+export function linkableChildren<T extends Node & { name: string }>(
+  all: T[],
+  parentId: string,
+): T[] {
+  const nodes = nodeMap(all);
+  return all.filter(
+    (candidate) => linkProblem(all, nodes, candidate.id, parentId) === null,
+  );
 }
 
 /**

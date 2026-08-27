@@ -76,11 +76,19 @@ try {
   await bolumAc(page, "Fotoğraf ve belgeler");
   const oncekiAdet = await page.locator("figure img").count();
   await page.locator('figure button[aria-label$="sil"]').first().click();
-  await page.waitForTimeout(2000);
-  const sonrakiAdet = await page.locator("figure img").count();
-  if (sonrakiAdet !== oncekiAdet - 1) {
-    throw new Error(`fotoğraf silinmedi: ${oncekiAdet} → ${sonrakiAdet}`);
-  }
+  // Sabit bekleme değil, gerçekten kaybolmasını bekliyoruz: silme isteği
+  // anında dönüyor ama sayfayı yeniden çizen sunucu turu veri büyüdükçe
+  // uzuyor — iki saniye dolu bir veritabanında yetmiyor.
+  await page
+    .waitForFunction(
+      (hedef) => document.querySelectorAll("figure img").length === hedef,
+      oncekiAdet - 1,
+      { timeout: 20000 },
+    )
+    .catch(async () => {
+      const kalan = await page.locator("figure img").count();
+      throw new Error(`fotoğraf silinmedi: ${oncekiAdet} → ${kalan}`);
+    });
   log("fotoğraf silindi");
 
   // Listedeki küçük görsel: fotoğrafı olmayan satırdan kamerayla ekleme,

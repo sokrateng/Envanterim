@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   checkLink,
+  linkableChildren,
   linkableParents,
   subtreeDepth,
   totalWithComponents,
@@ -102,5 +103,42 @@ describe("totalWithComponents", () => {
 
   it("bileşeni yoksa kendi maliyeti", () => {
     expect(totalWithComponents(100_00, [])).toBe(100_00);
+  });
+});
+
+describe("linkableChildren", () => {
+  const dugumler = [
+    { id: "ana", parentId: null, locationId: "ev", name: "Bilgisayar" },
+    { id: "alt", parentId: null, locationId: "ev", name: "Klavye" },
+    { id: "bagli", parentId: "ana", locationId: "ev", name: "Fare" },
+    { id: "uzak", parentId: null, locationId: "ofis", name: "Yazıcı" },
+  ];
+
+  it("bağlanabilecek ekipmanları verir", () => {
+    const secenekler = linkableChildren(dugumler, "ana").map((n) => n.id);
+    expect(secenekler).toContain("alt");
+    // Kendisi, başkasına bağlı olan ve başka lokasyondaki yok.
+    expect(secenekler).not.toContain("ana");
+    expect(secenekler).not.toContain("uzak");
+  });
+
+  it("linkableParents'ın tersi: aynı çifte aynı cevabı verir", () => {
+    // "alt", "ana"nın altına girebiliyorsa "ana" da "alt"ın seçeneklerinde.
+    const cocuklar = linkableChildren(dugumler, "ana").map((n) => n.id);
+    const ebeveynler = linkableParents(dugumler, "alt").map((n) => n.id);
+    expect(cocuklar.includes("alt")).toBe(ebeveynler.includes("ana"));
+  });
+
+  it("büyük lokasyonda makul sürede bitiyor", () => {
+    // Küpsel işten sonra 300 ekipman saniyeler sürüyordu (TUZAKLAR #72).
+    const cok = Array.from({ length: 300 }, (_, i) => ({
+      id: `i${i}`,
+      parentId: null,
+      locationId: "ev",
+      name: `Ekipman ${i}`,
+    }));
+    const bas = performance.now();
+    expect(linkableChildren(cok, "i0").length).toBe(299);
+    expect(performance.now() - bas).toBeLessThan(1000);
   });
 });
