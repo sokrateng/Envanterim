@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<style>
+body{margin:0;background:#E5E5EA;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,sans-serif}
+a{color:#007AFF}
+a:hover{color:#0062CC}
+*{-webkit-font-smoothing:antialiased}
+</style>
+</helmet>
+
+<div style="padding:40px 48px 16px">
+<div style="font-size:22px;font-weight:700;color:#1C1C1E">Envanterim — Ekran Tasarımları</div>
+<div style="font-size:15px;color:#6E6E73;margin-top:6px;max-width:640px;line-height:1.5">390×844 artboard, iOS Inset Grouped liste dili, sistem fontu, sabit renk/punto/köşe yarıçapı jetonları. 12 açık tema ekranı, 3 koyu tema karşılığı, ve kullanılan jeton/karar tablosu.</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;padding:8px 48px 80px">
+
+<!-- ===================== 01 ENVANTER LISTESI ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">01 — Envanter Listesi (satır kaydırılmış)</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px rgba(0,0,0,0.08)">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="height:47px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;box-sizing:border-box;position:relative;z-index:2">
+    <div style="font-size:15px;font-weight:600;color:#000">9:41</div>
+    <div style="width:17px;height:11px;border:1px solid #000;border-radius:2.5px"></div>
+  </div>
+  <div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+    <div style="padding:8px 16px 6px;flex:none">
+      <div style="font-size:22px;font-weight:700;line-height:28px;color:#000">Envanter</div>
+    </div>
+    <div style="padding:0 16px 12px;display:flex;gap:8px;flex:none">
+      <div style="flex:1;height:36px;background:#D1D1D6;border-radius:10px;display:flex;align-items:center;padding:0 10px;gap:6px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+        <div style="font-size:17px;color:#8E8E93">Ara</div>
+      </div>
+      <div style="width:44px;height:36px;background:#D1D1D6;border-radius:10px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3.5 5.5h17l-6.6 7.6v5.6l-3.8 2v-7.6z"></path></svg></div>
+      <div style="width:44px;height:36px;background:#D1D1D6;border-radius:10px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15M7.5 12h9"></path></svg></div>
+    </div>
+    <div style="padding:8px 16px 4px;flex:none;font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px">5 ÖĞE</div>
+    <div style="margin:0 16px;background:#FFFFFF;border-radius:10px;overflow:hidden;flex:none">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;position:relative;overflow:hidden">
+        <div style="width:64px;height:64px;flex:none;background:#E5E5EA;border-radius:8px;display:flex;align-items:center;justify-content:center"><div style="width:24px;height:18px;border:2px solid #C6C6C8;border-radius:3px"></div></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:17px;font-weight:600;line-height:22px;color:#000">MacBook Pro 14"</div>
+          <div style="font-size:15px;line-height:20px;color:#8E8E93">Apple · Ofis · 3. Kat</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none"><div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:#34C759"></div><div style="font-size:12px;line-height:16px;color:#8E8E93">Garantide</div></div><div style="font-size:12px;line-height:16px;color:#34C759">198 gün kaldı</div></div>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:76px"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px">
+        <div style="width:64px;height:64px;flex:none;background:#E5E5EA;border-radius:8px;display:flex;align-items:center;justify-content:center"><div style="width:20px;height:26px;border:2px solid #C6C6C8;border-radius:5px"></div></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:17px;font-weight:600;line-height:22px;color:#000">iPhone 15 Pro</div>
+          <div style="font-size:15px;line-height:20px;color:#8E8E93">Apple · Depo</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none"><div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:#007AFF"></div><div style="font-size:12px;line-height:16px;color:#8E8E93">Zimmetli</div></div><div style="font-size:12px;line-height:16px;color:#8E8E93">412 gün kaldı</div></div>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:76px"></div>
+      <div style="position:relative;overflow:hidden">
+        <div style="position:absolute;right:0;top:0;bottom:0;width:74px;background:#007AFF;display:flex;align-items:center;justify-content:center"><div style="font-size:15px;font-weight:600;color:#fff">Düzenle</div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:#FFFFFF;transform:translateX(-74px);position:relative">
+          <div style="width:64px;height:64px;flex:none;background:#E5E5EA;border-radius:8px;display:flex;align-items:center;justify-content:center"><div style="width:26px;height:22px;border:2px solid #C6C6C8;border-radius:3px"></div></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:17px;font-weight:600;line-height:22px;color:#000">Samsung Buzdolabı</div>
+            <div style="font-size:15px;line-height:20px;color:#8E8E93">Samsung · Mutfak</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none"><div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:#FF9500"></div><div style="font-size:12px;line-height:16px;color:#8E8E93">Serviste</div></div><div style="font-size:12px;line-height:16px;color:#FF9500">34 gün kaldı</div></div>
+        </div>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:76px"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px">
+        <div style="width:64px;height:64px;flex:none;background:#E5E5EA;border-radius:8px;display:flex;align-items:center;justify-content:center"><div style="width:26px;height:22px;border:2px solid #C6C6C8;border-radius:3px"></div></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:17px;font-weight:600;line-height:22px;color:#000">HP LaserJet Yazıcı</div>
+          <div style="font-size:15px;line-height:20px;color:#8E8E93">HP · Resepsiyon</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none"><div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:#8E8E93"></div><div style="font-size:12px;line-height:16px;color:#8E8E93">Garanti dışı</div></div><div style="font-size:12px;line-height:16px;color:#FF3B30">14 gün önce bitti</div></div>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:76px"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px">
+        <div style="width:64px;height:64px;flex:none;background:#E5E5EA;border-radius:8px;display:flex;align-items:center;justify-content:center"><div style="width:28px;height:20px;border:2px solid #C6C6C8;border-radius:3px"></div></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:17px;font-weight:600;line-height:22px;color:#000">Forklift</div>
+          <div style="font-size:15px;line-height:20px;color:#8E8E93">Toyota · Depo · Saha</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none"><div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:#007AFF"></div><div style="font-size:12px;line-height:16px;color:#8E8E93">Zimmetli</div></div><div style="font-size:12px;line-height:16px;color:#8E8E93">621 gün kaldı</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="flex:none;height:83px;background:#FFFFFF;border-top:0.5px solid #C6C6C8;display:flex;padding-top:6px;box-sizing:border-box;position:relative">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"></path><circle cx="12" cy="10" r="2.6"></circle></svg><div style="font-size:12px;line-height:16px;color:#8E8E93">Lokasyonlar</div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3.5 8.5 12 4.2l8.5 4.3v7L12 19.8 3.5 15.5z"></path><path d="M3.5 8.5 12 12.8l8.5-4.3M12 12.8v7"></path></svg><div style="font-size:12px;line-height:16px;color:#007AFF;font-weight:600">Envanter</div></div>
+    <div style="flex:0 0 72px;display:flex;justify-content:center;align-items:flex-start"><div style="margin-top:-22px;width:56px;height:56px;border-radius:50%;background:#007AFF;border:4px solid #FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3 9.2 9.5 5.8 16 9.2v6.6L9.5 19.2 3 15.8z"></path><path d="M3 9.2 9.5 12.6 16 9.2M9.5 12.6v6.6"></path><path d="M19.6 3.4v5.6M16.8 6.2h5.6"></path></svg></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.8 20c1.5-3.5 4-5.2 7.2-5.2s5.7 1.7 7.2 5.2"></path></svg><div style="font-size:12px;line-height:16px;color:#8E8E93">Hesap</div></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== 02 BOŞ DURUM ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">02 — Envanter Listesi (boş durum)</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px rgba(0,0,0,0.08)">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="height:47px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;box-sizing:border-box">
+    <div style="font-size:15px;font-weight:600;color:#000">9:41</div>
+    <div style="width:17px;height:11px;border:1px solid #000;border-radius:2.5px"></div>
+  </div>
+  <div style="padding:8px 16px 6px;flex:none"><div style="font-size:22px;font-weight:700;line-height:28px;color:#000">Envanter</div></div>
+  <div style="padding:0 16px 12px;display:flex;gap:8px;flex:none">
+    <div style="flex:1;height:36px;background:#D1D1D6;border-radius:10px;display:flex;align-items:center;padding:0 10px;gap:6px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg><div style="font-size:17px;color:#8E8E93">Ara</div></div>
+    <div style="width:44px;height:36px;background:#D1D1D6;border-radius:10px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3.5 5.5h17l-6.6 7.6v5.6l-3.8 2v-7.6z"></path></svg></div>
+    <div style="width:44px;height:36px;background:#D1D1D6;border-radius:10px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15M7.5 12h9"></path></svg></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 40px 80px">
+    <div style="width:88px;height:88px;border-radius:50%;background:#E5E5EA;display:flex;align-items:center;justify-content:center"><div style="width:34px;height:28px;border:2.5px solid #C6C6C8;border-radius:5px"></div></div>
+    <div style="font-size:22px;font-weight:700;line-height:28px;color:#000;text-align:center">Henüz envanter yok</div>
+    <div style="font-size:17px;line-height:22px;color:#8E8E93;text-align:center">Bu lokasyona ilk ekipmanı ekleyerek başla.</div>
+    <div style="width:100%;height:50px;background:#007AFF;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-top:8px"><div style="font-size:17px;font-weight:600;color:#fff">Envanter Ekle</div></div>
+  </div>
+  <div style="flex:none;height:83px;background:#FFFFFF;border-top:0.5px solid #C6C6C8;display:flex;padding-top:6px;box-sizing:border-box;position:relative">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"></path><circle cx="12" cy="10" r="2.6"></circle></svg><div style="font-size:12px;line-height:16px;color:#8E8E93">Lokasyonlar</div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3.5 8.5 12 4.2l8.5 4.3v7L12 19.8 3.5 15.5z"></path><path d="M3.5 8.5 12 12.8l8.5-4.3M12 12.8v7"></path></svg><div style="font-size:12px;line-height:16px;color:#007AFF;font-weight:600">Envanter</div></div>
+    <div style="flex:0 0 72px;display:flex;justify-content:center;align-items:flex-start"><div style="margin-top:-22px;width:56px;height:56px;border-radius:50%;background:#007AFF;border:4px solid #FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3 9.2 9.5 5.8 16 9.2v6.6L9.5 19.2 3 15.8z"></path><path d="M3 9.2 9.5 12.6 16 9.2M9.5 12.6v6.6"></path><path d="M19.6 3.4v5.6M16.8 6.2h5.6"></path></svg></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.8 20c1.5-3.5 4-5.2 7.2-5.2s5.7 1.7 7.2 5.2"></path></svg><div style="font-size:12px;line-height:16px;color:#8E8E93">Hesap</div></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== 03 ENVANTER DETAYI ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">03 — Envanter Detayı</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px rgba(0,0,0,0.08)">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="flex:1;overflow-y:auto">
+    <div style="height:220px;background:#D1D1D6;position:relative;display:flex;align-items:center;justify-content:center">
+      <div style="width:48px;height:38px;border:3px solid #8E8E93;border-radius:8px"></div>
+      <div style="position:absolute;top:47px;left:16px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)"></div></div>
+      <div style="position:absolute;top:47px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center"><div style="color:#fff;font-size:14px">♡</div></div>
+    </div>
+    <div style="padding:16px">
+      <div style="font-size:22px;font-weight:700;line-height:28px;color:#000">MacBook Pro 14" M3 Pro</div>
+      <div style="display:flex;gap:2px;margin-top:6px;font-size:17px;color:#FF9500">★★★★<span style="color:#C6C6C8">★</span></div>
+      <div style="margin-top:16px;background:#FFFFFF;border-radius:10px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Marka</div><div style="font-size:17px;color:#000">Apple</div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Model</div><div style="font-size:17px;color:#000">MacBook Pro 14 (2023)</div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Seri No</div><div style="font-size:17px;color:#000">C02FL0XXXXXX</div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Yer</div><div style="font-size:17px;color:#007AFF">Ofis · 3. Kat</div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Alış</div><div style="font-size:17px;color:#000">12 Mar 2024 · ₺89.900</div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Garanti</div><div style="text-align:right"><div style="font-size:17px;line-height:22px;color:#000">12 Mar 2026'ya kadar</div><div style="font-size:13px;line-height:18px;color:#34C759">198 gün kaldı</div></div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Satıcı</div><div style="font-size:17px;color:#000">Apple Store Zorlu</div></div>
+      </div>
+      <div style="margin-top:12px;background:#FFFFFF;border-radius:10px;display:flex;justify-content:space-between;align-items:center;padding:11px 16px">
+        <div style="font-size:17px;color:#000">Durum</div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:7px;height:7px;border-radius:50%;background:#34C759"></div><div style="font-size:17px;color:#34C759">Garantide</div><div style="color:#C6C6C8;font-size:14px">›</div></div>
+      </div>
+      <div style="font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px;margin:20px 0 8px">KAYITLAR</div>
+      <div style="background:#FFFFFF;border-radius:10px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#000">Servis</div>
+        <div style="height:22px;border-radius:11px;background:#D1D1D6;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#000">1</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C6C6C8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(90deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="padding:4px 16px 14px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:17px;font-weight:600;color:#000">Ekran değişimi</div><div style="font-size:15px;color:#8E8E93;margin-top:2px">TeknoServis · 3 Ağu 2026</div></div>
+        <div style="background:#FFF3E0;padding:4px 10px;border-radius:8px"><div style="font-size:12px;font-weight:600;color:#FF9500">Açık</div></div>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#000">Zimmet</div>
+        <div style="height:22px;border-radius:11px;background:#D1D1D6;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#000">1</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C6C6C8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(90deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="padding:4px 16px 14px;display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:50%;background:#D1D1D6;flex:none"></div>
+        <div style="flex:1"><div style="font-size:17px;line-height:22px;color:#000">Elif Kaya</div><div style="font-size:13px;line-height:18px;color:#8E8E93">12 Nis 2026'dan beri zimmetli</div></div>
+        <div style="font-size:15px;color:#007AFF">Devret</div>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#000">Notlar</div>
+        <div style="height:22px;border-radius:11px;background:#D1D1D6;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#000">2</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C6C6C8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(90deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="padding:4px 16px 14px;display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:50%;background:#D1D1D6"></div><div style="font-size:15px;font-weight:600;color:#000">Elif K.</div><div style="font-size:13px;color:#8E8E93">3 Ağu 2026</div></div>
+          <div style="font-size:17px;line-height:22px;color:#000;margin-top:4px">Ekran yenilendi, klavyede takılma var.</div>
+          <div style="width:56px;height:56px;background:#E5E5EA;border-radius:8px;margin-top:8px"></div>
+        </div>
+        <div style="height:0.5px;background:#C6C6C8"></div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:50%;background:#D1D1D6"></div><div style="font-size:15px;font-weight:600;color:#000">Mert Y.</div><div style="font-size:13px;color:#8E8E93">2 Ağu 2026</div></div>
+          <div style="font-size:17px;line-height:22px;color:#000;margin-top:4px">Servise gönderildi.</div>
+        </div>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#000">Bileşenler</div>
+        <div style="height:22px;border-radius:11px;background:#D1D1D6;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#000">3</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C6C6C8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(0deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#000">Bakım</div>
+        
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C6C6C8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(0deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#000">Yedek Parçalar</div>
+        
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C6C6C8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(0deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#000">Ekler</div>
+        <div style="height:22px;border-radius:11px;background:#D1D1D6;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#000">2</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C6C6C8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(90deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="padding:4px 16px 14px;display:flex;gap:10px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:72px"><div style="width:72px;height:72px;background:#E5E5EA;border-radius:8px;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10A1.5 1.5 0 0 0 18.5 19V8.5z"></path><path d="M13.5 3.5v5h5"></path></svg></div><div style="font-size:12px;color:#8E8E93">Fatura.pdf</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:72px"><div style="width:72px;height:72px;background:#E5E5EA;border-radius:8px;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10A1.5 1.5 0 0 0 18.5 19V8.5z"></path><path d="M13.5 3.5v5h5"></path></svg></div><div style="font-size:12px;color:#8E8E93">Garanti.pdf</div></div>
+      </div>
+      </div>
+      <div style="margin-top:20px;font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px">ZAMAN ÇİZELGESİ</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:0">
+        <div style="display:flex;gap:10px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:7px;height:7px;border-radius:50%;background:#FF9500;margin-top:5px"></div><div style="width:1px;flex:1;background:#C6C6C8"></div></div><div style="padding-bottom:14px"><div style="font-size:13px;color:#8E8E93">3 Ağu 2026</div><div style="font-size:17px;color:#000">Servise gönderildi</div></div></div>
+        <div style="display:flex;gap:10px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:7px;height:7px;border-radius:50%;background:#8E8E93;margin-top:5px"></div><div style="width:1px;flex:1;background:#C6C6C8"></div></div><div style="padding-bottom:14px"><div style="font-size:13px;color:#8E8E93">12 Mar 2024</div><div style="font-size:17px;color:#000">Satın alındı</div></div></div>
+        <div style="display:flex;gap:10px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:7px;height:7px;border-radius:50%;background:#8E8E93;margin-top:5px"></div></div><div><div style="font-size:13px;color:#8E8E93">12 Mar 2024</div><div style="font-size:17px;color:#000">Envantere eklendi</div></div></div>
+      </div>
+      <div style="height:24px"></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== 04 YENI ENVANTER FORMU ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">04 — Yeni Envanter (alt panel)</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4)"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;top:64px;background:#F2F2F7;border-radius:16px 16px 0 0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;justify-content:center;padding:8px 0 4px;flex:none"><div style="width:36px;height:5px;background:#D1D1D6;border-radius:3px"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px 12px;flex:none">
+      <div style="font-size:17px;color:#007AFF">İptal</div>
+      <div style="font-size:17px;font-weight:600;color:#000">Yeni Envanter</div>
+      <div style="font-size:17px;font-weight:600;color:#007AFF">Kaydet</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:0 16px 24px">
+      <div style="height:50px;background:#D1D1D6;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
+        <div style="width:18px;height:14px;border:2px solid #007AFF;border-radius:3px"></div>
+        <div style="font-size:17px;font-weight:600;color:#007AFF">Faturadan Doldur</div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:10px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#000">Ad</div><div style="font-size:17px;color:#8E8E93">ör. MacBook Pro</div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#000">Kategori</div><div style="display:flex;gap:6px;align-items:center"><div style="font-size:17px;color:#8E8E93">Bilgisayar</div><div style="color:#C6C6C8">›</div></div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#000">Marka/Model</div><div style="font-size:17px;color:#8E8E93">—</div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px"><div style="font-size:17px;color:#000">Seri No</div><div style="display:flex;align-items:center;gap:8px"><div style="font-size:17px;color:#8E8E93">—</div><div style="width:32px;height:32px;background:#D1D1D6;border-radius:8px;display:flex;align-items:center;justify-content:center"><div style="width:14px;height:10px;border:1.5px solid #007AFF"></div></div></div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#000">Yer</div><div style="display:flex;gap:6px;align-items:center"><div style="font-size:17px;color:#8E8E93">Seç</div><div style="color:#C6C6C8">›</div></div></div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:10px;overflow:hidden;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#000">Alış Tarihi</div><div style="font-size:17px;color:#8E8E93">Seç</div></div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#000">Garanti Bitişi</div><div style="font-size:17px;color:#8E8E93">Seç</div></div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:10px;overflow:hidden;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px">
+          <div style="font-size:17px;color:#000">Fiyat</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:17px;color:#8E8E93">0,00</div>
+            <div style="display:flex;background:#D1D1D6;border-radius:8px;overflow:hidden">
+              <div style="padding:4px 8px;background:#FFFFFF;border-radius:7px;margin:1px;font-size:13px;font-weight:600;color:#000">TRY</div>
+              <div style="padding:4px 8px;font-size:13px;color:#8E8E93">USD</div>
+              <div style="padding:4px 8px;font-size:13px;color:#8E8E93">EUR</div>
+            </div>
+          </div>
+        </div>
+        <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#000">Satıcı</div><div style="display:flex;gap:6px;align-items:center"><div style="font-size:17px;color:#8E8E93">Seç</div><div style="color:#C6C6C8">›</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===================== 05 FILTRE PANELI ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">05 — Filtre Paneli</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4)"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;background:#F2F2F7;border-radius:16px 16px 0 0;padding-bottom:34px">
+    <div style="display:flex;justify-content:center;padding:8px 0 4px"><div style="width:36px;height:5px;background:#D1D1D6;border-radius:3px"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px 16px">
+      <div style="font-size:17px;color:#007AFF">Sıfırla</div>
+      <div style="font-size:17px;font-weight:600;color:#000">Filtrele</div>
+      <div style="font-size:17px;font-weight:600;color:#007AFF">Uygula</div>
+    </div>
+    <div style="padding:0 16px">
+      <div style="font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px;margin-bottom:8px">DURUM</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+        <div style="padding:8px 14px;background:#007AFF;border-radius:16px"><div style="font-size:15px;color:#fff;font-weight:600">Tümü</div></div>
+        <div style="padding:8px 14px;background:#D1D1D6;border-radius:16px"><div style="font-size:15px;color:#000">Garantide</div></div>
+        <div style="padding:8px 14px;background:#D1D1D6;border-radius:16px"><div style="font-size:15px;color:#000">Serviste</div></div>
+        <div style="padding:8px 14px;background:#D1D1D6;border-radius:16px"><div style="font-size:15px;color:#000">Zimmetli</div></div>
+        <div style="padding:8px 14px;background:#D1D1D6;border-radius:16px"><div style="font-size:15px;color:#000">Hurda</div></div>
+      </div>
+      <div style="font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px;margin-bottom:8px">ZİMMET</div>
+      <div style="display:flex;background:#D1D1D6;border-radius:9px;padding:2px">
+        <div style="flex:1;padding:7px;background:#FFFFFF;border-radius:7px;text-align:center;font-size:15px;font-weight:600;color:#000">Bana Ait</div>
+        <div style="flex:1;padding:7px;text-align:center;font-size:15px;color:#000">Herkes</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===================== 06 ONAY DIYALOGU ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">06 — Onay Diyaloğu</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative;display:flex;align-items:flex-end;justify-content:center">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4)"></div>
+  <div style="position:relative;width:100%;padding:0 8px 8px;display:flex;flex-direction:column;gap:8px">
+    <div style="background:#FFFFFF;border-radius:10px;overflow:hidden">
+      <div style="padding:16px;text-align:center;font-size:17px;font-weight:600;color:#000">Kaydedilmemiş değişiklikler var</div>
+      <div style="height:0.5px;background:#C6C6C8"></div>
+      <div style="padding:14px;text-align:center;font-size:17px;color:#007AFF">Kaydet ve Çık</div>
+      <div style="height:0.5px;background:#C6C6C8"></div>
+      <div style="padding:14px;text-align:center;font-size:17px;color:#FF3B30">Kaydetmeden Çık</div>
+    </div>
+    <div style="background:#FFFFFF;border-radius:10px;padding:14px;text-align:center;font-size:17px;font-weight:600;color:#007AFF">Geri Dön</div>
+  </div>
+</div>
+</div>
+
+<!-- ===================== 07 LOKASYON DETAYI ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">07 — Lokasyon Detayı</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="height:47px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;box-sizing:border-box"><div style="font-size:15px;font-weight:600;color:#000">9:41</div><div style="width:17px;height:11px;border:1px solid #000;border-radius:2.5px"></div></div>
+  <div style="height:44px;flex:none;display:flex;align-items:center;padding:0 8px;position:relative"><div style="width:76px;flex:none;display:flex;align-items:center;gap:2px"><div style="color:#007AFF;font-size:22px">‹</div><div style="color:#007AFF;font-size:17px">Geri</div></div><div style="flex:1;text-align:center;font-size:17px;font-weight:600;color:#000;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Ofis · 3. Kat</div><div style="width:76px;flex:none"></div></div>
+  <div style="flex:1;overflow-y:auto;padding:12px 16px">
+    <div style="background:#FFFFFF;border-radius:10px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px"><div style="width:28px;height:28px;border-radius:7px;background:#007AFF;display:flex;align-items:center;justify-content:center"><div style="width:12px;height:8px;border:1.5px solid #fff;border-radius:2px"></div></div><div style="flex:1;font-size:17px;color:#000">Üyeler</div><div style="color:#C6C6C8">›</div></div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:56px"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px"><div style="width:28px;height:28px;border-radius:7px;background:#34C759;display:flex;align-items:center;justify-content:center"><div style="width:12px;height:12px;border:1.5px solid #fff;border-radius:2px"></div></div><div style="flex:1;font-size:17px;color:#000">Kategoriler</div><div style="color:#C6C6C8">›</div></div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:56px"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px"><div style="width:28px;height:28px;border-radius:7px;background:#FF9500;display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:50%;border:1.5px solid #fff"></div></div><div style="flex:1;font-size:17px;color:#000">Zimmet</div><div style="color:#C6C6C8">›</div></div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:56px"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px"><div style="width:28px;height:28px;border-radius:7px;background:#8E8E93;display:flex;align-items:center;justify-content:center"><div style="width:12px;height:8px;border:1.5px solid #fff"></div></div><div style="flex:1;font-size:17px;color:#000">Etiketler</div><div style="color:#C6C6C8">›</div></div>
+    </div>
+    <div style="background:#FFFFFF;border-radius:10px;overflow:hidden;margin-top:16px">
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px"><div style="width:28px;height:28px;border-radius:7px;background:#007AFF;display:flex;align-items:center;justify-content:center"><div style="width:10px;height:12px;border:1.5px solid #fff"></div></div><div style="flex:1;font-size:17px;color:#000">Rapor</div><div style="color:#C6C6C8">›</div></div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:56px"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px"><div style="width:28px;height:28px;border-radius:7px;background:#8E8E93;display:flex;align-items:center;justify-content:center"><div style="width:12px;height:10px;border:1.5px solid #fff"></div></div><div style="flex:1;font-size:17px;color:#000">Hareketler</div><div style="color:#C6C6C8">›</div></div>
+    </div>
+    <div style="background:#FFFFFF;border-radius:10px;overflow:hidden;margin-top:16px">
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px"><div style="width:28px;height:28px;border-radius:7px;background:#D1D1D6;display:flex;align-items:center;justify-content:center"><div style="font-size:10px;color:#000;font-weight:700">CSV</div></div><div style="flex:1;font-size:17px;color:#007AFF">CSV Dışa Aktar</div></div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:56px"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px"><div style="width:28px;height:28px;border-radius:7px;background:#D1D1D6;display:flex;align-items:center;justify-content:center"><div style="font-size:8px;color:#000;font-weight:700">e-F</div></div><div style="flex:1;font-size:17px;color:#007AFF">e-Fatura</div></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== 08 RAPOR ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">08 — Rapor</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="height:47px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;box-sizing:border-box"><div style="font-size:15px;font-weight:600;color:#000">9:41</div><div style="width:17px;height:11px;border:1px solid #000;border-radius:2.5px"></div></div>
+  <div style="height:44px;flex:none;display:flex;align-items:center;padding:0 8px;position:relative"><div style="position:absolute;left:8px;color:#007AFF;font-size:22px">‹</div><div style="flex:1;text-align:center;font-size:17px;font-weight:600;color:#000">Rapor</div></div>
+  <div style="flex:1;overflow-y:auto;padding:8px 16px">
+    <div style="font-size:13px;color:#8E8E93;margin-bottom:8px">Kur çevrimi yapılmaz, tutarlar birim başına ayrı gösterilir.</div>
+    <div style="font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px;margin-bottom:8px">TOPLAM DEĞER</div>
+    <div style="background:#FFFFFF;border-radius:10px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;padding:14px 16px"><div style="font-size:17px;color:#000">TRY</div><div style="font-size:22px;font-weight:700;color:#000">₺412.500</div></div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 16px"><div style="font-size:17px;color:#000">USD</div><div style="font-size:22px;font-weight:700;color:#000">$3.200</div></div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 16px"><div style="font-size:17px;color:#000">EUR</div><div style="font-size:22px;font-weight:700;color:#000">€850</div></div>
+    </div>
+    <div style="font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px;margin:20px 0 8px">KATEGORİ DAĞILIMI</div>
+    <div style="background:#FFFFFF;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:14px">
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:15px;color:#000">Bilgisayar</div><div style="font-size:13px;color:#8E8E93">%42</div></div><div style="height:6px;background:#D1D1D6;border-radius:3px"><div style="width:42%;height:6px;background:#007AFF;border-radius:3px"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:15px;color:#000">Beyaz Eşya</div><div style="font-size:13px;color:#8E8E93">%28</div></div><div style="height:6px;background:#D1D1D6;border-radius:3px"><div style="width:28%;height:6px;background:#007AFF;border-radius:3px"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:15px;color:#000">Araç</div><div style="font-size:13px;color:#8E8E93">%18</div></div><div style="height:6px;background:#D1D1D6;border-radius:3px"><div style="width:18%;height:6px;background:#007AFF;border-radius:3px"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:15px;color:#000">Telefon</div><div style="font-size:13px;color:#8E8E93">%12</div></div><div style="height:6px;background:#D1D1D6;border-radius:3px"><div style="width:12%;height:6px;background:#007AFF;border-radius:3px"></div></div></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== 09 HESAP ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">09 — Hesap</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="height:47px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;box-sizing:border-box"><div style="font-size:15px;font-weight:600;color:#000">9:41</div><div style="width:17px;height:11px;border:1px solid #000;border-radius:2.5px"></div></div>
+  <div style="padding:8px 16px 10px;flex:none"><div style="font-size:22px;font-weight:700;line-height:28px;color:#000">Hesap</div></div>
+  <div style="flex:1;overflow-y:auto;padding:0 16px">
+    <div style="background:#FFFFFF;border-radius:10px;display:flex;align-items:center;gap:12px;padding:14px 16px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#D1D1D6"></div>
+      <div><div style="font-size:17px;font-weight:600;color:#000">Ahmet Yıldız</div><div style="font-size:13px;color:#8E8E93">ahmet@sirket.com</div></div>
+    </div>
+    <div style="font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px;margin:20px 0 8px">BİLDİRİMLER</div>
+    <div style="background:#FFFFFF;border-radius:10px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px"><div style="font-size:17px;color:#000">Yeni envanter eklendiğinde</div><div style="width:51px;height:31px;background:#007AFF;border-radius:16px;display:flex;align-items:center;padding:2px;justify-content:flex-end"><div style="width:27px;height:27px;background:#fff;border-radius:50%"></div></div></div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px"><div style="font-size:17px;color:#000">Değişiklik yapıldığında</div><div style="width:51px;height:31px;background:#D1D1D6;border-radius:16px;display:flex;align-items:center;padding:2px"><div style="width:27px;height:27px;background:#fff;border-radius:50%"></div></div></div>
+    </div>
+    <div style="background:#FFFFFF;border-radius:10px;overflow:hidden;margin-top:16px">
+      <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#000">Dil</div><div style="display:flex;gap:6px"><div style="font-size:17px;color:#8E8E93">Türkçe</div><div style="color:#C6C6C8">›</div></div></div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#000">Hakkında</div><div style="color:#C6C6C8">›</div></div>
+    </div>
+    <div style="background:#FFFFFF;border-radius:10px;margin-top:16px;padding:11px 16px;text-align:center"><div style="font-size:17px;color:#FF3B30">Çıkış Yap</div></div>
+  </div>
+  <div style="flex:none;height:83px;background:#FFFFFF;border-top:0.5px solid #C6C6C8;display:flex;padding-top:6px;box-sizing:border-box;position:relative">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"></path><circle cx="12" cy="10" r="2.6"></circle></svg><div style="font-size:12px;line-height:16px;color:#8E8E93">Lokasyonlar</div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3.5 8.5 12 4.2l8.5 4.3v7L12 19.8 3.5 15.5z"></path><path d="M3.5 8.5 12 12.8l8.5-4.3M12 12.8v7"></path></svg><div style="font-size:12px;line-height:16px;color:#8E8E93">Envanter</div></div>
+    <div style="flex:0 0 72px;display:flex;justify-content:center;align-items:flex-start"><div style="margin-top:-22px;width:56px;height:56px;border-radius:50%;background:#007AFF;border:4px solid #FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3 9.2 9.5 5.8 16 9.2v6.6L9.5 19.2 3 15.8z"></path><path d="M3 9.2 9.5 12.6 16 9.2M9.5 12.6v6.6"></path><path d="M19.6 3.4v5.6M16.8 6.2h5.6"></path></svg></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.8 20c1.5-3.5 4-5.2 7.2-5.2s5.7 1.7 7.2 5.2"></path></svg><div style="font-size:12px;line-height:16px;color:#007AFF;font-weight:600">Hesap</div></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== 10 BARKOD ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">10 — Barkod/QR Okuma</div>
+<div style="width:390px;height:844px;background:#1C1C1E;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="height:47px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;box-sizing:border-box"><div style="font-size:15px;font-weight:600;color:#fff">9:41</div><div style="width:17px;height:11px;border:1px solid #fff;border-radius:2.5px"></div></div>
+  <div style="height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px">
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:#fff">✕</div>
+    <div style="font-size:17px;font-weight:600;color:#fff">Barkod Tara</div>
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center"><div style="width:12px;height:12px;border:1.5px solid #fff;border-radius:2px"></div></div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative">
+    <div style="width:240px;height:240px;position:relative">
+      <div style="position:absolute;top:0;left:0;width:32px;height:32px;border-top:3px solid #fff;border-left:3px solid #fff;border-radius:8px 0 0 0"></div>
+      <div style="position:absolute;top:0;right:0;width:32px;height:32px;border-top:3px solid #fff;border-right:3px solid #fff;border-radius:0 8px 0 0"></div>
+      <div style="position:absolute;bottom:0;left:0;width:32px;height:32px;border-bottom:3px solid #fff;border-left:3px solid #fff;border-radius:0 0 0 8px"></div>
+      <div style="position:absolute;bottom:0;right:0;width:32px;height:32px;border-bottom:3px solid #fff;border-right:3px solid #fff;border-radius:0 0 8px 0"></div>
+      <div style="position:absolute;top:50%;left:0;right:0;height:2px;background:#FF3B30"></div>
+    </div>
+  </div>
+  <div style="flex:none;padding:0 16px 40px;display:flex;justify-content:center;gap:12px">
+    <div style="display:flex;background:rgba(255,255,255,0.15);border-radius:18px;padding:4px">
+      <div style="padding:6px 12px;background:rgba(255,255,255,0.9);border-radius:14px;font-size:13px;font-weight:600;color:#000">1x</div>
+      <div style="padding:6px 12px;font-size:13px;color:#fff">2x</div>
+      <div style="padding:6px 12px;font-size:13px;color:#fff">3x</div>
+    </div>
+    <div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center"><div style="width:16px;height:16px;border:2px solid #fff;border-radius:3px"></div></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(255,255,255,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== 11 GIRIS ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">11 — Giriş Ekranı</div>
+<div style="width:390px;height:844px;background:#F2F2F7;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="height:47px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;box-sizing:border-box"><div style="font-size:15px;font-weight:600;color:#000">9:41</div><div style="width:17px;height:11px;border:1px solid #000;border-radius:2.5px"></div></div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 24px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:36px">
+      <div style="width:88px;height:88px;background:#007AFF;border-radius:16px;display:flex;align-items:center;justify-content:center"><div style="width:34px;height:26px;border:2.5px solid #fff;border-radius:5px"></div></div>
+      <div style="font-size:34px;font-weight:700;color:#000">Envanterim</div>
+      <div style="font-size:17px;color:#8E8E93;text-align:center">Ekipmanlarını tek yerden yönet</div>
+    </div>
+    <div style="background:#FFFFFF;border-radius:10px;overflow:hidden">
+      <div style="padding:14px 16px;font-size:17px;color:#8E8E93">E-posta</div>
+      <div style="height:0.5px;background:#C6C6C8;margin-left:16px"></div>
+      <div style="padding:14px 16px;font-size:17px;color:#8E8E93">Şifre</div>
+    </div>
+    <div style="text-align:right;margin-top:8px"><div style="font-size:13px;color:#007AFF">Şifremi unuttum</div></div>
+    <div style="height:50px;background:#007AFF;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-top:20px"><div style="font-size:17px;font-weight:600;color:#fff">Giriş Yap</div></div>
+    <div style="display:flex;align-items:center;gap:10px;margin:20px 0"><div style="flex:1;height:0.5px;background:#C6C6C8"></div><div style="font-size:13px;color:#8E8E93">veya</div><div style="flex:1;height:0.5px;background:#C6C6C8"></div></div>
+    <div style="height:50px;background:#D1D1D6;border-radius:10px;display:flex;align-items:center;justify-content:center"><div style="font-size:17px;font-weight:600;color:#007AFF">Hesap Oluştur</div></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== 12 BARKOD SONUCU - BULUNAMADI ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">12 — Barkod Sonucu (kayıt bulunamadı)</div>
+<div style="width:390px;height:844px;background:#1C1C1E;border-radius:12px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(0,0,0,0.08)">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="position:absolute;top:47px;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:center"><div style="font-size:17px;font-weight:600;color:#fff">Barkod Tara</div></div>
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5)"></div>
+  <div style="position:relative;width:270px;background:#FFFFFF;border-radius:10px;overflow:hidden">
+    <div style="padding:20px 16px 16px;text-align:center">
+      <div style="font-size:17px;font-weight:600;color:#000">Ekipman bulunamadı</div>
+      <div style="font-size:13px;line-height:18px;color:#8E8E93;margin-top:4px">8690123456789 barkoduna kayıtlı ekipman yok. Yeni ekipman olarak eklemek ister misin?</div>
+    </div>
+    <div style="height:0.5px;background:#C6C6C8"></div>
+    <div style="padding:14px;text-align:center;font-size:17px;font-weight:600;color:#007AFF">Ekipman Ekle</div>
+    <div style="height:0.5px;background:#C6C6C8"></div>
+    <div style="padding:14px;text-align:center;font-size:17px;color:#007AFF">Tekrar Tara</div>
+    <div style="height:0.5px;background:#C6C6C8"></div>
+    <div style="padding:14px;text-align:center;font-size:17px;color:#8E8E93">Vazgeç</div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(255,255,255,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+</div>
+
+<div style="padding:8px 48px 0"><div style="font-size:15px;font-weight:600;color:#3A3A3C">Koyu Tema (3 ekran)</div></div>
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;padding:16px 48px 80px">
+
+<!-- ===================== D1 ENVANTER LISTESI DARK ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">D1 — Envanter Listesi (koyu)</div>
+<div style="width:390px;height:844px;background:#000000;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px rgba(255,255,255,0.08)">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="height:47px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;box-sizing:border-box"><div style="font-size:15px;font-weight:600;color:#fff">9:41</div><div style="width:17px;height:11px;border:1px solid #fff;border-radius:2.5px"></div></div>
+  <div style="padding:8px 16px 6px;flex:none"><div style="font-size:22px;font-weight:700;line-height:28px;color:#fff">Envanter</div></div>
+  <div style="padding:0 16px 12px;display:flex;gap:8px;flex:none">
+    <div style="flex:1;height:36px;background:#2C2C2E;border-radius:10px;display:flex;align-items:center;padding:0 10px;gap:6px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg><div style="font-size:17px;color:#8E8E93">Ara</div></div>
+    <div style="width:44px;height:36px;background:#2C2C2E;border-radius:10px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3.5 5.5h17l-6.6 7.6v5.6l-3.8 2v-7.6z"></path></svg></div>
+    <div style="width:44px;height:36px;background:#2C2C2E;border-radius:10px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15M7.5 12h9"></path></svg></div>
+  </div>
+  <div style="padding:8px 16px 4px;flex:none;font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px">3 ÖĞE</div>
+  <div style="margin:0 16px;background:#1C1C1E;border-radius:10px;overflow:hidden">
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 16px"><div style="width:64px;height:64px;background:#2C2C2E;border-radius:8px"></div><div style="flex:1"><div style="font-size:17px;font-weight:600;color:#fff">MacBook Pro 14"</div><div style="font-size:15px;color:#8E8E93">Apple · Ofis · 3. Kat</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none"><div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:#30D158"></div><div style="font-size:12px;line-height:16px;color:#8E8E93">Garantide</div></div><div style="font-size:12px;line-height:16px;color:#30D158">198 gün kaldı</div></div></div>
+    <div style="height:0.5px;background:#38383A;margin-left:76px"></div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 16px"><div style="width:64px;height:64px;background:#2C2C2E;border-radius:8px"></div><div style="flex:1"><div style="font-size:17px;font-weight:600;color:#fff">iPhone 15 Pro</div><div style="font-size:15px;color:#8E8E93">Apple · Depo</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none"><div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:#0A84FF"></div><div style="font-size:12px;line-height:16px;color:#8E8E93">Zimmetli</div></div><div style="font-size:12px;line-height:16px;color:#8E8E93">412 gün kaldı</div></div></div>
+    <div style="height:0.5px;background:#38383A;margin-left:76px"></div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 16px"><div style="width:64px;height:64px;background:#2C2C2E;border-radius:8px"></div><div style="flex:1"><div style="font-size:17px;font-weight:600;color:#fff">Samsung Buzdolabı</div><div style="font-size:15px;color:#8E8E93">Samsung · Mutfak</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none"><div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:#FF9F0A"></div><div style="font-size:12px;line-height:16px;color:#8E8E93">Serviste</div></div><div style="font-size:12px;line-height:16px;color:#FF9F0A">34 gün kaldı</div></div></div>
+  </div>
+  <div style="flex:1"></div>
+  <div style="flex:none;height:83px;background:#1C1C1E;border-top:0.5px solid #38383A;display:flex;padding-top:6px;box-sizing:border-box;position:relative">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"></path><circle cx="12" cy="10" r="2.6"></circle></svg><div style="font-size:12px;line-height:16px;color:#8E8E93">Lokasyonlar</div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3.5 8.5 12 4.2l8.5 4.3v7L12 19.8 3.5 15.5z"></path><path d="M3.5 8.5 12 12.8l8.5-4.3M12 12.8v7"></path></svg><div style="font-size:12px;line-height:16px;color:#0A84FF;font-weight:600">Envanter</div></div>
+    <div style="flex:0 0 72px;display:flex;justify-content:center;align-items:flex-start"><div style="margin-top:-22px;width:56px;height:56px;border-radius:50%;background:#0A84FF;border:4px solid #1C1C1E;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.4)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3 9.2 9.5 5.8 16 9.2v6.6L9.5 19.2 3 15.8z"></path><path d="M3 9.2 9.5 12.6 16 9.2M9.5 12.6v6.6"></path><path d="M19.6 3.4v5.6M16.8 6.2h5.6"></path></svg></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.8 20c1.5-3.5 4-5.2 7.2-5.2s5.7 1.7 7.2 5.2"></path></svg><div style="font-size:12px;line-height:16px;color:#8E8E93">Hesap</div></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(255,255,255,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== D2 ENVANTER DETAYI DARK ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">D2 — Envanter Detayı (koyu)</div>
+<div style="width:390px;height:844px;background:#000000;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px rgba(255,255,255,0.08)">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:26px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
+  <div style="flex:1;overflow-y:auto">
+    <div style="height:280px;background:#2C2C2E;display:flex;align-items:center;justify-content:center;position:relative">
+      <div style="width:56px;height:44px;border:3px solid #8E8E93;border-radius:8px"></div>
+      <div style="position:absolute;top:47px;left:16px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.5)"></div>
+    </div>
+    <div style="padding:16px">
+      <div style="font-size:22px;font-weight:700;color:#fff">MacBook Pro 14" M3 Pro</div>
+      <div style="display:flex;gap:2px;margin-top:6px;font-size:17px;color:#FF9F0A">★★★★<span style="color:#38383A">★</span></div>
+      <div style="margin-top:16px;background:#1C1C1E;border-radius:10px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Marka</div><div style="font-size:17px;color:#fff">Apple</div></div>
+        <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Model</div><div style="font-size:17px;color:#fff">MacBook Pro 14 (2023)</div></div>
+        <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Seri No</div><div style="font-size:17px;color:#fff">C02FL0XXXXXX</div></div>
+        <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:15px;color:#8E8E93">Yer</div><div style="font-size:17px;color:#0A84FF">Ofis · 3. Kat</div></div>
+      </div>
+      <div style="margin-top:12px;background:#1C1C1E;border-radius:10px;display:flex;justify-content:space-between;align-items:center;padding:11px 16px">
+        <div style="font-size:17px;color:#fff">Durum</div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:7px;height:7px;border-radius:50%;background:#30D158"></div><div style="font-size:17px;color:#30D158">Garantide</div></div>
+      </div>
+      <div style="font:600 13px -apple-system,sans-serif;color:#8E8E93;letter-spacing:0.5px;margin:20px 0 8px">KAYITLAR</div>
+      <div style="background:#1C1C1E;border-radius:10px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#FFFFFF">Servis</div>
+        <div style="height:22px;border-radius:11px;background:#2C2C2E;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#FFFFFF">1</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(90deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="padding:4px 16px 14px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:17px;font-weight:600;color:#FFFFFF">Ekran değişimi</div><div style="font-size:15px;color:#8E8E93;margin-top:2px">TeknoServis · 3 Ağu 2026</div></div>
+        <div style="background:rgba(255,159,10,0.18);padding:4px 10px;border-radius:8px"><div style="font-size:12px;font-weight:600;color:#FF9F0A">Açık</div></div>
+      </div>
+      <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#FFFFFF">Zimmet</div>
+        <div style="height:22px;border-radius:11px;background:#2C2C2E;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#FFFFFF">1</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(0deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#FFFFFF">Notlar</div>
+        <div style="height:22px;border-radius:11px;background:#2C2C2E;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#FFFFFF">2</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(90deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="padding:4px 16px 14px;display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:50%;background:#2C2C2E"></div><div style="font-size:15px;font-weight:600;color:#FFFFFF">Elif K.</div><div style="font-size:13px;color:#8E8E93">3 Ağu 2026</div></div>
+          <div style="font-size:17px;line-height:22px;color:#FFFFFF;margin-top:4px">Ekran yenilendi, klavyede takılma var.</div>
+          <div style="width:56px;height:56px;background:#2C2C2E;border-radius:8px;margin-top:8px"></div>
+        </div>
+        <div style="height:0.5px;background:#38383A"></div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:50%;background:#2C2C2E"></div><div style="font-size:15px;font-weight:600;color:#FFFFFF">Mert Y.</div><div style="font-size:13px;color:#8E8E93">2 Ağu 2026</div></div>
+          <div style="font-size:17px;line-height:22px;color:#FFFFFF;margin-top:4px">Servise gönderildi.</div>
+        </div>
+      </div>
+      <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#FFFFFF">Bileşenler</div>
+        <div style="height:22px;border-radius:11px;background:#2C2C2E;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#FFFFFF">3</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(0deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#FFFFFF">Bakım</div>
+        
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(0deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#FFFFFF">Yedek Parçalar</div>
+        
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(0deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 16px;min-height:44px;box-sizing:border-box">
+        <div style="flex:1;font-size:17px;font-weight:600;color:#FFFFFF">Ekler</div>
+        <div style="height:22px;border-radius:11px;background:#2C2C2E;display:flex;align-items:center;justify-content:center;padding:0 8px"><div style="font-size:12px;font-weight:600;color:#FFFFFF">2</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(0deg)"><path d="M9 5l7 7-7 7"></path></svg>
+      </div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(255,255,255,0.9);border-radius:3px;z-index:3"></div>
+</div>
+</div>
+
+<!-- ===================== D3 YENI ENVANTER DARK ===================== -->
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px -apple-system,sans-serif;color:#3A3A3C">D3 — Yeni Envanter Paneli (koyu)</div>
+<div style="width:390px;height:844px;background:#000000;border-radius:12px;overflow:hidden;position:relative">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6)"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;top:64px;background:#000000;border-radius:16px 16px 0 0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;justify-content:center;padding:8px 0 4px;flex:none"><div style="width:36px;height:5px;background:#2C2C2E;border-radius:3px"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px 12px;flex:none">
+      <div style="font-size:17px;color:#0A84FF">İptal</div>
+      <div style="font-size:17px;font-weight:600;color:#fff">Yeni Envanter</div>
+      <div style="font-size:17px;font-weight:600;color:#0A84FF">Kaydet</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:0 16px 24px">
+      <div style="height:50px;background:#2C2C2E;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px"><div style="font-size:17px;font-weight:600;color:#0A84FF">Faturadan Doldur</div></div>
+      <div style="background:#1C1C1E;border-radius:10px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#fff">Ad</div><div style="font-size:17px;color:#8E8E93">ör. MacBook Pro</div></div>
+        <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#fff">Kategori</div><div style="font-size:17px;color:#8E8E93">Bilgisayar</div></div>
+        <div style="height:0.5px;background:#38383A;margin-left:16px"></div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px"><div style="font-size:17px;color:#fff">Seri No</div><div style="display:flex;align-items:center;gap:8px"><div style="font-size:17px;color:#8E8E93">—</div><div style="width:32px;height:32px;background:#2C2C2E;border-radius:8px"></div></div></div>
+      </div>
+      <div style="background:#1C1C1E;border-radius:10px;overflow:hidden;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px">
+          <div style="font-size:17px;color:#fff">Fiyat</div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="font-size:17px;color:#8E8E93">0,00</div>
+            <div style="display:flex;background:#2C2C2E;border-radius:8px;overflow:hidden"><div style="padding:4px 8px;background:#3A3A3C;border-radius:7px;margin:1px;font-size:13px;font-weight:600;color:#fff">TRY</div><div style="padding:4px 8px;font-size:13px;color:#8E8E93">USD</div><div style="padding:4px 8px;font-size:13px;color:#8E8E93">EUR</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+
+<div style="padding:8px 48px 0"><div style="font-size:15px;font-weight:600;color:#3A3A3C">Jetonlar ve Kararlar</div></div>
+<div style="padding:16px 48px 80px">
+<div style="width:900px;background:#FFFFFF;border-radius:10px;padding:32px;box-shadow:0 0 0 1px rgba(0,0,0,0.08);display:flex;flex-direction:column;gap:28px">
+
+  <div>
+    <div style="font-size:17px;font-weight:600;color:#000;margin-bottom:10px">Renk</div>
+    <div style="display:grid;grid-template-columns:120px 1fr 1fr;gap:8px 16px;font-size:13px">
+      <div style="color:#8E8E93;font-weight:600">ROL</div><div style="color:#8E8E93;font-weight:600">AÇIK</div><div style="color:#8E8E93;font-weight:600">KOYU</div>
+      <div style="color:#000">Zemin</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#F2F2F7;border:1px solid #C6C6C8"></div>#F2F2F7</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#000000"></div>#000000</div>
+      <div style="color:#000">Kart yüzeyi</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#FFFFFF;border:1px solid #C6C6C8"></div>#FFFFFF</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#1C1C1E"></div>#1C1C1E</div>
+      <div style="color:#000">Basılı yüzey</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#D1D1D6"></div>#D1D1D6</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#2C2C2E"></div>#2C2C2E</div>
+      <div style="color:#000">Ayraç</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#C6C6C8"></div>#C6C6C8</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#38383A"></div>#38383A</div>
+      <div style="color:#000">Metin</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#000000"></div>#000000</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#FFFFFF;border:1px solid #C6C6C8"></div>#FFFFFF</div>
+      <div style="color:#000">İkincil metin</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#8E8E93"></div>#8E8E93</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#8E8E93"></div>#8E8E93</div>
+      <div style="color:#000">Mavi</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#007AFF"></div>#007AFF</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#0A84FF"></div>#0A84FF</div>
+      <div style="color:#000">Yeşil</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#34C759"></div>#34C759</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#30D158"></div>#30D158</div>
+      <div style="color:#000">Kırmızı</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#FF3B30"></div>#FF3B30</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#FF453A"></div>#FF453A</div>
+      <div style="color:#000">Turuncu</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#FF9500"></div>#FF9500</div><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border-radius:4px;background:#FF9F0A"></div>#FF9F0A</div>
+    </div>
+  </div>
+
+  <div>
+    <div style="font-size:17px;font-weight:600;color:#000;margin-bottom:10px">Tipografi (sistem fontu, -apple-system)</div>
+    <div style="display:grid;grid-template-columns:140px 1fr;gap:8px 16px;font-size:13px">
+      <div style="color:#8E8E93;font-weight:600">STİL</div><div style="color:#8E8E93;font-weight:600">BOYUT / SATIR / KALINLIK</div>
+      <div style="font-size:34px;font-weight:700;line-height:41px">Large Title</div><div style="align-self:center;color:#000">34 / 41 / 700</div>
+      <div style="font-size:22px;font-weight:700;line-height:28px">Title</div><div style="align-self:center;color:#000">22 / 28 / 700</div>
+      <div style="font-size:17px;font-weight:600;line-height:22px">Headline</div><div style="align-self:center;color:#000">17 / 22 / 600</div>
+      <div style="font-size:17px;font-weight:400;line-height:22px">Body</div><div style="align-self:center;color:#000">17 / 22 / 400</div>
+      <div style="font-size:15px;font-weight:400;line-height:20px">Subheadline</div><div style="align-self:center;color:#000">15 / 20 / 400</div>
+      <div style="font-size:13px;font-weight:400;line-height:18px">Footnote</div><div style="align-self:center;color:#000">13 / 18 / 400</div>
+      <div style="font-size:12px;font-weight:400;line-height:16px">Caption</div><div style="align-self:center;color:#000">12 / 16 / 400</div>
+    </div>
+  </div>
+
+  <div>
+    <div style="font-size:17px;font-weight:600;color:#000;margin-bottom:10px">Ölçü kuralları</div>
+    <div style="font-size:15px;line-height:24px;color:#000">
+      Köşe yarıçapı: 10px (kart/satır grubu), 16px (alt panel üst köşeleri). Yatay kenar boşluğu: 16px, tüm boşluklar 4px ızgarasında. Dokunma hedefi: min 44×44px. Gövde/form metni: min 17px. Gölge/gradyan: yok — ayrım renk + 0.5px ayraç ile.
+    </div>
+  </div>
+
+  <div>
+    <div style="font-size:17px;font-weight:600;color:#000;margin-bottom:10px">Sapmalar ve gerekçeler</div>
+    <div style="font-size:15px;line-height:24px;color:#000;display:flex;flex-direction:column;gap:6px">
+      <div>• Onay diyaloğu (06), tam genişlikte alta yapışık değil, kenardan 8px boşluklu yüzen bir kart olduğu için 10px yarıçap kullanıldı (16px yalnız ekran kenarına yapışık panel için ayrılmıştır) — Apple'ın action sheet dilinden ödünç alındı, ek renk/punto jetonu eklenmedi.</div>
+      <div>• Ekran üst başlıkları (Envanter, Hesap) Large Title 34 yerine Title 22/28/700 ile kuruldu: liste yoğunluğu yüksek olduğu için ekranın daha verimli kullanılması istendi; ölçek dışına çıkılmadı, tanımlı 7 stilden biri seçildi.</div>
+      <div>• Alt sekme çubuğuna ortada yükseltilmiş (+) hızlı ekleme düğmesi eklendi (56×56, Mavi jetonu, 4px kart yüzeyi halkası); kendi 72px sütununda durur, sekmelerle çakışmaz.</div>
+      <div>• Detay ekranındaki Servis, Zimmet, Notlar, Bileşenler, Bakım, Yedek Parçalar ve Ekler bölümleri tek kart içinde akordiyon satırlarına dönüştürüldü; başlıkta içerik varsa Basılı yüzey jetonlu sayı jetonu (12px Caption) gösterilir, boş bölümlerde sayı gösterilmez. Açık/kapalı yalnız chevron dönüşüyle belirtilir, hover yok.</div>
+      <div>• Listedeki araç çubuğuna QR/Barkod düğmesi eklendi (huni düğmesinin sağında). Akış: tarama sonucu kayıtlı ekipmana giderse doğrudan detay ekranı açılır; kayıt yoksa 12. artboard'daki "Ekipman bulunamadı" diyaloğu çıkar ve "Ekipman Ekle" seçimi barkodu önceden doldurulmuş Yeni Envanter panelini (04) açar.</div>
+      <div>• Beğeni yıldızları ve durum noktaları jeton dışı yeni renk içermiyor; yıldız dolgusu Turuncu, durum noktaları Yeşil/Mavi/Turuncu jetonlarından seçildi.</div>
+      <div>• Kategori dağılım çubuğu ve para birimi segment jetonu için Basılı yüzey + Mavi jetonları birebir kullanıldı, yeni renk üretilmedi.</div>
+      <div>• Ürün fotoğrafı olmayan satırlar/başlıklar için gri kutu + basit ikon yer tutucusu kullanıldı; stok görsel veya SVG illüstrasyon kullanılmadı.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+</x-dc>
+</body>
+</html>
