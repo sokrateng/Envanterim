@@ -16,28 +16,48 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   (ekran boyutu, yakıt tipi, şase no…). Değerler JSONB'de; doğrulama çalışma
   anında tanımlardan üretilen Zod şemasıyla yapılıyor.
 - **Ekipman kaydı.** Ad, marka, model, seri no, yer, kategori, satıcı, alış
-  tarihi ve tutarı, garanti bitişi, yaşam döngüsü durumu.
+  tarihi ve tutarı, garanti bitişi, yaşam döngüsü durumu. Alış tarihi
+  girilince garanti bitişi 24 ay sonrası olarak öneriliyor — öneri olduğu
+  yazıyor, kullanıcı değiştirebiliyor.
 - **Arama ve filtre.** Ada/markaya/modele/seri numarasına göre arama; durum,
-  lokasyon ve kategori filtresi; kalan garanti günü rozeti.
+  lokasyon ve kategori **çoklu seçimli** ("pasif hariç hepsi" demenin yolu
+  kalanları işaretlemek), garanti penceresi (30/90/180 gün, 1 yıl, süresi
+  bitmiş), favori ve zimmet süzmeleri. Süzme adres çubuğunda duruyor ve
+  kullanıcı nasıl bıraktıysa öyle kalıyor: sekmeye dönmek, ekipmana girip
+  çıkmak silmiyor.
+- **Liste aşağı indikçe uzuyor.** "Önceki / sonraki" yok; listenin sonu
+  görününce sıradaki 50 satır kendiliğinden geliyor.
+- **Favoriler.** Kişisel bir işaret; favoriler listenin başında duruyor,
+  satırda küçük bir kalple.
 - **Fotoğraf ve belge.** Ürün fotoğrafı, fatura, garanti belgesi, kılavuz.
   Listede ve ekipman başlığındaki küçük görsele dokunmak fotoğrafı büyütüyor;
-  fotoğrafı olmayan ekipmana oradan kamerayla ekleniyor.
+  fotoğrafı olmayan ekipmana oradan kamerayla ekleniyor. Fotoğraf yüklemeden
+  önce istemcide küçültülüyor; PDF ayrı ele alınıyor.
 - **Notlar.** Tarif, doğru ayar, uyarı — fotoğraflı, yazan ve tarihiyle.
   Zaman çizelgesi olan biteni tutuyor, notlar bilgiyi.
 - **Beğeni yıldızı.** Kişi başına tek puan, ortalama herkese açık: hangi
   ekipman gerçekten kullanılıyor.
+- **Satıcı ve yetkili servis firmaları.** İkisi ayrı tanımlanıyor — aldığın
+  yerle tamir ettiğin yer çoğu zaman aynı değil; bir firma ikisini birden
+  yapıyorsa iki listede de görünüyor. Lokasyondan bağımsız: bir kez tanımlanıp
+  bütün lokasyonlarda seçiliyor. Telefon ve web adresi kayıtta duruyor,
+  servis kaydında arama ve takip düğmesi oluyor.
 - **Yetkili servis kaydı.** Arıza, gönderim, kaç gündür serviste, yapılan iş,
   ücret ve ödeme. Kayıt açılınca ekipman "Serviste" oluyor, sonuç girilince
   kullanıma dönüyor; ücret sahip olma maliyetine giriyor, garanti kapsamındaki
-  iş girmiyor.
+  iş girmiyor. Kayıt sonradan düzeltilebiliyor ve silinebiliyor; dönüş tarihi
+  silinince iş yeniden açılıyor. Servisin takip adresi varsa satırdan
+  tıklanıyor.
 - **Envanter bildirimleri.** Lokasyona ekipman eklenince ve ekipman değişince
   diğer üyelere push ve e-posta gidiyor; değişiklik haberinde **ne değiştiği**
   yazıyor. Her kullanıcı hesabında iki olayı ayrı ayrı açıp kapatıyor.
 - **Para birimi.** Varsayılan TRY; yurtdışından alınan ekipman USD, EUR ya da
-  GBP olarak kaydedilir. Kur çevrilmiyor: raporda her birim ayrı toplanır.
+  GBP olarak kaydedilir. Kur uydurulmuyor: kayıtlarda kur yok, raporda her
+  birim ayrı toplanır. Panelde tek bir TRY toplamı isteniyorsa kur
+  **kullanıcıdan** alınıyor — hangi kurla toplandığı ekranda yazıyor, kuru
+  girilmeyen birim toplama girmiyor ve bu da yazıyor.
 - **Barkodla seri no.** Seri no alanının yanındaki tarayıcı düğmesi cihazın
   üstündeki barkodu okuyup alana yazar.
-  Fotoğraf yüklemeden önce istemcide küçültülüyor; PDF ayrı ele alınıyor.
 - **Faturadan otomatik doldurma.** Fatura PDF'i ya da fotoğrafı tek model
   çağrısıyla okunuyor, alanlar forma dolduruluyor — **kaydeden kullanıcı.**
   Hem yeni ekipman açarken (fatura elindeyken) hem sonradan ekten yapılabiliyor;
@@ -60,6 +80,10 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
 - **QR etiket ve kamerayla okutma.** Etiketi cihaza yapıştır; telefonun
   kamerasıyla okutunca ürün açılır. Cihazın kendi barkodu seri numarasında
   aranır — kamera ne görürse görsün nereye gidileceğine sunucu karar verir.
+- **Panel.** Envanterin genel görünümü: sahip olma maliyeti, durum, garanti,
+  kategori, marka, alış yılı, en değerli ekipmanlar ve kayıt eksikleri. Üstte
+  lokasyon seçimi. Grafik kütüphanesi yok — oran çubuğu ve sayı düz HTML;
+  renk tek başına bilgi taşımıyor, her çubuğun yanında etiketi ve sayısı var.
 - **Sigorta raporu ve CSV.** Sigortaya fotoğraflı döküm ver; envanteri
   Excel'e aktar, düzenleyip geri yükle.
 - **Salt-okunur paylaşım linki.** Servise giderken teknisyen geçmişi hesap
@@ -78,7 +102,8 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
 ## Yığın
 
 Next.js 15 App Router · TypeScript · Tailwind · Prisma + PostgreSQL (Supabase) ·
-NextAuth (credentials) · Vitest + Playwright · Vercel · Claude API
+NextAuth (credentials) · Vitest + Playwright · Vercel · Claude API ya da
+Azure AI Foundry
 
 ## Başlarken
 
@@ -109,6 +134,7 @@ npm test                 # Vitest (saf mantık modülleri)
 npm run test:e2e         # Playwright (iPhone profilinde, sunucu ayakta olmalı)
 npm run seed:e2e         # testler için kullanıcı + lokasyon + ekipman
 npm run mail:test        # SMTP ayarını sına (deneme postası gönderir)
+npm run llm:test         # Azure dağıtımını sına (tek çağrı)
 npm run typecheck        # tsc --noEmit
 npm run build            # prisma generate + next build
 npm run db:migrate       # şema göçü (geliştirme)
@@ -133,7 +159,7 @@ testi: [`DEPLOY.md`](DEPLOY.md).
 | [`docs/MIMARI.md`](docs/MIMARI.md) | Veri modeli, yetki deseni, dinamik alanlar, bildirimler, faturadan okuma |
 | [`docs/TASARIM.md`](docs/TASARIM.md) | iOS görünümü: tipografi, renk, dokunma hedefi, güvenli alan |
 | [`docs/URUN.md`](docs/URUN.md) | Benzer uygulamalar ve öncelikli özellik listesi |
-| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 52 hata ve çözümü |
+| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 75 hata ve çözümü |
 
 Kural `CLAUDE.md`'de, gerekçe `docs/`'ta durur: ajanın davranışını değiştiren
 şey bağlamda sürekli duran kısa kurallardır; uzun mimari yazısı bir kez okunur.
@@ -145,8 +171,9 @@ src/
 ├── app/
 │   ├── (uygulama)/          # giriş isteyen ekranlar + alt sekme çubuğu
 │   │   ├── envanter/        # liste, ekipman detayı, düzenleme, ekler
+│   │   ├── panel/           # genel bakış: kartlar, oranlar, toplamlar
 │   │   ├── lokasyonlar/     # lokasyon, üyeler, davetler, kategoriler
-│   │   └── hesap/
+│   │   └── hesap/           # ayarlar, firmalar, bildirimler, yedek
 │   ├── api/                 # route handler'lar — hepsi Zod'dan geçer
 │   │   └── tara/            # kamerayla QR/barkod okutma
 │   ├── giris/ · kayit/ · p/   # p/: girişsiz salt-okunur paylaşım sayfası
@@ -157,8 +184,10 @@ tests/e2e/                   # Playwright senaryoları + sahte servisler
 scripts/create-admin.ts · seed-e2e.ts
 ```
 
-Saf mantık `src/lib/` içinde ve testli: garanti günü hesabı, para (kuruş),
-yetki kuralları, dinamik alan doğrulaması, davet kodu, yükleme kuralları,
-faturadan gelen alanların forma dönüşümü, CSV, e-Fatura ayrıştırma, bakım
-kuralları, sigorta raporu özeti, QR ve paylaşım bağlantıları, okutulan kodun
-çözümü, zimmet durumu, alt ekipman bağı ve kaydırma jestinin matematiği.
+Saf mantık `src/lib/` içinde ve testli: garanti günü hesabı ve süzme
+pencereleri, gün bazlı tarih işleri, para (kuruş), kur çevirimi, yetki
+kuralları, dinamik alan doğrulaması, davet kodu, yükleme kuralları, faturadan
+gelen alanların forma dönüşümü, CSV, e-Fatura ayrıştırma, bakım kuralları,
+sigorta raporu özeti, panelin bütün sayıları, QR ve paylaşım bağlantıları,
+okutulan kodun çözümü, zimmet durumu, alt ekipman bağı, süzme değerlerinin
+adres çubuğundaki hâli ve kaydırma jestinin matematiği.
