@@ -34,6 +34,19 @@ export type ServiceRow = {
   durum: string;
   odeme: string | null;
   open: boolean;
+  /** Düzenleme formunun okuduğu ham değerler. */
+  form: {
+    complaint: string;
+    vendorId: string;
+    sentAt: string;
+    trackingNo: string;
+    trackingUrl: string;
+    returnedAt: string;
+    work: string;
+    cost: string;
+    paid: boolean;
+    underWarranty: boolean;
+  };
 };
 
 export function Service({
@@ -51,6 +64,10 @@ export function Service({
   const closeAndRefresh = useCloseAndRefresh();
 
   const [sending, setSending] = useState(false);
+  const [editing, setEditing] = useState<ServiceRow | null>(null);
+  const [editVendor, setEditVendor] = useState(false);
+  const [editReturned, setEditReturned] = useState("");
+  const [editWarranty, setEditWarranty] = useState(false);
   const [closing, setClosing] = useState<ServiceRow | null>(null);
   const [removing, setRemoving] = useState<ServiceRow | null>(null);
   const [pending, setPending] = useState(false);
@@ -116,6 +133,50 @@ export function Service({
       return;
     }
     closeAndRefresh(() => setClosing(null));
+  }
+
+  async function update(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editing) return;
+    setPending(true);
+    setError(null);
+
+    const form = new FormData(event.currentTarget);
+    const text = (key: string) => String(form.get(key) ?? "");
+
+    const response = await fetch(`/api/servis/${editing.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        complaint: text("complaint"),
+        sentAt: text("sentAt"),
+        vendorId: text("vendorId"),
+        vendorName: text("vendorName"),
+        trackingNo: text("trackingNo"),
+        trackingUrl: text("trackingUrl"),
+        returnedAt: editReturned,
+        work: text("work"),
+        cost: text("cost"),
+        paid: form.get("paid") === "on",
+        underWarranty: editWarranty,
+      }),
+    });
+
+    setPending(false);
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setError(payload.hata ?? "Kayıt güncellenemedi");
+      return;
+    }
+    closeAndRefresh(() => setEditing(null));
+  }
+
+  function startEdit(job: ServiceRow) {
+    setError(null);
+    setEditVendor(vendors.length === 0);
+    setEditReturned(job.form.returnedAt);
+    setEditWarranty(job.form.underWarranty);
+    setEditing(job);
   }
 
   async function remove(job: ServiceRow) {
@@ -215,6 +276,13 @@ export function Service({
 
               {editable ? (
                 <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => startEdit(job)}
+                    className="min-h-touch text-footnote text-blue active:opacity-60"
+                  >
+                    Düzenle
+                  </button>
                   {job.open ? (
                     <button
                       type="button"
@@ -256,7 +324,7 @@ export function Service({
         </button>
       ) : null}
 
-      {error && !sending && !closing ? (
+      {error && !sending && !closing && !editing ? (
         <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
@@ -354,6 +422,166 @@ export function Service({
           <FormError message={error} />
           <SubmitButton pending={pending}>Kaydet</SubmitButton>
         </form>
+      </Sheet>
+
+      <Sheet
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+        title="Servis kaydını düzenle"
+        guardUnsaved
+      >
+        {editing ? (
+          <form onSubmit={update} className="max-h-[70dvh] overflow-y-auto pb-2">
+            <Field label="Arıza">
+              <textarea
+                name="complaint"
+                rows={3}
+                required
+                defaultValue={editing.form.complaint}
+                className={`${inputClass} resize-none`}
+              />
+            </Field>
+
+            <Field
+              label="Yetkili servis"
+              hint={
+                editVendor
+                  ? "Yazdığın ad kaydedilir."
+                  : "Listede yoksa yeni servis ekle."
+              }
+            >
+              {editVendor ? (
+                <div className="flex items-center gap-2">
+                  <input name="vendorName" className={inputClass} />
+                  {vendors.length ? (
+                    <button
+                      type="button"
+                      onClick={() => setEditVendor(false)}
+                      className="min-h-touch shrink-0 px-2 text-body text-blue active:opacity-60"
+                    >
+                      Listeden
+                    </button>
+                  ) : null}
+                </div>
+              ) : (
+                <select
+                  name="vendorId"
+                  defaultValue={editing.form.vendorId}
+                  onChange={(event) => {
+                    if (event.target.value === "__yeni__") setEditVendor(true);
+                  }}
+                  className={inputClass}
+                >
+                  <option value="">Seçilmedi</option>
+                  {vendors.map((vendor) => (
+                    <option key={vendor.id} value={vendor.id}>
+                      {vendor.name}
+                    </option>
+                  ))}
+                  <option value="__yeni__">+ Yeni servis…</option>
+                </select>
+              )}
+            </Field>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Gönderim tarihi">
+                <input
+                  type="date"
+                  name="sentAt"
+                  defaultValue={editing.form.sentAt}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Fiş / takip no">
+                <input
+                  name="trackingNo"
+                  defaultValue={editing.form.trackingNo}
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+
+            <Field label="Takip adresi">
+              <input
+                name="trackingUrl"
+                type="text"
+                inputMode="url"
+                autoCapitalize="off"
+                autoCorrect="off"
+                defaultValue={editing.form.trackingUrl}
+                placeholder="servis.example.com/takip"
+                className={inputClass}
+              />
+            </Field>
+
+            {/* Dönüş tarihi boşaltılınca kayıt yeniden açılıyor: yanlışlıkla
+                kapatılan işi düzeltmenin yolu kaydı silmek olmamalı. */}
+            <Field
+              label="Dönüş tarihi"
+              hint={
+                editReturned
+                  ? "Boşaltırsan kayıt yeniden açılır, ekipman Serviste olur."
+                  : "Kayıt açık. Tarih girersen sonuç alanları çıkar."
+              }
+            >
+              <input
+                type="date"
+                name="returnedAt"
+                value={editReturned}
+                onChange={(event) => setEditReturned(event.target.value)}
+                className={inputClass}
+              />
+            </Field>
+
+            {editReturned ? (
+              <>
+                <Field label="Yapılan iş">
+                  <textarea
+                    name="work"
+                    rows={3}
+                    defaultValue={editing.form.work}
+                    className={`${inputClass} resize-none`}
+                  />
+                </Field>
+
+                <label className="flex min-h-touch items-center justify-between gap-3 py-2">
+                  <span className="text-body">Garanti kapsamında</span>
+                  <input
+                    type="checkbox"
+                    checked={editWarranty}
+                    onChange={(event) => setEditWarranty(event.target.checked)}
+                    className="h-6 w-6 accent-[var(--ios-blue)]"
+                  />
+                </label>
+
+                {editWarranty ? null : (
+                  <>
+                    <Field label="Ücret" hint="Örn. 1.250,00">
+                      <input
+                        name="cost"
+                        inputMode="decimal"
+                        defaultValue={editing.form.cost}
+                        className={inputClass}
+                      />
+                    </Field>
+                    <label className="flex min-h-touch items-center justify-between gap-3 py-2">
+                      <span className="text-body">Ödendi</span>
+                      <input
+                        type="checkbox"
+                        name="paid"
+                        defaultChecked={editing.form.paid}
+                        className="h-6 w-6 accent-[var(--ios-blue)]"
+                      />
+                    </label>
+                  </>
+                )}
+              </>
+            ) : null}
+
+            <FormError message={error} />
+            <SubmitButton pending={pending}>Kaydet</SubmitButton>
+          </form>
+        ) : null}
       </Sheet>
 
       <Sheet

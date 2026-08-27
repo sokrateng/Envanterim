@@ -119,6 +119,33 @@ try {
   log("garanti kapsamındaki iş maliyete girmedi");
   await page.screenshot({ path: `${out}/3-garanti.png` });
 
+  // 3b) Kayıt sonradan düzeltilebiliyor ve yeniden açılabiliyor.
+  const duzenle = page
+    .locator('details:has(summary:has-text("Servis")) button:has-text("Düzenle")')
+    .first();
+  await duzenle.tap();
+  await page.waitForSelector('div[role="dialog"][aria-label="Servis kaydını düzenle"]');
+  await page.fill('textarea[name="complaint"]', "Düzeltilmiş arıza metni");
+  await page.tap('div[role="dialog"] button[type="submit"]');
+  await page.waitForSelector('div[role="dialog"]', { state: "detached", timeout: 20000 });
+  await bolumAc(page, "Servis");
+  await page.waitForSelector("text=Düzeltilmiş arıza metni", { timeout: 20000 });
+  log("servis kaydı düzeltildi");
+
+  // Dönüş tarihi boşaltılınca kayıt yeniden açılıyor: ekipman Serviste'ye
+  // dönmeli, yoksa "kapattım ama daha gelmedi" durumu kaydedilemezdi.
+  await duzenle.tap();
+  await page.waitForSelector('div[role="dialog"][aria-label="Servis kaydını düzenle"]');
+  await page.fill('div[role="dialog"] input[name="returnedAt"]', "");
+  await page.tap('div[role="dialog"] button[type="submit"]');
+  await page.waitForSelector('div[role="dialog"]', { state: "detached", timeout: 20000 });
+  await page.waitForFunction(
+    () => document.body.innerText.includes("Serviste"),
+    undefined,
+    { timeout: 20000 },
+  );
+  log("dönüş tarihi silinince kayıt yeniden açıldı, ekipman Serviste");
+
   // 4) Görüntüleyen servis kaydı açamaz
   const yabanciCtx = await browser.newContext(iphone);
   const yabanci = await yabanciCtx.newPage();

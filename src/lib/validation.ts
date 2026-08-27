@@ -138,6 +138,29 @@ export const serviceCreateSchema = z.object({
   trackingUrl: emptyToUndefined(trimmed.max(300, "En çok 300 karakter")),
 });
 
+/**
+ * Servis kaydının kendisini düzeltme: hem gönderim hem sonuç tarafı.
+ *
+ * Sonuç alanları boş gelebiliyor — dönüş tarihi boşsa kayıt yeniden açılıyor
+ * ve ekipman "Serviste"ye dönüyor. Yanlışlıkla kapatılan kaydı düzeltmenin
+ * yolu bu; kaydı silip yeniden yazmak geçmişi kaybettirirdi.
+ */
+export const serviceUpdateSchema = z.object({
+  complaint: trimmed
+    .min(1, "Arıza açıklaması gerekli")
+    .max(500, "En çok 500 karakter"),
+  sentAt: emptyToUndefined(dateOnly),
+  vendorId: emptyToUndefined(trimmed),
+  vendorName: emptyToUndefined(trimmed.max(80, "En çok 80 karakter")),
+  trackingNo: emptyToUndefined(trimmed.max(60, "En çok 60 karakter")),
+  trackingUrl: emptyToUndefined(trimmed.max(300, "En çok 300 karakter")),
+  returnedAt: emptyToUndefined(dateOnly),
+  work: emptyToUndefined(trimmed.max(1000, "En çok 1000 karakter")),
+  cost: emptyToUndefined(moneyMinor),
+  paid: z.coerce.boolean().default(false),
+  underWarranty: z.coerce.boolean().default(false),
+});
+
 export const serviceCloseSchema = z.object({
   returnedAt: emptyToUndefined(dateOnly),
   work: emptyToUndefined(trimmed.max(1000, "En çok 1000 karakter")),

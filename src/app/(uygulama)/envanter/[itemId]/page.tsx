@@ -111,6 +111,7 @@ export default async function EkipmanPage({
           sentAt: true,
           trackingNo: true,
           trackingUrl: true,
+          vendorId: true,
           returnedAt: true,
           work: true,
           costMinor: true,
@@ -255,6 +256,22 @@ export default async function EkipmanPage({
     vendorPhone: job.vendor?.phone ?? null,
     vendorWebsite: job.vendor?.website ?? null,
     trackingUrl: job.trackingUrl,
+    // Düzenleme formu biçimlenmiş metni değil ham değeri istiyor.
+    form: {
+      complaint: job.complaint,
+      vendorId: job.vendorId ?? "",
+      sentAt: toInputDate(job.sentAt),
+      trackingNo: job.trackingNo ?? "",
+      trackingUrl: job.trackingUrl ?? "",
+      returnedAt: toInputDate(job.returnedAt),
+      work: job.work ?? "",
+      cost:
+        job.costMinor != null
+          ? formatMoney(job.costMinor, item.currency).replace(/\s\D+$/, "")
+          : "",
+      paid: job.paid,
+      underWarranty: job.underWarranty,
+    },
     complaint: job.complaint,
     sentAt: trDate.format(job.sentAt),
     trackingNo: job.trackingNo,

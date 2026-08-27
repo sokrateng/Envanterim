@@ -394,6 +394,10 @@ olarak düşürmüyorum.
   olma maliyetine oradan giriyor; ayrıca `ItemEvent` açılmıyor, yoksa aynı
   gider iki kez sayılırdı. Garanti kapsamındaki iş toplama girmiyor — kimse
   ödemedi.
+- Kayıt sonradan düzeltilebiliyor (`PUT /api/servis/[id]`): arıza, servis,
+  tarihler, fiş ve sonuç. Dönüş tarihi boşaltılırsa kayıt yeniden açılıyor ve
+  ekipman "Serviste"ye dönüyor — yanlışlıkla kapatılanı düzeltmenin yolu kaydı
+  silmek olmamalı, silinen kaydın geçmişi de giderdi.
 - `ServiceJob.trackingUrl`: servisin durum sayfası. Adres verildiyse fiş
   numarası bağlantının kendisi oluyor — kullanıcı numarayı kopyalayıp sitede
   aratmıyor.
