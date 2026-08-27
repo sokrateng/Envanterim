@@ -125,10 +125,12 @@ try {
   log("durum filtresi çalışıyor");
   await page.screenshot({ path: `${out}/7-filtre.png` });
 
-  // Etkin filtre çipine dokunmak filtreyi kaldırıyor.
-  await page.tap('a[aria-label="Serviste filtresini kaldır"]');
+  // Filtreyi kaldırmanın yolu panelin "Temizle"si: liste üstünde ayrı bir
+  // çip şeridi yok, açık filtre sayısı düğmenin rozetinde duruyor.
+  await page.tap('button[aria-label="Filtreler — 1 açık"]');
+  await page.getByRole("button", { name: "Temizle", exact: true }).tap();
   await page.waitForURL((url) => !url.searchParams.has("durum"));
-  log("etkin filtre çipiyle kaldırıldı");
+  log("filtre panelden temizlendi");
 
   // Panel açıkken geri tuşu paneli kapatmalı, sayfadan atmamalı (TUZAKLAR #17).
   // Boş formda soru sorulmuyor: kaybolacak bir şey yok.

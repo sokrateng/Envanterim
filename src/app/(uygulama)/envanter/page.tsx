@@ -387,13 +387,6 @@ export default async function EnvanterPage({
       : []),
   ];
 
-  /** Açık filtrelerin okunur adı; listenin üstünde tek satırda duruyor. */
-  const activeFilters = filterGroups.flatMap((group) => {
-    const value = filters[group.key as keyof Search];
-    const option = group.options.find((candidate) => candidate.value === value);
-    return option ? [{ key: group.key, label: option.label }] : [];
-  });
-
   return (
     <Screen>
       <ScreenHeader title="Envanter" />
@@ -444,24 +437,6 @@ export default async function EnvanterPage({
           </svg>
         </Link>
       </div>
-      {/* Etkin filtreler tek satırda ve kaldırılabilir: panelin açık olduğunu
-          hatırlamak kullanıcının işi olmasın. */}
-      {activeFilters.length ? (
-        <div className="flex gap-2 overflow-x-auto px-4 pt-3">
-          {activeFilters.map((active) => (
-            <Link
-              key={active.key}
-              href={buildHref({ ...filters, [active.key]: undefined, sayfa: undefined })}
-              aria-label={`${active.label} filtresini kaldır`}
-              className="flex min-h-touch shrink-0 items-center gap-1 whitespace-nowrap rounded-card bg-blue px-3 text-footnote text-white active:opacity-60"
-            >
-              {active.label}
-              <span aria-hidden>✕</span>
-            </Link>
-          ))}
-        </div>
-      ) : null}
-
       {locations.length === 0 ? (
         <EmptyState
           title="Önce bir lokasyon aç"
