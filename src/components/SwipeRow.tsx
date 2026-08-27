@@ -123,13 +123,20 @@ export function SwipeRow({
   }
 
   return (
-    <div ref={surface} className="relative overflow-hidden">
+    // Kabın kendi zemini var: açıkta kalan hat kartın rengine değil satırın
+    // rengine düşsün, kap başka renkte bir kartın içine konsa bile.
+    <div ref={surface} className="relative overflow-hidden bg-surface">
       {/* Kapalıyken `inert`: düğmeler ne dokunuşa ne ekran okuyucuya görünüyor.
           `aria-hidden` tek başına yetmiyor, öğe hâlâ tıklanabilir kalıyor. */}
+      {/* Paneller satırın en üst ve en alt pikseline dayanmıyor: üstteki
+          içerik katmanı `translate3d` yüzünden ayrı bir katman ve iOS onun
+          yüksekliğini cihaz pikseline yuvarlarken bir hat açığa çıkıyor —
+          satır aralarında mavi/kırmızı çizgiler görünüyordu. Eskiden bu
+          pikseli ayracın kenarlığı kapatıyordu (TUZAKLAR #71). */}
       <div
         ref={leadingPanel}
         inert={open !== "leading"}
-        className="absolute inset-y-0 left-0 flex"
+        className="absolute inset-y-px left-0 flex"
       >
         {leadingActions.map((action) => (
           <button
@@ -149,7 +156,7 @@ export function SwipeRow({
       <div
         ref={panel}
         inert={open !== "trailing"}
-        className="absolute inset-y-0 right-0 flex"
+        className="absolute inset-y-px right-0 flex"
       >
         {actions.map((action) => (
           <button

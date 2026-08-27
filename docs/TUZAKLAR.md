@@ -488,3 +488,18 @@ katlıyordu. **Çözüm:** `open` özniteliği hiç verilmiyor. React değişmey
 testte bölümü önce açmak gerekiyor (`bolumAc`, tests/e2e/ortak.mjs) — ve
 gezinmeden hemen sonra açmaya kalkarsan eski sayfanın başlığına dokunup yeni
 sayfayı kapalı bırakıyorsun; önce yeni sayfayı bekle.
+
+**71. Ayracı taşıyınca kaydırma panelleri satır aralarında sızdı.** Koyu temada
+her satırın altında ince mavi ve kırmızı çizgiler belirdi (kullanıcı bildirdi;
+masaüstü Chromium'da hiç çıkmıyor, iOS Safari'de çıkıyor). Sebep #63'ün başka
+bir yüzü: ayraç eskiden `divide-y` ile **sarmalayıcının kenarlığıydı**, mutlak
+konumlu paneller de `inset-y-0` ile kenarlık kutusunun **içinden** başlıyordu —
+o 1 piksel ayraç rengindeydi ve paneli kapatıyordu. Ayraç ayrı bir öğeye
+taşınınca panel satırın en üst pikseline dayandı; içerik katmanı `translate3d`
+yüzünden ayrı bir katman olduğu için iOS yüksekliği cihaz pikseline yuvarlarken
+altından bir hat açığa çıktı.
+
+**Çözüm:** paneller `inset-y-px` — satırın uç piksellerine hiç dayanmıyorlar; kap
+da kendi `bg-surface`ını taşıyor, açıkta kalan hat satırın rengine düşüyor.
+**Ders:** bir kenarlığı kaldırırken o kenarlığın *başka ne örttüğüne* bak;
+kenarlık kutusu mutlak konumlu çocukların da başlangıç noktası.
