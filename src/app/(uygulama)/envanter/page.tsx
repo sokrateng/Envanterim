@@ -1,12 +1,12 @@
 import Link from "next/link";
 import {
-  Badge,
   EmptyState,
   Group,
   Row,
   Rows,
   Screen,
   ScreenHeader,
+  StatusMark,
 } from "@/components/ui";
 import { listMyLocations } from "@/lib/access";
 import {
@@ -16,9 +16,9 @@ import {
   type ItemStatus,
 } from "@/lib/constants";
 import type { CategoryOption } from "@/components/ItemFields";
-import { formatMoney } from "@/lib/money";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { statusView } from "@/lib/item-status";
 import { warrantyStatus } from "@/lib/warranty";
 import {
   activeAssignment,
@@ -42,6 +42,7 @@ type Search = {
   lokasyon?: string;
   kategori?: string;
   zimmet?: string;
+  favori?: string;
   sayfa?: string;
 };
 
@@ -84,6 +85,7 @@ export default async function EnvanterPage({
     ? (filters.zimmet as ZimmetFilter)
     : null;
 
+  const onlyFavorites = filters.favori === "1";
   const query = (filters.q ?? "").trim();
   const requestedCategory = filters.kategori ?? null;
 
@@ -141,6 +143,8 @@ export default async function EnvanterPage({
     ...(assignmentFilter === "bende"
       ? { assignments: { some: { closedAt: null, holderUserId: user.id } } }
       : {}),
+    // Favori kişisel: başkasının işareti listeyi etkilemiyor.
+    ...(onlyFavorites ? { favorites: { some: { userId: user.id } } } : {}),
   };
 
   const page = Math.max(1, Number(filters.sayfa) || 1);
@@ -323,6 +327,12 @@ export default async function EnvanterPage({
           },
         ]
       : []),
+    {
+      key: "favori",
+      title: "Favoriler",
+      anyLabel: "Tümü",
+      options: [{ value: "1", label: "Yalnız favorilerim" }],
+    },
     ...(hasAssignments || assignmentFilter
       ? [
           {
@@ -430,6 +440,10 @@ export default async function EnvanterPage({
           <Rows divider="leading">
             {visible.map((item) => {
               const warranty = warrantyStatus(item.warrantyEndDate);
+              const durum = statusView(
+                item.status as ItemStatus,
+                item.active !== null,
+              );
               const details = [
                 item.active ? item.holder : null,
                 [item.brand, item.model].filter(Boolean).join(" "),
@@ -457,7 +471,6 @@ export default async function EnvanterPage({
                   )}
                 >
                   <Row
-                    badgesBelow
                     href={`/envanter/${item.id}`}
                     leading={
                       <ItemPhoto
@@ -472,36 +485,24 @@ export default async function EnvanterPage({
                     }
                     title={item.name}
                     subtitle={details || "Ayrıntı girilmemiş"}
-                    badge={
-                      <>
-                        {item.status !== "IN_USE" ? (
-                          <Badge
-                            tone={
-                              item.status === "IN_REPAIR" ? "orange" : "muted"
-                            }
-                          >
-                            {ITEM_STATUS_LABELS[item.status as ItemStatus]}
-                          </Badge>
-                        ) : null}
-                        <Badge
-                          tone={
-                            warranty.state === "active"
-                              ? "green"
-                              : warranty.state === "ending-soon"
-                                ? "orange"
-                                : "muted"
-                          }
-                        >
-                          {warranty.label}
-                        </Badge>
-                        {/* Tutar da rozet sırasında: sağda dururken uzun
-                            adları erkenden kırpıyordu. */}
-                        {item.purchasePriceMinor != null ? (
-                          <span className="text-footnote text-muted">
-                            {formatMoney(item.purchasePriceMinor, item.currency)}
-                          </span>
-                        ) : null}
-                      </>
+                    trailing={
+                      <StatusMark
+                        tone={durum.tone}
+                        label={durum.label}
+                        // Garanti bilgisi yoksa satır hiç çıkmıyor: "bilgi
+                        // yok" yazısı adın yerini yiyordu, oysa yokluğu
+                        // boşluk da anlatıyor.
+                        note={
+                          warranty.state === "none" ? undefined : warranty.label
+                        }
+                        noteTone={
+                          warranty.state === "active"
+                            ? "green"
+                            : warranty.state === "ending-soon"
+                              ? "orange"
+                              : "muted"
+                        }
+                      />
                     }
                   />
                 </ItemSwipe>

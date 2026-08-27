@@ -20,12 +20,15 @@ export function Thumb({
   alt: string;
   /** Fotoğraf yoksa görünen simge; yoksa nötr bir kutu çıkıyor. */
   icon?: string | null;
-  size?: "sm" | "lg";
+  /** `hero`: detay sayfasının tepesindeki tam genişlik bandı. */
+  size?: "sm" | "lg" | "hero";
 }) {
-  const box =
-    size === "lg"
-      ? "h-16 w-16 rounded-card text-[28px]"
-      : "h-11 w-11 rounded-[8px] text-[20px]";
+  const boxes = {
+    sm: "h-11 w-11 rounded-[8px] text-[20px]",
+    lg: "h-16 w-16 rounded-card text-[28px]",
+    hero: "h-[220px] w-full text-[56px]",
+  };
+  const box = boxes[size];
 
   if (url) {
     return (

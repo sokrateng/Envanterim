@@ -29,7 +29,7 @@ export function ItemPhoto({
   url: string | null;
   icon: string | null;
   editable: boolean;
-  size?: "sm" | "lg";
+  size?: "sm" | "lg" | "hero";
 }) {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -68,15 +68,21 @@ export function ItemPhoto({
         aria-label={url ? `${name} fotoğrafını büyüt` : `${name} için fotoğraf çek`}
         // shrink-0: esnek bir satırda düğme daralınca içindeki sabit boyutlu
         // görsel taşıp yanındaki metnin üstüne biniyordu (TUZAKLAR #66).
-        className="relative block shrink-0 rounded-[8px] active:opacity-70 disabled:opacity-50"
+        className={`relative block active:opacity-70 disabled:opacity-50 ${
+          size === "hero" ? "w-full" : "shrink-0 rounded-[8px]"
+        }`}
       >
         <Thumb url={url} alt={name} icon={icon} size={size} />
         {!url ? (
           // Boş kutunun dokunulabilir olduğu görünsün: köşede küçük bir kamera.
           <span
             aria-hidden
-            className={`absolute -bottom-1 -right-1 grid place-items-center rounded-full bg-blue text-white ${
-              size === "lg" ? "h-5 w-5 text-[11px]" : "h-4 w-4 text-[9px]"
+            className={`absolute grid place-items-center rounded-full bg-blue text-white ${
+              size === "hero"
+                ? "bottom-3 right-3 h-11 w-11 text-[20px]"
+                : size === "lg"
+                  ? "-bottom-1 -right-1 h-5 w-5 text-[11px]"
+                  : "-bottom-1 -right-1 h-4 w-4 text-[9px]"
             }`}
           >
             ＋

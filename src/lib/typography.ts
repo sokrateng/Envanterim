@@ -1,19 +1,22 @@
 /**
  * Başlık puntosu — saf ve testli.
  *
- * Uzun ekipman adları 34 piksellik başlıkta dört satıra taşıp mobilde içeriği
- * ekranın dışına itiyordu. Ad alanı sabit yükseklikte; metin uzadıkça punto
+ * Uzun ekipman adları başlıkta dört satıra taşıp mobilde içeriği ekranın
+ * dışına itiyordu. Ad alanı sabit yükseklikte; metin uzadıkça punto
  * küçülüyor. Sınıf adı dizgi birleştirerek üretilmiyor (CLAUDE.md), tam sınıf
  * listesinden seçiliyor.
+ *
+ * Tavan artık Title 22 (Large Title 34 değil): fotoğraf bandı başlığın üstüne
+ * taşınınca ad tam genişlikte kaldı, 34px'e gerek kalmadı.
  */
 
-/** Sabit ad alanının yüksekliği: 34px başlığın iki satırı. */
-export const TITLE_BOX = "h-[82px]";
+/** Sabit ad alanının yüksekliği: 22px başlığın iki satırı. */
+export const TITLE_BOX = "h-[60px]";
 
 type Step = {
   className: string;
-  /** 390 piksellik ekranda (fotoğraf ve "Düzenle" düştükten sonra) satır başına
-   *  yaklaşık karakter. */
+  /** 390 piksellik ekranda ("Düzenle" düştükten sonra) satır başına yaklaşık
+   *  karakter. */
   perLine: number;
   /** Sabit alana sığan satır sayısı. */
   lines: number;
@@ -25,10 +28,9 @@ type Step = {
  * kırpılıyor. Bu yüzden en uzun sözcük de sınanıyor.
  */
 const STEPS: Step[] = [
-  { className: "text-large-title tracking-tight line-clamp-2", perLine: 10, lines: 2 },
-  { className: "text-title line-clamp-2", perLine: 15, lines: 2 },
-  { className: "text-headline line-clamp-3", perLine: 20, lines: 3 },
-  { className: "text-subheadline line-clamp-4", perLine: 23, lines: 4 },
+  { className: "text-title tracking-tight line-clamp-2", perLine: 24, lines: 2 },
+  { className: "text-headline line-clamp-3", perLine: 31, lines: 3 },
+  { className: "text-subheadline line-clamp-4", perLine: 35, lines: 4 },
 ];
 
 /** Satır sonlarında boşa giden yer: sözcükler tam dolduramıyor. */

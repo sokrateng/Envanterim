@@ -201,6 +201,49 @@ export function Row({
   );
 }
 
+/**
+ * Liste satırının sağındaki durum bloğu: üstte noktalı durum, altında garanti.
+ *
+ * Rozet yığını yerine iki satır: rozetler adın altına iniyor ve satırı
+ * uzatıyordu, oysa durum taranan bir bilgi — hep aynı yerde, sağda durmalı.
+ */
+export function StatusMark({
+  tone,
+  label,
+  note,
+  noteTone = "muted",
+}: {
+  tone: "green" | "orange" | "blue" | "muted";
+  label: string;
+  /** İkinci satır: garanti durumu gibi ikincil bilgi. */
+  note?: string;
+  noteTone?: "green" | "orange" | "muted";
+}) {
+  const dots: Record<string, string> = {
+    green: "bg-green",
+    orange: "bg-orange",
+    blue: "bg-blue",
+    muted: "bg-separator",
+  };
+  const notes: Record<string, string> = {
+    green: "text-green",
+    orange: "text-orange",
+    muted: "text-muted",
+  };
+
+  return (
+    <div className="flex flex-col items-end gap-0.5">
+      <div className="flex items-center gap-1.5">
+        <span aria-hidden className={`h-[7px] w-[7px] rounded-full ${dots[tone]}`} />
+        <span className="text-caption text-muted">{label}</span>
+      </div>
+      {note ? (
+        <span className={`text-caption ${notes[noteTone]}`}>{note}</span>
+      ) : null}
+    </div>
+  );
+}
+
 export function EmptyState({
   title,
   description,

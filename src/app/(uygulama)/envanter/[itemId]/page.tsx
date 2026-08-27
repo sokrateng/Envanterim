@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
-import { Badge, Group, Row, Rows, Screen, ScreenHeader } from "@/components/ui";
+import { Group, Row, Rows, Screen } from "@/components/ui";
 import { requireLocation } from "@/lib/access";
 import {
-  ITEM_STATUS_LABELS,
   type FieldType,
   type ItemStatus,
 } from "@/lib/constants";
@@ -39,11 +38,11 @@ import { StatusPicker } from "./StatusPicker";
 import { Notes, type NoteView } from "./Notes";
 import { Service, type ServiceRow } from "./Service";
 import { Rating } from "./Rating";
-import { ItemPhoto } from "@/components/ItemPhoto";
+import { Hero } from "./Hero";
 import { canDeleteNote, canEditNote } from "@/lib/notes";
 import { averageStars } from "@/lib/rating";
 import { paymentLabel, serviceLabel, serviceState } from "@/lib/service";
-import { titleClass } from "@/lib/typography";
+import { TITLE_BOX, titleClass } from "@/lib/typography";
 
 export const dynamic = "force-dynamic";
 
@@ -103,6 +102,7 @@ export default async function EkipmanPage({
         orderBy: { createdAt: "desc" },
       },
       ratings: { select: { userId: true, stars: true } },
+      favorites: { select: { userId: true } },
       serviceJobs: {
         select: {
           id: true,
@@ -242,6 +242,7 @@ export default async function EkipmanPage({
 
   const myRating =
     item.ratings.find((rating) => rating.userId === access.userId)?.stars ?? null;
+  const favorite = item.favorites.some((mark) => mark.userId === access.userId);
   const average = averageStars(item.ratings.map((rating) => rating.stars));
 
   const serviceJobs: ServiceRow[] = item.serviceJobs.map((job) => ({
@@ -447,71 +448,54 @@ export default async function EkipmanPage({
   return (
     <FillProvider>
     <Screen>
-      <ScreenHeader
-        title={item.name}
-        titleClassName={titleClass(item.name)}
-        fixedTitle
-        leading={
-          <ItemPhoto
-            size="lg"
-            itemId={item.id}
-            name={item.name}
-            url={photo?.url ?? null}
-            icon={item.category?.icon ?? null}
-            editable={editable}
-          />
-        }
-        back={{ href: "/envanter", label: "Envanter" }}
-        action={
-          editable ? (
-            <EditItemButton
-              itemId={item.id}
-              categories={categoryOptions}
-              vendors={vendors}
-              defaults={{
-                name: item.name,
-                brand: item.brand ?? "",
-                model: item.model ?? "",
-                serialNo: item.serialNo ?? "",
-                place: item.place ?? "",
-                purchaseDate: toInputDate(item.purchaseDate),
-                warrantyEndDate: toInputDate(item.warrantyEndDate),
-                purchasePrice:
-                  item.purchasePriceMinor != null
-                    ? formatMoney(item.purchasePriceMinor, item.currency).replace(
-                        /\s\D+$/,
-                        "",
-                      )
-                    : "",
-                currency: item.currency,
-                status: item.status,
-                categoryId: item.categoryId ?? "",
-                sellerId: item.sellerId ?? "",
-                customFields:
-                  item.customFields && typeof item.customFields === "object"
-                    ? (item.customFields as Record<string, unknown>)
-                    : {},
-              }}
-            />
-          ) : undefined
-        }
+      <Hero
+        itemId={item.id}
+        name={item.name}
+        photoUrl={photo?.url ?? null}
+        icon={item.category?.icon ?? null}
+        editable={editable}
+        favorite={favorite}
       />
 
-      <div className="flex flex-wrap gap-2 px-4 pt-3">
-        <Badge tone={item.status === "IN_REPAIR" ? "orange" : "muted"}>
-          {ITEM_STATUS_LABELS[item.status as ItemStatus]}
-        </Badge>
-        <Badge
-          tone={
-            warranty.state === "active"
-              ? "green"
-              : warranty.state === "ending-soon"
-                ? "orange"
-                : "muted"
-          }
+      {/* Ad alanı sabit yükseklikte: uzun ad altındaki her şeyi aşağı
+          kaydırmasın, punto küçülsün (src/lib/typography.ts). */}
+      <div className="flex items-start justify-between gap-3 px-4 pt-3">
+        <h1
+          className={`min-w-0 break-words ${TITLE_BOX} ${titleClass(item.name)}`}
         >
-          {warranty.label}
-        </Badge>
+          {item.name}
+        </h1>
+        {editable ? (
+          <EditItemButton
+            itemId={item.id}
+            categories={categoryOptions}
+            vendors={vendors}
+            defaults={{
+              name: item.name,
+              brand: item.brand ?? "",
+              model: item.model ?? "",
+              serialNo: item.serialNo ?? "",
+              place: item.place ?? "",
+              purchaseDate: toInputDate(item.purchaseDate),
+              warrantyEndDate: toInputDate(item.warrantyEndDate),
+              purchasePrice:
+                item.purchasePriceMinor != null
+                  ? formatMoney(item.purchasePriceMinor, item.currency).replace(
+                      /\s\D+$/,
+                      "",
+                    )
+                  : "",
+              currency: item.currency,
+              status: item.status,
+              categoryId: item.categoryId ?? "",
+              sellerId: item.sellerId ?? "",
+              customFields:
+                item.customFields && typeof item.customFields === "object"
+                  ? (item.customFields as Record<string, unknown>)
+                  : {},
+            }}
+          />
+        ) : null}
       </div>
 
       <Rating
@@ -573,10 +557,29 @@ export default async function EkipmanPage({
               )}
             />
           ) : null}
+          {/* Kalan gün tarihin altında ve renkli: rozet şeridi kalkınca
+              garantinin durumu sayfada hiçbir yerde görünmüyordu. */}
           <Row
             title="Garanti bitişi"
             value={
-              item.warrantyEndDate ? trDate.format(item.warrantyEndDate) : "—"
+              <>
+                <span className="block">
+                  {item.warrantyEndDate
+                    ? trDate.format(item.warrantyEndDate)
+                    : "—"}
+                </span>
+                <span
+                  className={`block text-caption ${
+                    warranty.state === "active"
+                      ? "text-green"
+                      : warranty.state === "ending-soon"
+                        ? "text-orange"
+                        : "text-muted"
+                  }`}
+                >
+                  {warranty.label}
+                </span>
+              </>
             }
           />
         </Rows>

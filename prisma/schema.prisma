@@ -54,6 +54,7 @@ model User {
   inviteUsed        LocationInvite?    @relation("InviteUser")
   notes             ItemNote[]
   ratings           ItemRating[]
+  favorites         ItemFavorite[]
   serviceJobs       ServiceJob[]       @relation("ServiceJobCreator")
 }
 
@@ -196,6 +197,7 @@ model Item {
   assignments ItemAssignment[]
   notes       ItemNote[]
   ratings     ItemRating[]
+  favorites   ItemFavorite[]
   serviceJobs ServiceJob[]
 
   @@index([locationId, status])
@@ -350,6 +352,21 @@ model ItemNote {
 // Beğeni yıldızı: kullanıcı başına tek puan. "Hangi makine gerçekten
 // kullanılıyor" sorusunun cevabı; ortalama hesaplanıyor, saklanmıyor
 // (CLAUDE.md: türetilmiş değer saklanmaz).
+// Kişisel işaret: "benim baktığım ekipman". Puandan farklı — puan herkese
+// açık bir değerlendirme, favori yalnız sahibini ilgilendiren bir kısayol.
+model ItemFavorite {
+  id        String   @id @default(cuid())
+  itemId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, userId])
+  @@index([userId])
+}
+
 model ItemRating {
   id        String   @id @default(cuid())
   itemId    String
