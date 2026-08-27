@@ -25,6 +25,7 @@ import {
   pendingDays,
 } from "@/lib/assignment";
 import { linkableChildren, totalWithComponents } from "@/lib/components";
+import { listVendorsByRole } from "@/lib/vendors";
 import { Assignment, type AssignmentView } from "./Assignment";
 import { Components, type ComponentRow } from "./Components";
 import { Attachments, type AttachmentView } from "./Attachments";
@@ -377,7 +378,7 @@ export default async function EkipmanPage({
 
   // Dördü de birbirinden bağımsız: sırayla beklemek uzak bölgedeki
   // veritabanında dört ayrı tur demek, birlikte tek tur.
-  const [locationItems, members, categories, vendors] = editable
+  const [locationItems, members, categories, firmalar] = editable
     ? await Promise.all([
         // Bağlanabilecek ekipmanlar: kural saf modülde (döngü, derinlik,
         // lokasyon), bu yüzden ağacın tamamı gerekiyor — üç küçük sütun.
@@ -411,15 +412,11 @@ export default async function EkipmanPage({
           },
           orderBy: { name: "asc" },
         }),
-        // Satıcı ve servis aynı tabloda; iki listede de lokasyonun tüm
-        // firmaları gösteriliyor.
-        prisma.vendor.findMany({
-          where: { locationId: item.locationId },
-          select: { id: true, name: true },
-          orderBy: { name: "asc" },
-        }),
+        // Satıcı ve yetkili servis ayrı listeler ve lokasyondan bağımsız
+        // (src/lib/vendors.ts): aldığın yerle tamir ettiğin yer aynı değil.
+        listVendorsByRole(access.userId),
       ])
-    : [[], [], [], []];
+    : [[], [], [], { sellers: [], services: [] }];
 
   const linkable = editable ? linkableChildren(locationItems, item.id) : [];
 
@@ -460,7 +457,7 @@ export default async function EkipmanPage({
           <EditItemButton
             itemId={item.id}
             categories={categoryOptions}
-            vendors={vendors}
+            vendors={firmalar.sellers}
             defaults={{
               name: item.name,
               brand: item.brand ?? "",
@@ -597,7 +594,7 @@ export default async function EkipmanPage({
           <Service
             itemId={item.id}
             jobs={serviceJobs}
-            vendors={vendors}
+            vendors={firmalar.services}
             editable={editable}
           />
           <Assignment
@@ -628,7 +625,7 @@ export default async function EkipmanPage({
           <Parts
             itemId={item.id}
             parts={parts}
-            vendors={vendors}
+            vendors={firmalar.sellers}
             currency={item.currency}
             editable={editable}
           />
@@ -642,7 +639,7 @@ export default async function EkipmanPage({
           <Timeline
             itemId={item.id}
             events={timeline}
-            vendors={vendors}
+            vendors={firmalar.services}
             members={members.map((member) => member.user)}
             currency={item.currency}
             editable={editable}

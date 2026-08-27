@@ -302,3 +302,20 @@ export const resetConfirmSchema = z.object({
 export function firstError(error: z.ZodError): string {
   return error.issues[0]?.message ?? "Geçersiz veri";
 }
+
+/**
+ * Firma: satıcı ve/veya yetkili servis. En az bir rol şart — rolsüz firma
+ * hiçbir listede çıkmaz, kullanıcı da neden görünmediğini anlamaz.
+ */
+export const vendorSchema = z
+  .object({
+    name: trimmed.min(2, "Firma adı en az 2 karakter"),
+    isSeller: z.coerce.boolean().default(false),
+    isService: z.coerce.boolean().default(false),
+    phone: trimmed.max(40, "Telefon çok uzun").optional(),
+    note: trimmed.max(500, "Not çok uzun").optional(),
+  })
+  .refine((data) => data.isSeller || data.isService, {
+    message: "En az bir rol seç: satıcı ya da yetkili servis",
+    path: ["isSeller"],
+  });

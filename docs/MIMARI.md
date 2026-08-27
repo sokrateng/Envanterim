@@ -87,7 +87,14 @@ CategoryField       id, categoryId, key, label, order, required
 
 Vendor              id, locationId, name, phone, email, address, note
                     isSeller Bool, isService Bool
-                    ↳ satıcı ve servis aynı tabloda: çoğu yerde ikisi de aynı firma
+                    ↳ satıcı ve yetkili servis iki ayrı iş; listeler role göre
+                      süzülüyor (src/lib/vendors.ts). Aynı tabloda duruyorlar
+                      çünkü bir firma ikisini birden yapabiliyor — iki bayrak,
+                      tek kayıt.
+                    ↳ seçim lokasyondan bağımsız: kullanıcının üyesi olduğu
+                      bütün lokasyonların firmaları listeleniyor. locationId
+                      yine duruyor, çünkü yetki lokasyon üyeliğinden geçiyor
+                      (CLAUDE.md) — kaydın çapası o.
 
 Item                id, locationId, categoryId?, name, brand?, model?, serialNo?
                     place?           // oda/raf — serbest metin
@@ -387,7 +394,10 @@ olarak düşürmüyorum.
   olma maliyetine oradan giriyor; ayrıca `ItemEvent` açılmıyor, yoksa aynı
   gider iki kez sayılırdı. Garanti kapsamındaki iş toplama girmiyor — kimse
   ödemedi.
-- Servis firması `Vendor` (satıcıyla aynı tablo, `isService` bayrağı).
+- Servis firması `Vendor` (satıcıyla aynı tablo, `isService` bayrağı); servis
+  formunda yalnız `isService` olanlar listeleniyor. Firmalar Hesap → Firmalar
+  ekranından yönetiliyor: kullanılan firma silinmiyor, adı düzeltiliyor ya da
+  rolü kapatılıyor.
 
 ### Notlar ve puan
 

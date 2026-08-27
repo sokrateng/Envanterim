@@ -20,6 +20,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { favoritePage } from "@/lib/favorite-page";
 import { statusView } from "@/lib/item-status";
+import { listVendors } from "@/lib/vendors";
 import { warrantyStatus } from "@/lib/warranty";
 import {
   activeAssignment,
@@ -238,7 +239,7 @@ export default async function EnvanterPage({
 
   // Birbirine bağlı olmayan sorgular birlikte gidiyor: sırayla beklemek
   // uzak bölgedeki veritabanında her biri için ayrı bir tur demek.
-  const [[total, items], categories, acikZimmet, vendors] = await Promise.all([
+  const [[total, items], categories, acikZimmet, sellers] = await Promise.all([
     listeIstegi,
     categoriesPromise,
     // Zimmet çubuğu ancak özellik kullanılıyorsa çıksın; sayfadaki
@@ -252,13 +253,9 @@ export default async function EnvanterPage({
           take: 1,
         })
       : Promise.resolve(0),
-    memberLocationIds.length
-      ? prisma.vendor.findMany({
-          where: { locationId: { in: memberLocationIds }, isSeller: true },
-          select: { id: true, name: true, locationId: true },
-          orderBy: { name: "asc" },
-        })
-      : Promise.resolve([]),
+    // Firmalar lokasyondan bağımsız: hangi lokasyona eklersen ekle aynı
+    // satıcı listesi çıkıyor (src/lib/vendors.ts).
+    listVendors(user.id, "seller"),
   ]);
 
   const hasAssignments = acikZimmet > 0;
@@ -312,17 +309,6 @@ export default async function EnvanterPage({
     requestedCategory && categories.some((c) => c.id === requestedCategory)
       ? requestedCategory
       : null;
-
-  const vendorsByLocation: Record<
-    string,
-    Array<{ id: string; name: string }>
-  > = {};
-  for (const vendor of vendors) {
-    (vendorsByLocation[vendor.locationId] ??= []).push({
-      id: vendor.id,
-      name: vendor.name,
-    });
-  }
 
   const editableLocations = locations.filter(
     (l) => l.role === "OWNER" || l.role === "EDITOR",
@@ -408,7 +394,7 @@ export default async function EnvanterPage({
             editableLocations[0].id
           }
           categoriesByLocation={categoriesByLocation}
-          vendorsByLocation={vendorsByLocation}
+          sellers={sellers}
           extractionEnabled={isExtractionConfigured()}
           autoOpen={filters.yeni === "1"}
           presetSerial={filters.seri ?? ""}

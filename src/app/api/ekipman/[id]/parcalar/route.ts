@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireLocationEditor } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError, parseBody } from "@/lib/api";
-import { resolveVendor } from "@/lib/seller";
+import { resolveVendor } from "@/lib/vendors";
 import { partCreateSchema } from "@/lib/validation";
 
 export async function POST(
@@ -26,12 +26,13 @@ export async function POST(
   const data = parsed.data;
 
   // Parçayı temin eden firma da aynı tabloda; satıcı rolüyle işaretleniyor.
-  const vendor = await resolveVendor(
-    item.locationId,
-    data.vendorId,
-    data.vendorName,
-    "seller",
-  );
+  const vendor = await resolveVendor({
+    userId: access.userId,
+    locationId: item.locationId,
+    vendorId: data.vendorId,
+    vendorName: data.vendorName,
+    role: "seller",
+  });
   if (!vendor.ok) return apiError(vendor.message, 422);
 
   const part = await prisma.part.create({

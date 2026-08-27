@@ -56,6 +56,18 @@ export default async function HesapPage() {
         </Group>
       ) : null}
 
+      {/* Firmalar lokasyona değil kişiye ait bir defter: aynı bayi her
+          lokasyon için yeniden yazılmasın. */}
+      <Group title="Tanımlar">
+        <Rows>
+          <Row
+            href="/hesap/firmalar"
+            title="Firmalar"
+            subtitle="Satıcılar ve yetkili servisler"
+          />
+        </Rows>
+      </Group>
+
       {/* Sürüm: "bendeki eski mi?" sorusu servis konuşmalarında sürekli
           çıkıyor; kullanıcıya soracak yer lazım. */}
       <Group title="Hakkında">

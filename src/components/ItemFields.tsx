@@ -11,6 +11,7 @@ import {
   ITEM_STATUS_LABELS,
 } from "@/lib/constants";
 import { visibleFields, type FieldDef } from "@/lib/custom-fields";
+import type { VendorOption } from "@/lib/vendors";
 
 export type CategoryOption = {
   id: string;
@@ -19,7 +20,7 @@ export type CategoryOption = {
   fields: FieldDef[];
 };
 
-export type VendorOption = { id: string; name: string };
+export type { VendorOption };
 
 export type ItemDefaults = {
   name?: string;

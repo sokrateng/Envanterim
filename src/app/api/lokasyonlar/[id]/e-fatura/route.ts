@@ -6,7 +6,7 @@ import { NOT_MEMBER, READONLY, apiError } from "@/lib/api";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import { parseUblInvoice, unitCount } from "@/lib/einvoice";
 import { parseDateOnly, priceToMinor } from "@/lib/invoice";
-import { resolveVendor } from "@/lib/seller";
+import { resolveVendor } from "@/lib/vendors";
 
 export const maxDuration = 60;
 
@@ -74,12 +74,12 @@ export async function POST(
 
   const invoice = parsed.invoice;
   const purchaseDate = parseDateOnly(invoice.invoiceDate);
-  const vendor = await resolveVendor(
-    id,
-    undefined,
-    invoice.sellerName ?? undefined,
-    "seller",
-  );
+  const vendor = await resolveVendor({
+    userId: access.userId,
+    locationId: id,
+    vendorName: invoice.sellerName ?? undefined,
+    role: "seller",
+  });
 
   // e-Fatura'daki kod tanımadığımız bir birim olabilir; öyleyse varsayılan.
   const rawCurrency = (invoice.currency ?? "").trim().toUpperCase();

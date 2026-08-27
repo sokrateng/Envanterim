@@ -12,7 +12,7 @@ import {
   missingRequired,
   parseImportRows,
 } from "@/lib/item-csv";
-import { resolveVendor } from "@/lib/seller";
+import { resolveVendor } from "@/lib/vendors";
 
 export const maxDuration = 60;
 
@@ -166,7 +166,12 @@ export async function POST(
       }
     }
 
-    const vendor = await resolveVendor(id, undefined, row.sellerName ?? undefined, "seller");
+    const vendor = await resolveVendor({
+      userId: access.userId,
+      locationId: id,
+      vendorName: row.sellerName ?? undefined,
+      role: "seller",
+    });
 
     await prisma.item.create({
       data: {

@@ -20,7 +20,7 @@ export function NewItemButton({
   locations,
   defaultLocationId,
   categoriesByLocation,
-  vendorsByLocation,
+  sellers,
   extractionEnabled,
   autoOpen = false,
   presetSerial = "",
@@ -29,7 +29,8 @@ export function NewItemButton({
   locations: Array<{ id: string; name: string }>;
   defaultLocationId: string;
   categoriesByLocation: Record<string, CategoryOption[]>;
-  vendorsByLocation: Record<string, VendorOption[]>;
+  /** Satıcılar lokasyondan bağımsız: tek liste. */
+  sellers: VendorOption[];
   extractionEnabled: boolean;
   /** Adreste `yeni=1` varsa panel kendiliğinden açılıyor (sekme çubuğu, tarama). */
   autoOpen?: boolean;
@@ -324,7 +325,7 @@ export function NewItemButton({
           <ItemFields
             key={`${locationId}-${fillCount}`}
             categories={categoriesByLocation[locationId] ?? []}
-            vendors={vendorsByLocation[locationId] ?? []}
+            vendors={sellers}
             defaults={defaults}
           />
 

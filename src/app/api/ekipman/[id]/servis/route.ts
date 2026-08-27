@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireLocationEditor } from "@/lib/access";
 import { NOT_MEMBER, READONLY, apiError, guard, parseBody } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
-import { resolveVendor } from "@/lib/seller";
+import { resolveVendor } from "@/lib/vendors";
 import { statusAfterService } from "@/lib/service";
 import { currentUser } from "@/lib/session";
 import { serviceCreateSchema } from "@/lib/validation";
@@ -39,12 +39,13 @@ export async function POST(
     if ("response" in parsed) return parsed.response;
     const data = parsed.data;
 
-    const vendor = await resolveVendor(
-      item.locationId,
-      data.vendorId,
-      data.vendorName,
-      "service",
-    );
+    const vendor = await resolveVendor({
+      userId: access.userId,
+      locationId: item.locationId,
+      vendorId: data.vendorId,
+      vendorName: data.vendorName,
+      role: "service",
+    });
     if (!vendor.ok) return apiError(vendor.message, 422);
 
     const user = await currentUser();

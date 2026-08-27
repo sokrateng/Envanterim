@@ -21,6 +21,7 @@ const TEMEL = [
   "invite",
   "kategori",
   "satici",
+  "firma",
   "zaman",
   "parca",
   "ekler",
