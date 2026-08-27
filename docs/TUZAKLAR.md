@@ -415,3 +415,28 @@ satır bağlantısının içindeydi; üstüne düğme koyunca hem geçersiz biç
 (`<a>` içinde `<button>`) oluyor hem dokunuş satırı açıyordu. Görsel artık
 bağlantının dışında, `Row` iki parça çiziyor: solda görsel, yanında bağlantı.
 
+## Kamera (devam)
+
+**65. Okuma penceresi kullanıcının gördüğü yer değildi.** Çerçeve kutuya göre
+çiziliyordu ama çözümleme videoya göre kırpıyordu. Video yatay (1920×1080),
+kutu dikey (390×520) ve `object-cover` kenarlardan kırpıyor: kullanıcının
+gördüğü alan karenin dar bir dikey dilimi. "Yüzde 86 genişlik, yüzde 50
+yükseklik" iki dünyada bambaşka iki dikdörtgen demek. Sonuç: çerçeveye alınan
+kod çözümlemeye hiç girmiyordu.
+
+Üstüne pencere geniş ve kısaydı. Çizgi barkod tek bir yatay dilimden çözülüyor,
+ama QR ve Data Matrix'in **tamamı** çerçeveye girmeli — geniş/kısa pencere 2B
+kodların üstünü altını kesiyordu. Bu yüzden çizgi barkod okunurken QR
+okunmuyordu. **Çözüm:** pencere kutu üzerinden hesaplanıp `object-cover`
+dönüşümüyle video pikseline çevriliyor (`src/lib/camera-window.ts`, testli) ve
+kare biçiminde — kare pencere çizgi barkodu da kesiyor, 2B kodu da tamamıyla
+alıyor.
+
+**66. Esneyen satırda sabit boyutlu görsel metnin üstüne biniyor.** Başlıktaki
+64 piksellik fotoğraf bir düğmenin içindeydi; düğmenin `flex-shrink`'i açık
+olduğu için satır daralınca düğme küçülüyor ama içindeki görsel küçülmüyor ve
+taşan kısım yanındaki başlığın ilk harflerini örtüyordu. Arka planı sayfayla
+aynı renk olduğu için "kırpılmış yazı" gibi görünüyor, hangi öğenin örttüğü
+belli olmuyordu (`elementFromPoint` söyledi). Esnek satırdaki sabit boyutlu her
+öğe `shrink-0` olmalı.
+

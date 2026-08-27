@@ -148,6 +148,19 @@ describe("serialFromScan", () => {
     if (!sonuc.ok) expect(sonuc.message).toMatch(/etiketi/);
   });
 
+  it("adresteki seri no parametresini alır", () => {
+    expect(serialFromScan("https://marka.com/dogrula?sn=FD9901123456")).toEqual({
+      ok: true,
+      serial: "FD9901123456",
+    });
+    expect(serialFromScan("https://marka.com/q?lang=tr&serial=ABC-123")).toEqual({
+      ok: true,
+      serial: "ABC-123",
+    });
+    // Parametre adı belli değilse tahmin etmiyoruz.
+    expect(serialFromScan("https://marka.com/q?kod=ABC-123").ok).toBe(false);
+  });
+
   it("adresi ve boş kodu geri çevirir", () => {
     expect(serialFromScan("https://ornek.com/urun").ok).toBe(false);
     expect(serialFromScan("mailto:a@b.c").ok).toBe(false);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { coverWindow } from "@/lib/camera-window";
 
 /**
  * Kamerayla kod okuma — yalnız görüntü ve çözümleme; kodun ne anlama geldiğine
@@ -23,8 +24,12 @@ type Reader = (
   options: ReadOptions,
 ) => Promise<Array<{ text: string }>>;
 
-/** Okuma penceresi: kare içindeki oran. Barkodlar geniş, kutu da geniş. */
-const WINDOW = { width: 0.86, height: 0.5 };
+/**
+ * Okuma penceresi — kutuya oranla. Kare biçiminde: QR ve Data Matrix'in tamamı
+ * çerçeveye girmeli, çizgi barkod ise tek bir yatay dilimden çözülüyor. Geniş
+ * ve kısa pencere 2B kodların üstünü altını kırpıyordu (TUZAKLAR #65).
+ */
+const WINDOW = { width: 0.82, height: 0.615 };
 
 /** Kırpılmış görüntünün uzun kenarı; altına inmek okumayı bozuyor. */
 const ROI_EDGE = 1280;
@@ -207,9 +212,9 @@ export function CodeCamera({
         if (stopped.current) return;
 
         if (!pausedRef.current) {
-          // Çoğu turda pencereye kırpılmış, yüksek çözünürlüklü görüntü; arada
-          // bir tüm kare, çerçevenin dışında kalan kod da yakalansın diye.
-          const fullFrame = round % 3 === 2;
+          // Çoğu turda pencereye kırpılmış, tam çözünürlüklü görüntü; arada bir
+          // tüm kare, çerçevenin dışında kalan kod da yakalansın diye.
+          const fullFrame = round % 4 === 3;
           const frame = fullFrame
             ? grabFrame(element, canvas, { region: null, zoom: 1, maxEdge: FULL_EDGE })
             : grabFrame(element, canvas, {
@@ -362,8 +367,12 @@ function TorchIcon({ on }: { on: boolean }) {
 }
 
 /**
- * Videodan tek kare. `region` verilirse ortadaki pencereye kırpılıyor;
- * `zoom` pencereyi daha da daraltıyor. Tuval yeniden kullanılıyor.
+ * Videodan tek kare. `region` verilirse kullanıcının gördüğü pencereye
+ * kırpılıyor; `zoom` pencereyi daha da daraltıyor. Tuval yeniden kullanılıyor.
+ *
+ * Kırpma video oranlarıyla değil, `object-cover` ile gösterilen kutuya göre
+ * hesaplanıyor: yatay kamera karesi dikey kutuda kenarlardan kırpılıyor ve iki
+ * dünya birbirini tutmuyor (TUZAKLAR #65).
  *
  * Kırpılan alan hiçbir zaman büyütülmüyor: yapay büyütme yeni ayrıntı
  * getirmiyor, yalnız çözümlemeyi yavaşlatıyor.
@@ -381,12 +390,19 @@ function grabFrame(
   const vh = video.videoHeight;
   if (!vw || !vh) return null;
 
-  const region = options.region ?? { width: 1, height: 1 };
-  const zoom = Math.max(1, options.zoom);
-  const sw = Math.max(16, Math.round((vw * region.width) / zoom));
-  const sh = Math.max(16, Math.round((vh * region.height) / zoom));
-  const sx = Math.round((vw - sw) / 2);
-  const sy = Math.round((vh - sh) / 2);
+  const rect = options.region
+    ? coverWindow(
+        { width: vw, height: vh },
+        { width: video.clientWidth, height: video.clientHeight },
+        options.region,
+        options.zoom,
+      )
+    : { x: 0, y: 0, width: vw, height: vh };
+
+  const sw = Math.max(16, rect.width);
+  const sh = Math.max(16, rect.height);
+  const sx = rect.x;
+  const sy = rect.y;
 
   const scale = Math.min(1, options.maxEdge / Math.max(sw, sh));
   const w = Math.max(1, Math.round(sw * scale));

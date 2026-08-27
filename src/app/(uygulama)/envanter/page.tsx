@@ -26,7 +26,7 @@ import {
   holderSummary,
   isOverdue,
 } from "@/lib/assignment";
-import { ItemPhoto } from "./ItemPhoto";
+import { ItemPhoto } from "@/components/ItemPhoto";
 import { ItemSwipe } from "./ItemSwipe";
 import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { NewItemButton } from "./NewItemButton";

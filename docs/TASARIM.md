@@ -132,8 +132,11 @@ fiske hızlıysa açık kalır, değilse kapanır.
 
 ## Kod okuma ekranı
 
-- **Okuma penceresi çözümlemenin baktığı yerle aynı.** Süs çerçeve çizip tüm
-  kareyi çözümlemek kullanıcıyı yanıltıyor: "çerçeveye aldım, neden okumadı?"
+- **Okuma penceresi çözümlemenin baktığı yerle aynı** — birebir, `object-cover`
+  dönüşümü hesaba katılarak (TUZAKLAR #65). Süs çerçeve çizip başka bir alanı
+  çözümlemek kullanıcıyı yanıltıyor: "çerçeveye aldım, neden okumadı?"
+- **Pencere kare.** Çizgi barkod tek bir yatay dilimden çözülüyor; QR ve Data
+  Matrix'in tamamı çerçeveye girmeli. Kare pencere ikisini birden taşıyor.
 - **Kırmızı tarama çizgisi** okumaya çalışıldığını anlatıyor. Hareket
   `prefers-reduced-motion` açıkken duruyor, çizgi kalıyor.
 - **Yakınlaştırma dokunma hedefi kadar düğmelerle** (1×–4×), kaydırıcıyla değil:

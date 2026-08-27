@@ -46,7 +46,7 @@ export function ScreenHeader({
             fixedTitle ? TITLE_BOX : ""
           }`}
         >
-          {leading}
+          {leading ? <div className="shrink-0">{leading}</div> : null}
           <h1 className={`min-w-0 break-words ${titleClassName}`}>{title}</h1>
         </div>
         {action}

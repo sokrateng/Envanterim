@@ -105,6 +105,31 @@ export type SerialRead =
  * kazara okutan kullanıcının alanına ürün adresi yazılmamalı: alan sessizce
  * yanlış dolmaktansa boş kalır ve sebebi söylenir.
  */
+/**
+ * Üretici QR'larında seri no çoğu zaman adresin içinde bir parametre olarak
+ * duruyor: `https://marka.com/dogrula?sn=FD9901123456`. Adı belli olan
+ * parametreyi almak tahmin değil; adresin geri kalanını seri no saymıyoruz.
+ */
+const SERIAL_PARAMS = ["sn", "s/n", "seri", "serial", "serialno", "serialnumber"];
+
+function serialFromUrl(text: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(text);
+  } catch {
+    return null;
+  }
+
+  for (const [key, value] of url.searchParams) {
+    const name = key.trim().toLowerCase();
+    const candidate = value.trim();
+    if (!SERIAL_PARAMS.includes(name)) continue;
+    if (candidate.length === 0 || candidate.length > MAX_QUERY_LENGTH) continue;
+    return candidate;
+  }
+  return null;
+}
+
 export function serialFromScan(raw: string): SerialRead {
   const text = normalizePayload(raw);
   if (!text) return { ok: false, message: "Kod okunamadı" };
@@ -117,6 +142,8 @@ export function serialFromScan(raw: string): SerialRead {
     };
   }
   if (/^[a-z][a-z0-9+.-]*:/i.test(text) || text.startsWith("/")) {
+    const fromUrl = serialFromUrl(text);
+    if (fromUrl) return { ok: true, serial: fromUrl };
     return { ok: false, message: "Bu bir adres, seri no değil" };
   }
   if (text.length > MAX_QUERY_LENGTH) {

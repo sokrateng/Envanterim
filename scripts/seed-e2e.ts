@@ -16,18 +16,27 @@ const SIFRE = process.env.E2E_PASSWORD ?? "cok-uzun-sifre";
 const LOKASYON = "Ev";
 const SERI = "SN-4471-A";
 
-async function main() {
-  const user = await prisma.user.upsert({
-    where: { username: KULLANICI },
+/** Testlerin adıyla çağırdığı hesaplar; hepsi aynı şifreyle. */
+async function hesap(username: string, name: string) {
+  return prisma.user.upsert({
+    where: { username },
     update: {},
     create: {
-      username: KULLANICI,
-      name: "Engin C",
+      username,
+      name,
       passwordHash: await bcrypt.hash(SIFRE, 10),
       status: "ACTIVE",
     },
     select: { id: true },
   });
+}
+
+async function main() {
+  const user = await hesap(KULLANICI, "Engin C");
+  // İkinci üye (davetle lokasyona ekleniyor) ve envantere hiç üye olmayan
+  // "yabancı": yetki testlerinin ikisine de ihtiyacı var.
+  const ikinci = await hesap("buketc", "Buket C");
+  await hesap("aysek", "Ayşe K");
 
   const mevcut = await prisma.locationMember.findFirst({
     where: { userId: user.id, role: "OWNER", location: { name: LOKASYON } },
@@ -46,6 +55,14 @@ async function main() {
         select: { id: true },
       })
     ).id;
+
+  // İkinci üye tohumda: zimmet ve olay ekranları "kime" sorusunu soruyor,
+  // tek üyeli lokasyonda o liste boş kalıyor.
+  await prisma.locationMember.upsert({
+    where: { locationId_userId: { locationId, userId: ikinci.id } },
+    update: {},
+    create: { locationId, userId: ikinci.id, role: "EDITOR" },
+  });
 
   const item = await prisma.item.findFirst({
     where: { locationId, serialNo: SERI },

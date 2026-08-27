@@ -9,11 +9,18 @@ try {
   await page.fill('input[name="password"]', (process.env.E2E_PASSWORD ?? "cok-uzun-sifre"));
   await page.tap('button[type="submit"]');
   await page.waitForURL("**/lokasyonlar");
+  // Kendi ekipmanını açıyor: hazır fotoğrafı olan bir kaydın üstüne yüklemek,
+  // ölçümü eski fotoğraftan yapma riski taşıyor.
+  const AD = "Küçültme " + Date.now().toString().slice(-6);
   await page.goto(`${BASE}/envanter`);
-  await page.locator("a[href^='/envanter/']").first().tap();
+  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.fill('input[name="name"]', AD);
+  await page.tap('div[role="dialog"] button[type="submit"]');
+  await page.waitForSelector(`text=${AD}`, { timeout: 15000 });
+  await page.locator(`a:has-text("${AD}")`).first().tap();
   await page.waitForSelector("text=FOTOĞRAF VE BELGELER");
   await page.selectOption('select[aria-label="Belge türü"]', "PHOTO");
-  await page.setInputFiles('input[type="file"]', "/tmp/testfiles/buyuk.png");
+  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/buyuk.png");
   await page.waitForSelector("figure img", { timeout: 30000 });
   const src = await page.locator("figure img").first().getAttribute("src");
   const info = await page.evaluate(async (u) => {

@@ -23,7 +23,7 @@ try {
 
   // Fotoğraf yükle (istemcide küçültülüyor)
   await page.selectOption('select[aria-label="Belge türü"]', "PHOTO");
-  await page.setInputFiles('input[type="file"]', "/tmp/testfiles/foto.png");
+  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/foto.png");
   await page.waitForSelector("figure img", { timeout: 20000 });
   log("fotoğraf yüklendi");
 
@@ -39,7 +39,7 @@ try {
 
   // PDF yükle: fatura
   await page.selectOption('select[aria-label="Belge türü"]', "INVOICE");
-  await page.setInputFiles('input[type="file"]', "/tmp/testfiles/fatura.pdf");
+  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/fatura.pdf");
   await page.waitForSelector("text=fatura.pdf", { timeout: 20000 });
   log("fatura PDF yüklendi ve belge listesinde (görsel ızgarasında değil)");
   if (await page.locator("figure img[alt='fatura.pdf']").count()) {
@@ -48,13 +48,13 @@ try {
   await page.screenshot({ path: `${out}/1-ekler.png` });
 
   // İzinsiz tür reddedilir
-  await page.setInputFiles('input[type="file"]', "/tmp/testfiles/kotu.txt");
+  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/kotu.txt");
   await page.waitForSelector("text=Yalnız JPG, PNG, WebP, HEIC ve PDF yüklenir");
   log("izinsiz dosya türü reddedildi");
 
   // PDF fotoğraf türüyle yüklenemez
   await page.selectOption('select[aria-label="Belge türü"]', "PHOTO");
-  await page.setInputFiles('input[type="file"]', "/tmp/testfiles/fatura.pdf");
+  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/fatura.pdf");
   await page.waitForSelector("text=Fotoğraf olarak yalnız görsel yüklenir");
   log("PDF fotoğraf türüyle reddedildi");
 
@@ -107,6 +107,23 @@ try {
   await page.tap(`button[aria-label="${AD} fotoğrafını büyüt"]`);
   await page.waitForSelector('[data-testid="zoom-gorsel"]', { timeout: 10000 });
   log("listedeki fotoğraf büyütülebiliyor");
+  await page.keyboard.press("Escape");
+
+  // Detay başlığında da aynı kısayol: fotoğrafı olan büyütüyor.
+  await page.locator(`a:has-text("${AD}")`).first().tap();
+  await page.waitForSelector("text=FOTOĞRAF VE BELGELER", { timeout: 15000 });
+  const basliktaki = page.locator(`header button[aria-label="${AD} fotoğrafını büyüt"]`);
+  if (!(await basliktaki.count())) throw new Error("detay başlığında fotoğraf düğmesi yok");
+
+  // Başlıktaki görsel adın üstüne binmemeli (TUZAKLAR #66).
+  const cakisma = await page.evaluate(() => {
+    const h1 = document.querySelector("h1");
+    const kutu = h1.getBoundingClientRect();
+    const ust = document.elementFromPoint(Math.round(kutu.x) + 2, Math.round(kutu.y) + 14);
+    return ust?.tagName;
+  });
+  if (cakisma !== "H1") throw new Error(`başlığın üstünde ${cakisma} var`);
+  log("detay başlığındaki fotoğraf kısayolu yerinde");
   await page.screenshot({ path: `${out}/5-liste-foto.png` });
 
   console.log("\nEK YÜKLEME TESTİ GEÇTİ");

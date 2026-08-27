@@ -7,7 +7,7 @@ import { Thumb } from "@/components/Thumb";
 import { shrinkImage } from "@/lib/image-client";
 
 /**
- * Listedeki küçük görsel — dokunulabilir.
+ * Ekipmanın küçük görseli — dokunulabilir. Listede ve detay başlığında aynı.
  *
  * Fotoğrafı varsa büyütüyor; yoksa doğrudan kamerayı açıyor. Fotoğraf eklemek
  * için ekipmanı açıp ekler bölümüne inmek, elinde telefonla makinenin başında
@@ -22,12 +22,14 @@ export function ItemPhoto({
   url,
   icon,
   editable,
+  size = "sm",
 }: {
   itemId: string;
   name: string;
   url: string | null;
   icon: string | null;
   editable: boolean;
+  size?: "sm" | "lg";
 }) {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -51,7 +53,7 @@ export function ItemPhoto({
 
   // Fotoğrafı da yoksa ve ekleyemiyorsa dokunulacak bir şey yok.
   if (!url && !editable) {
-    return <Thumb url={null} alt={name} icon={icon} />;
+    return <Thumb url={null} alt={name} icon={icon} size={size} />;
   }
 
   return (
@@ -64,14 +66,18 @@ export function ItemPhoto({
           else fileInput.current?.click();
         }}
         aria-label={url ? `${name} fotoğrafını büyüt` : `${name} için fotoğraf çek`}
-        className="relative block rounded-[8px] active:opacity-70 disabled:opacity-50"
+        // shrink-0: esnek bir satırda düğme daralınca içindeki sabit boyutlu
+        // görsel taşıp yanındaki metnin üstüne biniyordu (TUZAKLAR #66).
+        className="relative block shrink-0 rounded-[8px] active:opacity-70 disabled:opacity-50"
       >
-        <Thumb url={url} alt={name} icon={icon} />
+        <Thumb url={url} alt={name} icon={icon} size={size} />
         {!url ? (
           // Boş kutunun dokunulabilir olduğu görünsün: köşede küçük bir kamera.
           <span
             aria-hidden
-            className="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-blue text-[9px] text-white"
+            className={`absolute -bottom-1 -right-1 grid place-items-center rounded-full bg-blue text-white ${
+              size === "lg" ? "h-5 w-5 text-[11px]" : "h-4 w-4 text-[9px]"
+            }`}
           >
             ＋
           </span>

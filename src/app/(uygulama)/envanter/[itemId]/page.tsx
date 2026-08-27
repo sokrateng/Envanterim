@@ -39,7 +39,7 @@ import { StatusPicker } from "./StatusPicker";
 import { Notes, type NoteView } from "./Notes";
 import { Service, type ServiceRow } from "./Service";
 import { Rating } from "./Rating";
-import { Thumb } from "@/components/Thumb";
+import { ItemPhoto } from "@/components/ItemPhoto";
 import { canDeleteNote, canEditNote } from "@/lib/notes";
 import { averageStars } from "@/lib/rating";
 import { paymentLabel, serviceLabel, serviceState } from "@/lib/service";
@@ -452,11 +452,13 @@ export default async function EkipmanPage({
         titleClassName={titleClass(item.name)}
         fixedTitle
         leading={
-          <Thumb
+          <ItemPhoto
             size="lg"
+            itemId={item.id}
+            name={item.name}
             url={photo?.url ?? null}
-            alt={item.name}
             icon={item.category?.icon ?? null}
+            editable={editable}
           />
         }
         back={{ href: "/envanter", label: "Envanter" }}
