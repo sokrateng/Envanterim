@@ -558,3 +558,16 @@ geçiyor. "Temizle" de bir tercih olduğu için boş hâl de
 saklanıyor; yoksa temizlenen süzme ilk dönüşte geri gelirdi. Saklanan değer
 tarayıcıda okunuyor, bu yüzden bağlanmadan sonraki ilk çizimde tazeleniyor —
 sunucu çizimiyle aynı kalsın diye.
+
+**76. `capture` kestirmesi seçeneği kapatıyor.** Listedeki boş fotoğraf kutusu
+`<input type="file" capture="environment">` ile doğrudan kamerayı açıyordu —
+"makinenin başındaki kullanıcı hızlıca çeksin" diye. Ama `capture` bir tercih
+değil, bir **zorlama**: alan artık yalnız kamerayı açıyor, telefonun fotoğraf
+arşivi hiç görünmüyor. Oysa ekipmanın fotoğrafı çoğu zaman zaten çekilmiş
+oluyor (kurulum günü, faturayla birlikte).
+
+**Ders:** kestirme, uzun yolu kapatmamalı. **Çözüm:** `capture` kaldırıldı;
+işletim sisteminin kendi menüsü çıkıyor (kitaplık · kamera · dosya). Kamera bir
+dokunuş uzaklaştı, arşiv erişilebilir oldu. Uçtan uca test artık alanda
+`capture` olmadığını da kontrol ediyor — kestirmenin geri gelmesi sessiz bir
+gerileme olurdu.

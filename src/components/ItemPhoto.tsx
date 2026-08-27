@@ -9,8 +9,9 @@ import { shrinkImage } from "@/lib/image-client";
 /**
  * Ekipmanın küçük görseli — dokunulabilir. Listede ve detay başlığında aynı.
  *
- * Fotoğrafı varsa büyütüyor; yoksa doğrudan kamerayı açıyor. Fotoğraf eklemek
- * için ekipmanı açıp ekler bölümüne inmek, elinde telefonla makinenin başında
+ * Fotoğrafı varsa büyütüyor; yoksa fotoğraf seçiciyi açıyor (kamera ya da
+ * kitaplık — seçim işletim sisteminin menüsünde). Fotoğraf eklemek için
+ * ekipmanı açıp ekler bölümüne inmek, elinde telefonla makinenin başında
  * duran kullanıcı için uzun bir yol.
  *
  * Satır bağlantısının dışında duruyor (bkz. `Row.leading`): içinde olsaydı
@@ -65,7 +66,7 @@ export function ItemPhoto({
           if (url) setViewing(true);
           else fileInput.current?.click();
         }}
-        aria-label={url ? `${name} fotoğrafını büyüt` : `${name} için fotoğraf çek`}
+        aria-label={url ? `${name} fotoğrafını büyüt` : `${name} için fotoğraf ekle`}
         // shrink-0: esnek bir satırda düğme daralınca içindeki sabit boyutlu
         // görsel taşıp yanındaki metnin üstüne biniyordu (TUZAKLAR #66).
         className={`relative block active:opacity-70 disabled:opacity-50 ${
@@ -95,8 +96,11 @@ export function ItemPhoto({
           ref={fileInput}
           type="file"
           accept="image/*"
-          // Doğrudan kamera: "hızlıca foto ekle" isteği bu.
-          capture="environment"
+          // `capture` bilerek yok. Varken alan doğrudan kamerayı açıyordu ve
+          // arşivdeki fotoğraf hiç eklenemiyordu — oysa ekipmanın fotoğrafı
+          // çoğu zaman zaten çekilmiş oluyor (kurulum günü, fatura yanında).
+          // Şimdi işletim sisteminin kendi menüsü çıkıyor: kitaplık, kamera,
+          // dosya. Kamera bir dokunuş uzakta ama seçenek kapanmıyor.
           className="hidden"
           onChange={(event) => {
             const picked = event.target.files?.[0];

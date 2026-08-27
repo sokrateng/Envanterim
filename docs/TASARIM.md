@@ -174,8 +174,12 @@ fiske hızlıysa açık kalır, değilse kapanır.
 
 - **Satırın solunda ürün fotoğrafı** (44px), yoksa kategori simgesi. Fotoğrafsız
   satır da aynı yeri kaplıyor: liste hizası bozulmuyor. Görsele dokunmak
-  fotoğrafı büyütüyor; fotoğraf yoksa doğrudan kamerayı açıyor — makinenin
+  fotoğrafı büyütüyor; fotoğraf yoksa fotoğraf seçiciyi açıyor — makinenin
   başındaki kullanıcı için ekipmanı açıp ekler bölümüne inmek uzun yol.
+  Alanda `capture` **yok**: varken doğrudan kamera açılıyordu ve arşivdeki
+  fotoğraf hiç eklenemiyordu, oysa ekipmanın fotoğrafı çoğu zaman zaten
+  çekilmiş oluyor. Şimdi işletim sisteminin kendi menüsü çıkıyor (kitaplık,
+  kamera, dosya); kamera bir dokunuş uzakta ama seçenek kapanmıyor.
 - **Kaydırma jestli satır kenardan kenara.** Yatay boşluk satırın içinde;
   kapta olursa işlem paneli boşluktan sızıyor (TUZAKLAR #63).
 - **Liste aşağı indikçe uzuyor.** "Önceki / Sonraki" telefonda yanlış bir

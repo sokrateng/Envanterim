@@ -31,8 +31,9 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   satırda küçük bir kalple.
 - **Fotoğraf ve belge.** Ürün fotoğrafı, fatura, garanti belgesi, kılavuz.
   Listede ve ekipman başlığındaki küçük görsele dokunmak fotoğrafı büyütüyor;
-  fotoğrafı olmayan ekipmana oradan kamerayla ekleniyor. Fotoğraf yüklemeden
-  önce istemcide küçültülüyor; PDF ayrı ele alınıyor.
+  fotoğrafı olmayan ekipmana oradan ekleniyor — kameradan da, telefonun
+  fotoğraf arşivinden de. Fotoğraf yüklemeden önce istemcide küçültülüyor;
+  PDF ayrı ele alınıyor.
 - **Notlar.** Tarif, doğru ayar, uyarı — fotoğraflı, yazan ve tarihiyle.
   Zaman çizelgesi olan biteni tutuyor, notlar bilgiyi.
 - **Beğeni yıldızı.** Kişi başına tek puan, ortalama herkese açık: hangi
@@ -159,7 +160,7 @@ testi: [`DEPLOY.md`](DEPLOY.md).
 | [`docs/MIMARI.md`](docs/MIMARI.md) | Veri modeli, yetki deseni, dinamik alanlar, bildirimler, faturadan okuma |
 | [`docs/TASARIM.md`](docs/TASARIM.md) | iOS görünümü: tipografi, renk, dokunma hedefi, güvenli alan |
 | [`docs/URUN.md`](docs/URUN.md) | Benzer uygulamalar ve öncelikli özellik listesi |
-| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 75 hata ve çözümü |
+| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 76 hata ve çözümü |
 
 Kural `CLAUDE.md`'de, gerekçe `docs/`'ta durur: ajanın davranışını değiştiren
 şey bağlamda sürekli duran kısa kurallardır; uzun mimari yazısı bir kez okunur.

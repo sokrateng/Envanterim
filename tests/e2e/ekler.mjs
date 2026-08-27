@@ -100,19 +100,24 @@ try {
   await page.tap('div[role="dialog"] button[type="submit"]');
   await page.waitForSelector(`text=${AD}`, { timeout: 15000 });
 
-  const ekleDugmesi = page.locator(`button[aria-label="${AD} için fotoğraf çek"]`);
+  const ekleDugmesi = page.locator(`button[aria-label="${AD} için fotoğraf ekle"]`);
   await ekleDugmesi.waitFor({ timeout: 15000 });
   // Dokunuş satırı açmamalı: görsel bağlantının dışında (TUZAKLAR #64).
   // Gizli dosya girişi düğmenin hemen ardında duruyor.
   const dosyaGirisi = page.locator(
-    `button[aria-label="${AD} için fotoğraf çek"] + input[type="file"]`,
+    `button[aria-label="${AD} için fotoğraf ekle"] + input[type="file"]`,
   );
+  // Alanda `capture` olmamalı: varken doğrudan kamera açılıyordu ve arşivdeki
+  // fotoğraf hiç eklenemiyordu. İşletim sisteminin menüsü çıksın diye kaldırdık.
+  if (await dosyaGirisi.getAttribute("capture")) {
+    throw new Error("capture geri gelmiş: arşivden fotoğraf seçilemiyor");
+  }
   await dosyaGirisi.setInputFiles("/tmp/testfiles/foto.png");
   await page.waitForSelector(`button[aria-label="${AD} fotoğrafını büyüt"]`, {
     timeout: 20000,
   });
   if (!page.url().includes("/envanter")) throw new Error("görsel dokunuşu satırı açtı");
-  log("listeden kamerayla fotoğraf eklendi");
+  log("listeden fotoğraf eklendi (kamera ya da arşiv, seçim işletim sisteminde)");
 
   await page.tap(`button[aria-label="${AD} fotoğrafını büyüt"]`);
   await page.waitForSelector('[data-testid="zoom-gorsel"]', { timeout: 10000 });
