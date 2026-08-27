@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
-import { useCloseAndRefresh } from "@/lib/history-layer";
+import { useCloseAndRefresh, useCloseThen } from "@/lib/history-layer";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { InvoiceLines } from "@/components/InvoiceLines";
 import {
@@ -21,15 +22,25 @@ export function NewItemButton({
   categoriesByLocation,
   vendorsByLocation,
   extractionEnabled,
+  autoOpen = false,
+  presetSerial = "",
 }: {
   locations: Array<{ id: string; name: string }>;
   defaultLocationId: string;
   categoriesByLocation: Record<string, CategoryOption[]>;
   vendorsByLocation: Record<string, VendorOption[]>;
   extractionEnabled: boolean;
+  /** Adreste `yeni=1` varsa panel kendiliğinden açılıyor (sekme çubuğu, tarama). */
+  autoOpen?: boolean;
+  /** Taranan barkod: yeni ekipmanın seri no alanına düşüyor. */
+  presetSerial?: string;
 }) {
   const closeAndRefresh = useCloseAndRefresh();
-  const [open, setOpen] = useState(false);
+  const closeThen = useCloseThen();
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const [open, setOpen] = useState(autoOpen);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locationId, setLocationId] = useState(defaultLocationId);
@@ -41,18 +52,44 @@ export function NewItemButton({
   const [reading, setReading] = useState(false);
   const [lines, setLines] = useState<InvoiceFormValues[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
-  const [defaults, setDefaults] = useState<ItemDefaults>({});
+  const [defaults, setDefaults] = useState<ItemDefaults>(
+    presetSerial ? { serialNo: presetSerial } : {},
+  );
   const [savedWarning, setSavedWarning] = useState<string | null>(null);
   // Alanlar `defaultValue` ile kurulu; doldurulan değerin görünmesi için
   // yeniden kurulmaları gerekiyor (lokasyon değişiminde olduğu gibi).
   const [fillCount, setFillCount] = useState(0);
+
+  /**
+   * Panel adresten açıldıysa (`?yeni=1`) kapanırken izini siliyoruz: kalırsa
+   * sayfa yenilendiğinde panel yeniden açılır. Adres değişimi kapanıştan
+   * **sonra** yapılmalı — önce yapılırsa panelin history.back()'i geri alıyor
+   * (TUZAKLAR #60).
+   */
+  function close() {
+    const kirli = params.get("yeni") ?? params.get("seri");
+    if (!kirli) {
+      setOpen(false);
+      return;
+    }
+    closeThen(
+      () => setOpen(false),
+      () => {
+        const next = new URLSearchParams(params.toString());
+        next.delete("yeni");
+        next.delete("seri");
+        const query = next.toString();
+        router.replace(query ? `${pathname}?${query}` : pathname);
+      },
+    );
+  }
 
   function reset() {
     setError(null);
     setInvoice(null);
     setLines(null);
     setNote(null);
-    setDefaults({});
+    setDefaults(presetSerial ? { serialNo: presetSerial } : {});
     setFillCount(0);
     setReading(false);
     setSavedWarning(null);
@@ -190,7 +227,7 @@ export function NewItemButton({
         + Yeni
       </button>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Yeni ekipman" guardUnsaved>
+      <Sheet open={open} onClose={close} title="Yeni ekipman" guardUnsaved>
         {savedWarning ? (
           <div className="pb-2">
             <p role="alert" className="py-2 text-body text-orange">

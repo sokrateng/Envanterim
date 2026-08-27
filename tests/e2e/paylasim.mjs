@@ -1,5 +1,6 @@
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
+import { bolumAc } from "./ortak.mjs";
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/paylasim"; fs.mkdirSync(out, { recursive: true });
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 const iphone = { ...devices["iPhone 13"], viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 };
@@ -28,7 +29,7 @@ try {
   await page.tap('button[type="submit"]');
   await page.waitForSelector(`text=${ad}`);
   await page.locator(`a:has-text("${ad}")`).first().click();
-  await page.waitForSelector('button:has-text("Bağlantı üret")');
+  await bolumAc(page, "Salt-okunur bağlantı");
   const itemUrl = page.url();
 
   // Tutarlı bir servis kaydı ekle
@@ -43,12 +44,14 @@ try {
 
   // Fotoğraf ekle: paylaşılan sayfada görünmeli
   await page.goto(itemUrl);
+  await bolumAc(page, "Fotoğraf ve belgeler");
   await page.selectOption('select[aria-label="Belge türü"]', "PHOTO");
   await page.setInputFiles('input[type="file"]', "/tmp/testfiles/foto.png");
   await page.waitForSelector("figure img", { timeout: 20000 });
 
   // Bağlantı üret
   await page.goto(itemUrl);
+  await bolumAc(page, "Salt-okunur bağlantı");
   await page.selectOption('select[aria-label="Bağlantı süresi"]', "7");
   await page.tap('button:has-text("Bağlantı üret")');
   await page.waitForSelector("text=görüntüleme", { timeout: 15000 });
@@ -109,9 +112,10 @@ try {
   await page.tap('button[type="submit"]');
   await page.waitForSelector(`text=Başka ekipman ${damga}`);
   await page.locator(`a:has-text("Başka ekipman ${damga}")`).first().click();
-  await page.waitForSelector('select[aria-label="Belge türü"]');
+  await bolumAc(page, "Fotoğraf ve belgeler");
   await page.selectOption('select[aria-label="Belge türü"]', "PHOTO");
   await page.setInputFiles('input[type="file"]', "/tmp/testfiles/foto.png");
+  await bolumAc(page, "Fotoğraf ve belgeler");
   await page.waitForSelector("figure img", { timeout: 20000 });
   const baskaSrc = await page.locator("figure img").first().getAttribute("src");
 
@@ -131,6 +135,7 @@ try {
   // Görüntülenme sayacı işliyor
   await page.goto(itemUrl);
   await page.reload();
+  await bolumAc(page, "Salt-okunur bağlantı");
   // innerHTML'de React bitişik metin düğümleri arasına <!-- --> koyuyor
   // ("1<!-- --> görüntüleme"); sayaç kontrolü innerText üstünden yapılmalı.
   const sayac = await page.locator("body").innerText();
@@ -146,6 +151,7 @@ try {
 
   // İptal edilen bağlantı anında geçersiz
   await page.goto(itemUrl);
+  await bolumAc(page, "Salt-okunur bağlantı");
   await page.locator('li:has-text("Geçerli") button:has-text("İptal")').first().click();
   await page.waitForTimeout(2000);
   const iptalSonrasi = await anonPage.goto(`${BASE}/p/${yeni.token}`);

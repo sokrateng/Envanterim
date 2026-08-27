@@ -75,5 +75,11 @@ export async function POST(request: Request) {
     });
   }
 
-  return NextResponse.json({ tur: "arama", q: target.query });
+  // Hiç eşleşme yoksa istemci "ekipman ekle" diye sorabilsin: kodu okutan
+  // kullanıcı çoğu zaman elindeki yeni cihazı kaydetmek istiyor.
+  return NextResponse.json({
+    tur: "arama",
+    q: target.query,
+    bulunan: matches.length,
+  });
 }

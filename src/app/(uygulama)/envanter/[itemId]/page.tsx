@@ -595,26 +595,61 @@ export default async function EkipmanPage({
         </Group>
       ) : null}
 
-      <Assignment
-        itemId={item.id}
-        active={activeView}
-        members={members.map((member) => member.user)}
-        componentCount={item.components.length}
-        editable={editable}
-      />
-
-      {item.parent || componentRows.length || (editable && linkableChildren.length) ? (
-        <Components
-          itemId={item.id}
-          parent={item.parent}
-          components={componentRows}
-          linkable={linkableChildren.map((option) => ({
-            id: option.id,
-            name: option.name,
-          }))}
-          editable={editable}
-        />
+      {editable ? (
+        <StatusPicker itemId={item.id} status={item.status as ItemStatus} />
       ) : null}
+
+      {/* Yedi bölüm alt alta açıkken sayfa metrelerce uzuyordu; tek kartta
+          katlanır satırlar (docs/TASARIM.md). Sıra tasarımdaki sıra. */}
+      <Group title="Kayıtlar">
+        <Rows>
+          <Service
+            itemId={item.id}
+            jobs={serviceJobs}
+            vendors={vendors}
+            editable={editable}
+          />
+          <Assignment
+            itemId={item.id}
+            active={activeView}
+            members={members.map((member) => member.user)}
+            componentCount={item.components.length}
+            editable={editable}
+          />
+          <Notes itemId={item.id} notes={notes} canWrite />
+          {item.parent || componentRows.length || (editable && linkableChildren.length) ? (
+            <Components
+              itemId={item.id}
+              parent={item.parent}
+              components={componentRows}
+              linkable={linkableChildren.map((option) => ({
+                id: option.id,
+                name: option.name,
+              }))}
+              editable={editable}
+            />
+          ) : null}
+          <Maintenance
+            itemId={item.id}
+            rules={maintenanceRows}
+            editable={editable}
+          />
+          <Parts
+            itemId={item.id}
+            parts={parts}
+            vendors={vendors}
+            currency={item.currency}
+            editable={editable}
+          />
+          <Attachments
+            itemId={item.id}
+            editable={editable}
+            extractionEnabled={isExtractionConfigured()}
+            attachments={ownAttachments as AttachmentView[]}
+          />
+          <ShareLinks itemId={item.id} links={shares} editable={editable} />
+        </Rows>
+      </Group>
 
       <Timeline
         itemId={item.id}
@@ -625,41 +660,6 @@ export default async function EkipmanPage({
         editable={editable}
       />
 
-      <Maintenance
-        itemId={item.id}
-        rules={maintenanceRows}
-        editable={editable}
-      />
-
-      <Parts
-        itemId={item.id}
-        parts={parts}
-        vendors={vendors}
-        currency={item.currency}
-        editable={editable}
-      />
-
-      <ShareLinks itemId={item.id} links={shares} editable={editable} />
-
-      <Attachments
-        itemId={item.id}
-        editable={editable}
-        extractionEnabled={isExtractionConfigured()}
-        attachments={ownAttachments as AttachmentView[]}
-      />
-
-      <Service
-        itemId={item.id}
-        jobs={serviceJobs}
-        vendors={vendors}
-        editable={editable}
-      />
-
-      <Notes itemId={item.id} notes={notes} canWrite />
-
-      {editable ? (
-        <StatusPicker itemId={item.id} status={item.status as ItemStatus} />
-      ) : null}
     </Screen>
     </FillProvider>
   );

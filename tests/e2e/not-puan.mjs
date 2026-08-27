@@ -6,6 +6,7 @@
  */
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
+import { bolumAc } from "./ortak.mjs";
 
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/not-puan";
 fs.mkdirSync(out, { recursive: true });
@@ -44,6 +45,7 @@ try {
   log("ekipman açıldı");
 
   // 1) Fotoğraflı not
+  await bolumAc(page, "Notlar");
   await page.tap('button:has-text("+ Not")');
   await page.waitForSelector('div[role="dialog"][aria-label="Yeni not"]');
   const TARIF = "500 ml süt, 100 g şeker, 20 dakika. Kabı önce dondurucuda beklet.";
@@ -62,6 +64,8 @@ try {
   await page.screenshot({ path: `${out}/1-not.png` });
 
   // Not fotoğrafı genel "Fotoğraf ve belgeler" bölümüne karışmamalı.
+  // Bölüm katlanır: açmadan içindeki metin gövdede görünmüyor.
+  await bolumAc(page, "Fotoğraf ve belgeler");
   const govde = await page.locator("body").innerText();
   if (!govde.includes("Fatura, garanti belgesi")) throw new Error("ekler bölümü kayıp");
   log("not fotoğrafı ekler bölümüne karışmadı");
@@ -93,6 +97,7 @@ try {
   const digerCtx = await browser.newContext(iphone);
   const diger = await giris(digerCtx, "buketc");
   await diger.goto(urunAdresi);
+  await bolumAc(diger, "Notlar");
   await diger.waitForSelector(`text=${TARIF.slice(0, 20)}`, { timeout: 15000 });
 
   const notId = await page.evaluate(async (adres) => {

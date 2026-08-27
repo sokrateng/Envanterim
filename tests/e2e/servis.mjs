@@ -6,6 +6,7 @@
  */
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
+import { bolumAc } from "./ortak.mjs";
 
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/servis";
 fs.mkdirSync(out, { recursive: true });
@@ -37,7 +38,7 @@ try {
   await page.waitForSelector(`text=${AD}`, { timeout: 15000 });
   await page.locator(`a:has-text("${AD}")`).first().tap();
   // Başlığı büyük harfle aramıyoruz: Türkçe "İ" küçültülünce eşleşmiyor.
-  await page.waitForSelector('h2:has-text("Servis")', { timeout: 15000 });
+  await bolumAc(page, "Servis");
   log("ekipman açıldı");
 
   // 1) Servise gönder → durum "Serviste"

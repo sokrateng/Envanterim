@@ -43,6 +43,8 @@ type Search = {
   kategori?: string;
   zimmet?: string;
   favori?: string;
+  yeni?: string;
+  seri?: string;
   sayfa?: string;
 };
 
@@ -370,6 +372,8 @@ export default async function EnvanterPage({
               categoriesByLocation={categoriesByLocation}
               vendorsByLocation={vendorsByLocation}
               extractionEnabled={isExtractionConfigured()}
+              autoOpen={filters.yeni === "1"}
+              presetSerial={filters.seri ?? ""}
             />
           ) : undefined
         }

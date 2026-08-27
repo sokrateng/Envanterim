@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
+import { Fold } from "@/components/ui";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 
@@ -63,22 +64,9 @@ export function Components({
   }
 
   return (
-    <section className="mt-6">
-      <div className="flex items-center justify-between px-8 pb-2">
-        <h2 className="text-footnote uppercase text-muted">Bileşenler</h2>
-        {editable && linkable.length ? (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="min-h-touch px-2 text-body text-blue active:opacity-60"
-          >
-            + Bileşen
-          </button>
-        ) : null}
-      </div>
-
+    <Fold title="Bileşenler" count={components.length}>
       {parent ? (
-        <div className="mx-4 mb-2 flex min-h-touch items-center gap-3 rounded-card bg-surface px-4 py-2.5">
+        <div className="mb-2 flex min-h-touch items-center gap-3 rounded-card bg-bg px-4 py-2.5">
           <span className="shrink-0 text-footnote text-muted">Şunun parçası</span>
           <Link
             href={`/envanter/${parent.id}`}
@@ -101,7 +89,7 @@ export function Components({
       ) : null}
 
       {components.length ? (
-        <ul className="mx-4 divide-y divide-separator overflow-hidden rounded-card bg-surface">
+        <ul className="divide-y divide-separator overflow-hidden rounded-card bg-bg">
           {components.map((component) => (
             <li key={component.id} className="flex min-h-touch items-center gap-3 px-4 py-2.5">
               <Link
@@ -130,17 +118,27 @@ export function Components({
           ))}
         </ul>
       ) : parent ? null : (
-        <p className="px-8 text-footnote text-muted">
+        <p className="text-footnote text-muted">
           Lisans, hoparlör, klavye… Ana ekipmanla birlikte gezen her şeyi buraya
           bağla; zimmet ve devir birlikte işler.
         </p>
       )}
 
       {error ? (
-        <p role="alert" className="px-8 pt-2 text-footnote text-red">
+        <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
       ) : null}
+
+        {editable && linkable.length ? (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="min-h-touch px-2 text-body text-blue active:opacity-60"
+          >
+            + Bileşen
+          </button>
+        ) : null}
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Bileşen bağla" guardUnsaved>
         <form onSubmit={add} className="max-h-[70dvh] overflow-y-auto pb-2">
@@ -163,6 +161,6 @@ export function Components({
           <SubmitButton pending={pending}>Bağla</SubmitButton>
         </form>
       </Sheet>
-    </section>
+    </Fold>
   );
 }

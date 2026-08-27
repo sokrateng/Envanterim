@@ -1,4 +1,5 @@
 import { Group, Row, Rows, Screen, ScreenHeader } from "@/components/ui";
+import { SURUM } from "@/lib/constants";
 import { isEmailConfigured } from "@/lib/mailer";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
@@ -54,6 +55,15 @@ export default async function HesapPage() {
           />
         </Group>
       ) : null}
+
+      {/* Sürüm: "bendeki eski mi?" sorusu servis konuşmalarında sürekli
+          çıkıyor; kullanıcıya soracak yer lazım. */}
+      <Group title="Hakkında">
+        <Rows>
+          <Row title="Uygulama" value="Envanterim" />
+          <Row title="Sürüm" value={SURUM} />
+        </Rows>
+      </Group>
 
       <Group>
         <SignOutButton />

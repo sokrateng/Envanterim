@@ -105,3 +105,6 @@ export const ASSIGNMENT_OVERDUE_DAYS = 3;
 
 /** Alt ekipman zinciri bu kadar derin olabilir: ana → alt → altın altı. */
 export const MAX_COMPONENT_DEPTH = 3;
+
+/** Uygulama sürümü — package.json ile elle eşleniyor, hesap ekranında görünür. */
+export const SURUM = "0.1.0";

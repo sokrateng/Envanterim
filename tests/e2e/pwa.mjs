@@ -1,5 +1,6 @@
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
+import { bolumAc } from "./ortak.mjs";
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/pwa"; fs.mkdirSync(out, { recursive: true });
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 const iphone = { ...devices["iPhone 13"], viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 };
@@ -47,7 +48,7 @@ try {
   await page.tap('button[type="submit"]');
   await page.waitForSelector(`text=${ad}`);
   await page.locator(`a:has-text("${ad}")`).first().tap();
-  await page.waitForSelector("text=FOTOĞRAF VE BELGELER");
+  await bolumAc(page, "Fotoğraf ve belgeler");
   const itemUrl = page.url();
   await page.selectOption('select[aria-label="Belge türü"]', "PHOTO");
   await page.setInputFiles('input[type="file"]', "/tmp/testfiles/foto.png");

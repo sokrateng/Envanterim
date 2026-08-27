@@ -40,3 +40,21 @@ export async function girisYap(context, kullanici = KULLANICI, sifre = SIFRE) {
   await page.waitForURL("**/lokasyonlar");
   return page;
 }
+
+/**
+ * Detay sayfasındaki katlanır bölümü açar.
+ *
+ * Bölümler kapalı geliyor (docs/TASARIM.md): içerideki düğmeye dokunmadan
+ * önce başlığa dokunmak gerekiyor. Açıksa dokunmuyoruz — ikinci dokunuş
+ * kapatırdı.
+ */
+export async function bolumAc(page, baslik) {
+  const ozet = page.locator(`summary:has-text("${baslik}")`).first();
+  await ozet.waitFor({ state: "visible", timeout: 15000 });
+  const acik = await ozet.evaluate((el) => el.parentElement.open);
+  if (!acik) {
+    await ozet.tap();
+    await page.waitForTimeout(150);
+  }
+  return ozet;
+}

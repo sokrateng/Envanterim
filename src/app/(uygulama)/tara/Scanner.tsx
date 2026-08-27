@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CodeCamera } from "@/components/CodeCamera";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { readScan, scanSummary, type ScanTarget } from "@/lib/scan";
 
 /**
@@ -19,6 +20,8 @@ export function Scanner() {
   const [note, setNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [manual, setManual] = useState("");
+  /** Kayıtlı ekipmana denk gelmeyen barkod; "ekleyeyim mi" diye soruyoruz. */
+  const [unknownCode, setUnknownCode] = useState<string | null>(null);
 
   /** Çözülen kodu sunucuya sorar ve yönlendirir. */
   const resolve = useCallback(
@@ -49,6 +52,13 @@ export function Scanner() {
           router.push(`/p/${payload.token}`);
           return true;
         case "arama":
+          // Birden çok eşleşme varsa liste doğru cevap; hiç yoksa liste boş
+          // bir ekran demek — kullanıcının elindeki cihaz orada yok.
+          if (payload.bulunan === 0) {
+            setNote(null);
+            setUnknownCode(payload.q);
+            return true;
+          }
           router.push(`/envanter?q=${encodeURIComponent(payload.q)}`);
           return true;
         default:
@@ -95,6 +105,27 @@ export function Scanner() {
           {error}
         </p>
       ) : null}
+
+      <ConfirmDialog
+        open={unknownCode !== null}
+        title="Ekipman bulunamadı"
+        message={`${unknownCode} barkoduna kayıtlı ekipman yok. Yeni ekipman olarak eklemek ister misin?`}
+        tone="blue"
+        primary={{
+          label: "Ekipman ekle",
+          onSelect: () =>
+            router.push(
+              `/envanter?yeni=1&seri=${encodeURIComponent(unknownCode ?? "")}`,
+            ),
+        }}
+        confirmLabel="Tekrar tara"
+        cancelLabel="Vazgeç"
+        onConfirm={() => setUnknownCode(null)}
+        onCancel={() => {
+          setUnknownCode(null);
+          router.push("/envanter");
+        }}
+      />
 
       <form onSubmit={submitManual} className="flex gap-2 pt-4">
         <input

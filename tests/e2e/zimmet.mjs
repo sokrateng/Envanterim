@@ -1,5 +1,6 @@
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
+import { bolumAc } from "./ortak.mjs";
 
 const out = (process.env.E2E_SHOTS ?? "/tmp/shots") + "/zimmet";
 fs.mkdirSync(out, { recursive: true });
@@ -82,6 +83,7 @@ try {
   log("ana ekipman:", anaId);
 
   // 1) Alt ekipman bağlama
+  await bolumAc(sahip, "Bileşenler");
   await sahip.tap('button:has-text("+ Bileşen")');
   await sahip.selectOption('select[name="childId"]', { label: ALT });
   await sahip.tap('form button[type="submit"]');
@@ -91,6 +93,10 @@ try {
 
   // Alt ekipman sayfasında "Şunun parçası" görünmeli
   await sahip.tap(`a:has-text("${ALT}")`);
+  // Gezinme bitmeden bölümü açmaya kalkarsak eski sayfanın başlığına
+  // dokunuyoruz; yeni sayfa kapalı bölümle geliyor.
+  await sahip.waitForSelector(`h1:has-text("${ALT}")`, { timeout: 15000 });
+  await bolumAc(sahip, "Bileşenler");
   await sahip.waitForSelector("text=Şunun parçası");
   const altUrl = sahip.url();
   const altId = altUrl.split("/").pop();
@@ -98,6 +104,7 @@ try {
 
   // 2) Zimmet ver — hesabı olan üyeye
   await sahip.goto(anaUrl);
+  await bolumAc(sahip, "Zimmet");
   await sahip.tap('button:has-text("+ Zimmet ver")');
   await sahip.selectOption('select[name="holderUserId"]', { label: EYLUL_AD });
   await sahip.fill('input[name="note"]', "Okul için");
@@ -108,17 +115,20 @@ try {
 
   // Bileşen de birlikte gitti mi
   await sahip.goto(altUrl);
+  await bolumAc(sahip, "Zimmet");
   await sahip.waitForSelector("text=Teslim bekliyor");
   log("bileşen de birlikte zimmetlendi");
 
   // 3) Sahip kendi ekranında "Teslim edildi" görüyor, Eylül "Üzerime al"
   await sahip.goto(anaUrl);
+  await bolumAc(sahip, "Zimmet");
   const sahipMetni = await sahip.locator("#zimmet").innerText();
   if (!sahipMetni.includes("Teslim edildi")) {
     throw new Error(`sahip için beklenen düğme yok: ${sahipMetni}`);
   }
 
   await eylul.goto(anaUrl);
+  await bolumAc(eylul, "Zimmet");
   await eylul
     .waitForSelector('button:has-text("Üzerime al")')
     .catch(async () => {
@@ -138,6 +148,7 @@ try {
 
   // 5) Eylül üzerine alıyor
   await eylul.goto(anaUrl);
+  await bolumAc(eylul, "Zimmet");
   await eylul.tap('button:has-text("Üzerime al")');
   await eylul.waitForSelector("text=Üzerinde", { timeout: 15000 });
   log("Eylül ekipmanı üzerine aldı");
@@ -153,6 +164,7 @@ try {
 
   // 6) Devir: Eylül'den hesapsız kişiye
   await sahip.goto(anaUrl);
+  await bolumAc(sahip, "Zimmet");
   await sahip.tap('button:has-text("Devret")');
   await sahip.tap('button:has-text("Hesapsız kişi")');
   await sahip.fill('input[name="holderName"]', "Buket Çoban");
@@ -163,6 +175,7 @@ try {
 
   // Eylül'ün üzerinden düştü mü
   await eylul.goto(anaUrl);
+  await bolumAc(eylul, "Zimmet");
   const eylulMetni = await eylul.locator("#zimmet").innerText();
   if (eylulMetni.includes(EYLUL_AD)) throw new Error("devir sonrası eski sorumlu duruyor");
 

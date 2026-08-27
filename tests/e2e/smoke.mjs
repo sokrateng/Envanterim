@@ -91,13 +91,14 @@ try {
     .first()
     .innerText();
   if (badge !== "12 gün garanti") throw new Error(`garanti rozeti: ${badge}`);
-  const price = await page
+  // Tutar satırdan kalktı: sağdaki blokta durum ve garanti var (tasarım).
+  const durum = await page
     .locator(`a:has-text("${URUN}")`)
     .first()
-    .locator("text=18.400,50 ₺")
+    .locator("text=Kullanımda")
     .count();
-  if (price !== 1) throw new Error("tutar biçimi yanlış");
-  log("garanti rozeti ve tutar doğru:", badge);
+  if (durum !== 1) throw new Error("satırda durum yok");
+  log("garanti rozeti ve durum doğru:", badge);
   await page.screenshot({ path: `${out}/6-envanter.png` });
 
   // Arama ve durum filtresi

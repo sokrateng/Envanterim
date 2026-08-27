@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
-import { Badge } from "@/components/ui";
+import { Badge, Fold } from "@/components/ui";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 import type { RuleState } from "@/lib/maintenance";
@@ -87,27 +87,14 @@ export function Maintenance({
   }
 
   return (
-    <section className="mt-6">
-      <div className="flex items-center justify-between px-8 pb-2">
-        <h2 className="text-footnote uppercase text-muted">Bakım</h2>
-        {editable ? (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="min-h-touch px-2 text-body text-blue active:opacity-60"
-          >
-            + Kural
-          </button>
-        ) : null}
-      </div>
-
+    <Fold title="Bakım" count={rules.length}>
       {rules.length === 0 ? (
-        <p className="px-8 text-footnote text-muted">
+        <p className="text-footnote text-muted">
           &quot;6 ayda bir klima bakımı&quot; ya da &quot;her 10.000 km&apos;de
           servis&quot;. Zamanı gelince bildirim gelir.
         </p>
       ) : (
-        <ul className="mx-4 divide-y divide-separator overflow-hidden rounded-card bg-surface">
+        <ul className="divide-y divide-separator overflow-hidden rounded-card bg-bg">
           {rules.map((rule) => (
             <li key={rule.id} className="flex min-h-touch items-center gap-3 py-2.5 pl-4 pr-4">
               <div className="min-w-0 flex-1">
@@ -134,10 +121,20 @@ export function Maintenance({
       )}
 
       {error ? (
-        <p role="alert" className="px-8 pt-2 text-footnote text-red">
+        <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
       ) : null}
+
+        {editable ? (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="min-h-touch px-2 text-body text-blue active:opacity-60"
+          >
+            + Kural
+          </button>
+        ) : null}
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Bakım kuralı" guardUnsaved>
         <form onSubmit={create} className="max-h-[70dvh] overflow-y-auto pb-2">
@@ -191,6 +188,6 @@ export function Maintenance({
           <SubmitButton pending={pending}>Kaydet</SubmitButton>
         </form>
       </Sheet>
-    </section>
+    </Fold>
   );
 }

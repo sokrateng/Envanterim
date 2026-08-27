@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
+import { Fold } from "@/components/ui";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 import { formatMoney } from "@/lib/money";
@@ -76,27 +77,14 @@ export function Parts({
   }
 
   return (
-    <section className="mt-6">
-      <div className="flex items-center justify-between px-8 pb-2">
-        <h2 className="text-footnote uppercase text-muted">Yedek parçalar</h2>
-        {editable ? (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="min-h-touch px-2 text-body text-blue active:opacity-60"
-          >
-            + Parça
-          </button>
-        ) : null}
-      </div>
-
+    <Fold title="Yedek parçalar" count={parts.length}>
       {parts.length === 0 ? (
-        <p className="px-8 text-footnote text-muted">
+        <p className="text-footnote text-muted">
           Filtre, kayış, pil… Parça numarasını ve temin ücretini not edersen
           bir dahakine aramazsın.
         </p>
       ) : (
-        <ul className="mx-4 divide-y divide-separator overflow-hidden rounded-card bg-surface">
+        <ul className="divide-y divide-separator overflow-hidden rounded-card bg-bg">
           {parts.map((part) => {
             const details = [
               part.partNo ? `No ${part.partNo}` : null,
@@ -137,10 +125,20 @@ export function Parts({
       )}
 
       {error ? (
-        <p role="alert" className="px-8 pt-2 text-footnote text-red">
+        <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
       ) : null}
+
+        {editable ? (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="min-h-touch px-2 text-body text-blue active:opacity-60"
+          >
+            + Parça
+          </button>
+        ) : null}
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Yeni parça" guardUnsaved>
         <form onSubmit={create} className="max-h-[70dvh] overflow-y-auto pb-2">
@@ -175,6 +173,6 @@ export function Parts({
           <SubmitButton pending={pending}>Kaydet</SubmitButton>
         </form>
       </Sheet>
-    </section>
+    </Fold>
   );
 }

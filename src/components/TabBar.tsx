@@ -32,9 +32,9 @@ export function TabBar() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-separator bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
       <ul className="mx-auto flex w-full max-w-[430px]">
-        {TABS.map((tab) => {
+        {TABS.map((tab, index) => {
           const active = pathname.startsWith(tab.href);
-          return (
+          return [
             <li key={tab.href} className="flex-1">
               <Link
                 href={tab.href}
@@ -57,8 +57,24 @@ export function TabBar() {
                 </svg>
                 <span className="text-caption">{tab.label}</span>
               </Link>
-            </li>
-          );
+            </li>,
+            // Ekleme düğmesi ortada ve sekmelerin üstüne taşıyor: parmağın
+            // doğal yeri ekranın altı, oysa "+" ekranın en uzak köşesindeydi.
+            // Her sekmede duruyor — yeni ekipman her yerden açılabilmeli.
+            index === 1 ? (
+              <li key="yeni" className="flex w-[72px] shrink-0 justify-center">
+                <Link
+                  href="/envanter?yeni=1"
+                  aria-label="Yeni ekipman"
+                  className="-mt-5 grid h-14 w-14 place-items-center rounded-full border-4 border-surface bg-blue text-[26px] text-white shadow-lg active:opacity-70"
+                >
+                  <span aria-hidden className="-mt-0.5">
+                    +
+                  </span>
+                </Link>
+              </li>
+            ) : null,
+          ];
         })}
       </ul>
     </nav>

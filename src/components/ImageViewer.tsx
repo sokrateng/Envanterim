@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useHistoryLayer } from "@/lib/history-layer";
 import {
   IDENTITY,
@@ -23,6 +24,10 @@ import {
  * (TUZAKLAR #8); fatura ve ürün fotoğrafı büyütülebilsin diye hareketi
  * pointer olaylarıyla kendimiz ele alıyoruz. Matematik `src/lib/zoom.ts`'te
  * ve testli.
+ *
+ * Gövdeye portalla basılıyor: liste satırı kaydırma jesti için `transform`
+ * taşıyor, dönüşümlü bir ata `position: fixed`i kendi kutusuna hapsediyor —
+ * görüntüleyici satırın içine sıkışıp görünmez oluyordu (TUZAKLAR #68).
  */
 export function ImageViewer({
   open,
@@ -171,7 +176,7 @@ export function ImageViewer({
 
   const zoomed = isZoomed(state);
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex flex-col bg-black"
       role="dialog"
@@ -219,6 +224,7 @@ export function ImageViewer({
       <p className="pb-[calc(env(safe-area-inset-bottom)+12px)] pt-2 text-center text-caption text-white/60">
         {zoomed ? "Kaydırarak gez · çift dokun küçült" : "İki parmakla ya da çift dokunarak büyüt"}
       </p>
-    </div>
+    </div>,
+    document.body,
   );
 }

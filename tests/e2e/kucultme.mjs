@@ -1,4 +1,5 @@
 import { chromium, devices } from "playwright";
+import { bolumAc } from "./ortak.mjs";
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 const iphone = { ...devices["iPhone 13"], viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true };
 const browser = await chromium.launch({ ...(process.env.E2E_CHROMIUM ? { executablePath: process.env.E2E_CHROMIUM } : {}), args: ["--no-sandbox"] });
@@ -18,9 +19,9 @@ try {
   await page.tap('div[role="dialog"] button[type="submit"]');
   await page.waitForSelector(`text=${AD}`, { timeout: 15000 });
   await page.locator(`a:has-text("${AD}")`).first().tap();
-  await page.waitForSelector("text=FOTOĞRAF VE BELGELER");
+  await bolumAc(page, "Fotoğraf ve belgeler");
   await page.selectOption('select[aria-label="Belge türü"]', "PHOTO");
-  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/buyuk.png");
+  await page.setInputFiles('details:has(summary:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/buyuk.png");
   await page.waitForSelector("figure img", { timeout: 30000 });
   const src = await page.locator("figure img").first().getAttribute("src");
   const info = await page.evaluate(async (u) => {

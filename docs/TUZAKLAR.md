@@ -462,3 +462,29 @@ Aynı QR modeli de taşıdığı için model alanı — boşsa — o değerle do
 Node'da zxing'i çalıştırmanın yolu `tests/e2e/sahte/y4m.mjs` içindeki
 `instantiateWasm` numarası; `readBarcodes` ham JPEG baytlarını da alıyor, tuval
 gerekmiyor.
+
+## Katlanır bölümler ve katmanlar
+
+**68. Dönüşümlü atanın içindeki `position: fixed` tam ekran olmuyor.** Liste
+satırı kaydırma jesti için `transform: translate3d(...)` taşıyor. Dönüşüm
+uygulanmış bir öğe, içindeki `fixed` konumlu her şey için yeni bir kapsayıcı
+blok oluşturuyor: `inset-0` artık ekranı değil o satırın kutusunu kaplıyor.
+Satırdaki fotoğrafa dokununca görsel görüntüleyici açılıyor ama 64 piksellik
+bir şeride sıkışıp görünmez oluyordu (Playwright "hidden" diyordu, DOM'da
+vardı). **Çözüm:** görüntüleyici `createPortal` ile `document.body`'ye
+basılıyor. Tam ekran her katman için kural: satır içinde doğan bir katman
+gövdeye taşınmalı.
+
+**69. `<details open={...}>` her render'da geri yazılıyor.** Katlanır bölümü
+kullanıcı açıyor, `router.refresh()` sonrası kapanıyordu — React `open`
+özniteliğini kendi bildiği değere döndürüyor. Daha kötüsü: `open`u içeriğe
+bağlamak (zimmet varsa açık) kullanıcı iade alınca bölümü kendiliğinden
+katlıyordu. **Çözüm:** `open` özniteliği hiç verilmiyor. React değişmeyen
+özniteliğe dokunmuyor, açık/kapalı tarayıcıda yaşıyor.
+
+**70. Kapalı bölüm testte "yok" demek değil.** `<details>` kapalıyken içeriği
+`display: none`; `waitForSelector` "var ama görünmez" diye bekliyor,
+`innerText` içeriği hiç görmüyor, `locator.count()` ise **sayıyor**. Uçtan uca
+testte bölümü önce açmak gerekiyor (`bolumAc`, tests/e2e/ortak.mjs) — ve
+gezinmeden hemen sonra açmaya kalkarsan eski sayfanın başlığına dokunup yeni
+sayfayı kapalı bırakıyorsun; önce yeni sayfayı bekle.

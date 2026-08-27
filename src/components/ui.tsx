@@ -202,6 +202,55 @@ export function Row({
 }
 
 /**
+ * Katlanır bölüm — detay sayfasının "Kayıtlar" kartındaki satırlar.
+ *
+ * Yedi bölüm alt alta açıkken sayfa metrelerce uzuyordu; oysa çoğu ziyarette
+ * yalnız biri gerekiyor. Başlıkta duran sayı hangisinde ne olduğunu açmadan
+ * söylüyor — boş bölümde sayı yok, o yüzden sessiz kalıyor.
+ *
+ * Açılıp kapanmayı `<details>` yapıyor: durum tarayıcıda, JavaScript yok,
+ * sunucu bileşeni kalabiliyor. Eylem düğmesi başlıkta değil gövdede —
+ * başlıktaki bir düğmeye dokunmak bölümü de açıp kapatırdı.
+ */
+export function Fold({
+  id,
+  title,
+  count,
+  children,
+}: {
+  /** Bildirimden gelen bağlantının çapası (#zimmet gibi). */
+  id?: string;
+  title: string;
+  /** İçerik sayısı; sıfırsa rozet çizilmiyor. */
+  count?: number;
+  children: ReactNode;
+}) {
+  return (
+    // `open` özniteliği hiç verilmiyor: açık/kapalı tarayıcının işi. React'e
+    // bıraksaydık `router.refresh()` sonrası kullanıcının açtığı bölüm
+    // kapanırdı — içerik değiştikçe (zimmet iade edilince gibi) bölüm
+    // kendiliğinden katlanıyordu.
+    <details id={id} className="group scroll-mt-4">
+      <summary className="flex min-h-touch list-none items-center gap-2.5 py-2.5 pl-4 pr-4 active:bg-surface-pressed [&::-webkit-details-marker]:hidden">
+        <span className="flex-1 text-headline">{title}</span>
+        {count ? (
+          <span className="rounded-full bg-fill px-2 py-0.5 text-caption text-ink">
+            {count}
+          </span>
+        ) : null}
+        <span
+          aria-hidden
+          className="text-muted transition-transform duration-200 ease-ios group-open:rotate-90"
+        >
+          ›
+        </span>
+      </summary>
+      <div className="px-4 pb-3 pt-1">{children}</div>
+    </details>
+  );
+}
+
+/**
  * Liste satırının sağındaki durum bloğu: üstte noktalı durum, altında garanti.
  *
  * Rozet yığını yerine iki satır: rozetler adın altına iniyor ve satırı

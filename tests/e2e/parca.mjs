@@ -1,4 +1,5 @@
 import { chromium, devices } from "playwright";
+import { bolumAc } from "./ortak.mjs";
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 const iphone = { ...devices["iPhone 13"], viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true };
 const log = (...a) => console.log("·", ...a);
@@ -18,8 +19,7 @@ try {
   await page.tap('button[type="submit"]');
   await page.waitForSelector(`text=${ad}`);
   await page.locator(`a:has-text("${ad}")`).first().click();
-  await page.waitForSelector('button:has-text("+ Parça")');
-
+  await bolumAc(page, "Yedek parçalar");
   await page.tap('button:has-text("+ Parça")');
   await page.fill('input[name="name"]', "Su filtresi");
   await page.fill('input[name="partNo"]', "00634665");

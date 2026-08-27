@@ -35,6 +35,8 @@ export type CategoryTotal = {
   name: string;
   count: number;
   purchaseMinor: number;
+  /** Bu para biriminin ekipmanları içindeki payı, yüzde (tam sayı). */
+  share: number;
 };
 
 /**
@@ -75,10 +77,23 @@ function groupCurrency(items: ReportItem[]): CurrencyGroup {
 
   for (const item of items) {
     const key = item.categoryName ?? UNCATEGORIZED;
-    const entry = byCategory.get(key) ?? { name: key, count: 0, purchaseMinor: 0 };
+    const entry = byCategory.get(key) ?? {
+      name: key,
+      count: 0,
+      purchaseMinor: 0,
+      share: 0,
+    };
     entry.count += 1;
     entry.purchaseMinor += item.purchasePriceMinor ?? 0;
     byCategory.set(key, entry);
+  }
+
+  // Pay adet üzerinden: tutar girilmemiş ekipman da envanterde yer kaplıyor,
+  // dağılımı tutara bağlasak fiyatsız kategoriler yok görünürdü.
+  for (const entry of byCategory.values()) {
+    entry.share = items.length
+      ? Math.round((entry.count / items.length) * 100)
+      : 0;
   }
 
   return {

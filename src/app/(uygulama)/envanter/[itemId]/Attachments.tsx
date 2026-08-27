@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageViewer } from "@/components/ImageViewer";
+import { Fold } from "@/components/ui";
 import { InvoiceLines } from "@/components/InvoiceLines";
 import { ATTACHMENT_KINDS, ATTACHMENT_KIND_LABELS } from "@/lib/constants";
 import { shrinkImage } from "@/lib/image-client";
@@ -122,13 +123,10 @@ export function Attachments({
   const documents = attachments.filter((a) => !isImage(a.mimeType ?? ""));
 
   return (
-    <section className="mt-6">
-      <h2 className="px-8 pb-2 text-footnote uppercase text-muted">
-        Fotoğraf ve belgeler
-      </h2>
+    <Fold title="Fotoğraf ve belgeler" count={attachments.length}>
 
       {photos.length ? (
-        <div className="grid grid-cols-3 gap-2 px-4">
+        <div className="grid grid-cols-3 gap-2">
           {photos.map((photo) => (
             <figure key={photo.id} className="relative">
               {/* Yeni sekme yerine kendi görüntüleyicimiz: ana ekrandan
@@ -175,7 +173,7 @@ export function Attachments({
       ) : null}
 
       {documents.length ? (
-        <ul className="mx-4 mt-2 divide-y divide-separator overflow-hidden rounded-card bg-surface">
+        <ul className="mt-2 divide-y divide-separator overflow-hidden rounded-card bg-bg">
           {documents.map((document) => (
             <li key={document.id} className="flex min-h-touch items-center gap-3 py-2.5 pl-4 pr-4">
               <a
@@ -215,13 +213,13 @@ export function Attachments({
       ) : null}
 
       {attachments.length === 0 ? (
-        <p className="px-8 text-footnote text-muted">
+        <p className="text-footnote text-muted">
           Fatura, garanti belgesi, kılavuz ve ürün fotoğrafı buraya eklenir.
         </p>
       ) : null}
 
       {editable ? (
-        <div className="mx-4 mt-3 flex gap-2">
+        <div className="mt-3 flex gap-2">
           <select
             value={kind}
             onChange={(event) => setKind(event.target.value)}
@@ -257,7 +255,7 @@ export function Attachments({
       ) : null}
 
       {error ? (
-        <p role="alert" className="px-8 pt-2 text-footnote text-red">
+        <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
       ) : null}
@@ -278,6 +276,6 @@ export function Attachments({
         }}
         onClose={() => setLines(null)}
       />
-    </section>
+    </Fold>
   );
 }

@@ -94,7 +94,22 @@ describe("summarize", () => {
       name: "Beyaz eşya",
       count: 2,
       purchaseMinor: 600000,
+      // Dört ekipmanın ikisi: dağılım adet üzerinden, tutardan değil.
+      share: 50,
     });
+  });
+
+  it("dağılım payı adet üzerinden ve yüzde toplamı 100", () => {
+    const summary = summarize(
+      [
+        item({ categoryName: "Bilgisayar", purchasePriceMinor: 900000 }),
+        // Tutarsız ekipman da dağılımda yerini alıyor.
+        item({ categoryName: "Araç", purchasePriceMinor: null }),
+      ],
+      now,
+    );
+    const paylar = summary.byCurrency[0].byCategory.map((c) => c.share);
+    expect(paylar).toEqual([50, 50]);
   });
 
   it("fotoğraflı ve garantisi süren sayısını verir", () => {

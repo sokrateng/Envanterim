@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
-import { Badge } from "@/components/ui";
+import { Badge, Fold } from "@/components/ui";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { ASSIGNMENT_STATE_LABELS, type AssignmentState } from "@/lib/constants";
 import { useCloseAndRefresh } from "@/lib/history-layer";
@@ -95,21 +95,8 @@ export function Assignment({
   }
 
   return (
-    <section id="zimmet" className="mt-6 scroll-mt-4">
-      <div className="flex items-center justify-between px-8 pb-2">
-        <h2 className="text-footnote uppercase text-muted">Zimmet</h2>
-        {editable ? (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="min-h-touch px-2 text-body text-blue active:opacity-60"
-          >
-            {active ? "Devret" : "+ Zimmet ver"}
-          </button>
-        ) : null}
-      </div>
-
-      <div className="mx-4 overflow-hidden rounded-card bg-surface">
+    <Fold id="zimmet" title="Zimmet" count={active ? 1 : 0}>
+      <div className="overflow-hidden rounded-card bg-bg">
         {active ? (
           <>
             <div className="flex min-h-touch items-center gap-3 px-4 py-2.5">
@@ -155,7 +142,7 @@ export function Assignment({
                     <button
                       type="button"
                       onClick={() => respond("RED")}
-                      className="min-h-touch flex-1 rounded-card bg-bg px-3 text-headline text-red transition active:scale-95"
+                      className="min-h-touch flex-1 rounded-card bg-surface px-3 text-headline text-red transition active:scale-95"
                     >
                       {active.self ? "Bende değil" : "Kabul etmedi"}
                     </button>
@@ -164,7 +151,7 @@ export function Assignment({
                   <button
                     type="button"
                     onClick={() => respond("IADE")}
-                    className="min-h-touch flex-1 rounded-card bg-bg px-3 text-headline text-blue transition active:scale-95"
+                    className="min-h-touch flex-1 rounded-card bg-surface px-3 text-headline text-blue transition active:scale-95"
                   >
                     İade al
                   </button>
@@ -180,8 +167,18 @@ export function Assignment({
         )}
       </div>
 
+      {editable ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="min-h-touch pt-2 text-body text-blue active:opacity-60"
+        >
+          {active ? "Devret" : "+ Zimmet ver"}
+        </button>
+      ) : null}
+
       {error ? (
-        <p role="alert" className="px-8 pt-2 text-footnote text-red">
+        <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
       ) : null}
@@ -261,7 +258,7 @@ export function Assignment({
           </SubmitButton>
         </form>
       </Sheet>
-    </section>
+    </Fold>
   );
 }
 

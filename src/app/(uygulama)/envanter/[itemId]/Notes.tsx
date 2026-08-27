@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ImageViewer } from "@/components/ImageViewer";
 import { Sheet } from "@/components/Sheet";
+import { Fold } from "@/components/ui";
 import { FormError, SubmitButton, inputClass } from "@/components/form";
 import { shrinkImage } from "@/lib/image-client";
 import { NOTE_PHOTO_LIMIT } from "@/lib/notes";
@@ -111,29 +112,16 @@ export function Notes({
   }
 
   return (
-    <section className="mt-6">
-      <div className="flex items-center justify-between px-8 pb-2">
-        <h2 className="text-footnote uppercase text-muted">Notlar</h2>
-        {canWrite ? (
-          <button
-            type="button"
-            onClick={startNew}
-            className="min-h-touch px-2 text-body text-blue active:opacity-60"
-          >
-            + Not
-          </button>
-        ) : null}
-      </div>
-
+    <Fold title="Notlar" count={notes.length}>
       {notes.length === 0 ? (
-        <p className="px-8 text-footnote text-muted">
+        <p className="text-footnote text-muted">
           Tarif, doğru ayar, servise söylenecekler… Kullanan kişinin bildiği her
           şey buraya. Fotoğraf da eklenebiliyor.
         </p>
       ) : (
-        <ul className="mx-4 space-y-2">
+        <ul className="space-y-2">
           {notes.map((note) => (
-            <li key={note.id} className="rounded-card bg-surface p-3">
+            <li key={note.id} className="rounded-card bg-bg p-3">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-subheadline">{note.authorName}</span>
                 <span className="shrink-0 text-caption text-muted">
@@ -158,7 +146,7 @@ export function Notes({
                         src={photo.url}
                         alt={photo.name}
                         loading="lazy"
-                        className="h-20 w-20 rounded-card bg-bg object-cover"
+                        className="h-20 w-20 rounded-card bg-fill object-cover"
                       />
                     </button>
                   ))}
@@ -192,8 +180,18 @@ export function Notes({
         </ul>
       )}
 
+      {canWrite ? (
+        <button
+          type="button"
+          onClick={startNew}
+          className="min-h-touch pt-2 text-body text-blue active:opacity-60"
+        >
+          + Not
+        </button>
+      ) : null}
+
       {error && !open ? (
-        <p role="alert" className="px-8 pt-2 text-footnote text-red">
+        <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
       ) : null}
@@ -279,6 +277,6 @@ export function Notes({
         onConfirm={() => removing && void remove(removing)}
         onCancel={() => setRemoving(null)}
       />
-    </section>
+    </Fold>
   );
 }

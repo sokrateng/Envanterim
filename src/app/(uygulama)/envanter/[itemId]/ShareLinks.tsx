@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui";
+import { Badge, Fold } from "@/components/ui";
 import { SHARE_DURATIONS, type ShareState, SHARE_STATE_LABELS } from "@/lib/share";
 
 export type ShareRow = {
@@ -83,18 +83,15 @@ export function ShareLinks({
   }
 
   return (
-    <section className="mt-6">
-      <h2 className="px-8 pb-2 text-footnote uppercase text-muted">
-        Salt-okunur bağlantı
-      </h2>
+    <Fold title="Salt-okunur bağlantı" count={links.length}>
 
       {links.length === 0 ? (
-        <p className="px-8 text-footnote text-muted">
+        <p className="text-footnote text-muted">
           Servise giderken teknisyen ürünün geçmişini hesap açmadan görebilir.
           Tutarlar paylaşılmaz.
         </p>
       ) : (
-        <ul className="mx-4 divide-y divide-separator overflow-hidden rounded-card bg-surface">
+        <ul className="divide-y divide-separator overflow-hidden rounded-card bg-bg">
           {links.map((link) => (
             <li key={link.id} className="flex min-h-touch items-center gap-3 py-2.5 pl-4 pr-4">
               <div className="min-w-0 flex-1">
@@ -146,7 +143,7 @@ export function ShareLinks({
       )}
 
       {editable ? (
-        <div className="mx-4 mt-3 flex gap-2">
+        <div className="mt-3 flex gap-2">
           <select
             value={days}
             onChange={(event) => setDays(Number(event.target.value))}
@@ -171,10 +168,10 @@ export function ShareLinks({
       ) : null}
 
       {error ? (
-        <p role="alert" className="px-8 pt-2 text-footnote text-red">
+        <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
       ) : null}
-    </section>
+    </Fold>
   );
 }

@@ -1,5 +1,6 @@
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
+import { bolumAc } from "./ortak.mjs";
 const out = process.argv[2] ?? (process.env.E2E_SHOTS ?? "/tmp/shots") + "/ek";
 fs.mkdirSync(out, { recursive: true });
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
@@ -18,12 +19,12 @@ try {
 
   await page.goto(`${BASE}/envanter`);
   await page.locator("a[href^='/envanter/']").first().tap();
-  await page.waitForSelector("text=FOTOĞRAF VE BELGELER");
+  await bolumAc(page, "Fotoğraf ve belgeler");
   const itemUrl = page.url();
 
   // Fotoğraf yükle (istemcide küçültülüyor)
   await page.selectOption('select[aria-label="Belge türü"]', "PHOTO");
-  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/foto.png");
+  await page.setInputFiles('details:has(summary:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/foto.png");
   await page.waitForSelector("figure img", { timeout: 20000 });
   log("fotoğraf yüklendi");
 
@@ -39,7 +40,7 @@ try {
 
   // PDF yükle: fatura
   await page.selectOption('select[aria-label="Belge türü"]', "INVOICE");
-  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/fatura.pdf");
+  await page.setInputFiles('details:has(summary:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/fatura.pdf");
   await page.waitForSelector("text=fatura.pdf", { timeout: 20000 });
   log("fatura PDF yüklendi ve belge listesinde (görsel ızgarasında değil)");
   if (await page.locator("figure img[alt='fatura.pdf']").count()) {
@@ -48,13 +49,13 @@ try {
   await page.screenshot({ path: `${out}/1-ekler.png` });
 
   // İzinsiz tür reddedilir
-  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/kotu.txt");
+  await page.setInputFiles('details:has(summary:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/kotu.txt");
   await page.waitForSelector("text=Yalnız JPG, PNG, WebP, HEIC ve PDF yüklenir");
   log("izinsiz dosya türü reddedildi");
 
   // PDF fotoğraf türüyle yüklenemez
   await page.selectOption('select[aria-label="Belge türü"]', "PHOTO");
-  await page.setInputFiles('section:has(h2:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/fatura.pdf");
+  await page.setInputFiles('details:has(summary:has-text("Fotoğraf ve belgeler")) input[type="file"]', "/tmp/testfiles/fatura.pdf");
   await page.waitForSelector("text=Fotoğraf olarak yalnız görsel yüklenir");
   log("PDF fotoğraf türüyle reddedildi");
 
@@ -72,6 +73,7 @@ try {
 
   // Görüntüleyen silemez: düzenleyen değil, görüntüleyen bir üye ekle
   await page.goto(itemUrl);
+  await bolumAc(page, "Fotoğraf ve belgeler");
   const oncekiAdet = await page.locator("figure img").count();
   await page.locator('figure button[aria-label$="sil"]').first().click();
   await page.waitForTimeout(2000);
@@ -111,9 +113,10 @@ try {
 
   // Detay başlığında da aynı kısayol: fotoğrafı olan büyütüyor.
   await page.locator(`a:has-text("${AD}")`).first().tap();
-  await page.waitForSelector("text=FOTOĞRAF VE BELGELER", { timeout: 15000 });
-  const basliktaki = page.locator(`header button[aria-label="${AD} fotoğrafını büyüt"]`);
-  if (!(await basliktaki.count())) throw new Error("detay başlığında fotoğraf düğmesi yok");
+  await page.waitForSelector("h1", { timeout: 15000 });
+  // Fotoğraf artık sayfanın tepesindeki tam genişlik bandında.
+  const basliktaki = page.locator(`button[aria-label="${AD} fotoğrafını büyüt"]`);
+  if (!(await basliktaki.count())) throw new Error("detay bandında fotoğraf düğmesi yok");
 
   // Başlıktaki görsel adın üstüne binmemeli (TUZAKLAR #66).
   const cakisma = await page.evaluate(() => {

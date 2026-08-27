@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Sheet } from "@/components/Sheet";
+import { Fold } from "@/components/ui";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 
@@ -123,34 +124,17 @@ export function Service({
   }
 
   return (
-    <section className="mt-6">
-      <div className="flex items-center justify-between px-8 pb-2">
-        <h2 className="text-footnote uppercase text-muted">Servis</h2>
-        {editable ? (
-          <button
-            type="button"
-            onClick={() => {
-              setError(null);
-              setNewVendor(vendors.length === 0);
-              setSending(true);
-            }}
-            className="min-h-touch px-2 text-body text-blue active:opacity-60"
-          >
-            + Servise gönder
-          </button>
-        ) : null}
-      </div>
-
+    <Fold title="Servis" count={jobs.length}>
       {jobs.length === 0 ? (
-        <p className="px-8 text-footnote text-muted">
+        <p className="text-footnote text-muted">
           Arızalanan ekipmanı servise gönderdiğinde buraya yaz: nerede, kaç
           gündür, ne yapıldı, ücret ödendi mi. Kayıt açılınca ekipman
           &quot;Serviste&quot; oluyor.
         </p>
       ) : (
-        <ul className="mx-4 space-y-2">
+        <ul className="space-y-2">
           {jobs.map((job) => (
-            <li key={job.id} className="rounded-card bg-surface p-3">
+            <li key={job.id} className="rounded-card bg-bg p-3">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-headline">
                   {job.vendorName ?? "Servis belirtilmedi"}
@@ -210,8 +194,22 @@ export function Service({
         </ul>
       )}
 
+      {editable ? (
+        <button
+          type="button"
+          onClick={() => {
+            setError(null);
+            setNewVendor(vendors.length === 0);
+            setSending(true);
+          }}
+          className="min-h-touch pt-2 text-body text-blue active:opacity-60"
+        >
+          + Servise gönder
+        </button>
+      ) : null}
+
       {error && !sending && !closing ? (
-        <p role="alert" className="px-8 pt-2 text-footnote text-red">
+        <p role="alert" className="pt-2 text-footnote text-red">
           {error}
         </p>
       ) : null}
@@ -365,6 +363,6 @@ export function Service({
         onConfirm={() => removing && void remove(removing)}
         onCancel={() => setRemoving(null)}
       />
-    </section>
+    </Fold>
   );
 }

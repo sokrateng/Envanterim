@@ -154,21 +154,30 @@ export default async function RaporPage({
                   Kategoriye göre
                   {summary.byCurrency.length > 1 ? ` · ${group.currency}` : ""}
                 </h3>
-                <table className="w-full text-footnote">
-                  <tbody>
-                    {group.byCategory.map((row) => (
-                      <tr key={row.name} className="border-b border-neutral-200">
-                        <td className="py-1">{row.name}</td>
-                        <td className="py-1 text-right text-neutral-600">
-                          {row.count} adet
-                        </td>
-                        <td className="py-1 text-right">
+                {/* Yüzde çubuğu: hangi kategorinin ağır bastığı sayıya
+                    bakmadan görünsün. Kâğıtta da çalışıyor, gri basıyor. */}
+                <ul className="text-footnote">
+                  {group.byCategory.map((row) => (
+                    <li key={row.name} className="border-b border-neutral-200 py-1">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span>{row.name}</span>
+                        <span className="text-neutral-600">
+                          %{row.share} · {row.count} adet ·{" "}
                           {formatMoney(row.purchaseMinor, group.currency)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </span>
+                      </div>
+                      <div
+                        aria-hidden
+                        className="mt-1 h-1.5 overflow-hidden rounded-full bg-neutral-200"
+                      >
+                        <div
+                          className="h-full rounded-full bg-neutral-700"
+                          style={{ width: `${Math.max(row.share, 2)}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </section>
             ) : null}
           </div>
