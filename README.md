@@ -34,6 +34,9 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
   fotoğrafı olmayan ekipmana oradan ekleniyor — kameradan da, telefonun
   fotoğraf arşivinden de. Fotoğraf yüklemeden önce istemcide küçültülüyor;
   PDF ayrı ele alınıyor.
+- **Uzun basınca kopyala.** Ekipman detayında bir değere basılı tutmak onu
+  panoya yazıyor: başlıkta marka + model + ad tek dizgi, seri no satırında
+  yalnız seri no.
 - **Notlar.** Tarif, doğru ayar, uyarı — fotoğraflı, yazan ve tarihiyle.
   Zaman çizelgesi olan biteni tutuyor, notlar bilgiyi.
 - **Beğeni yıldızı.** Kişi başına tek puan, ortalama herkese açık: hangi

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CopyOnHold } from "@/components/CopyOnHold";
 import { EnvanterLink } from "@/components/EnvanterLink";
 import { TITLE_BOX } from "@/lib/typography";
 import { Children, Fragment, type ReactNode } from "react";
@@ -138,6 +139,7 @@ export function Row({
   subtitle,
   trailing,
   value,
+  copy,
   badge,
   badgesBelow = false,
   leading,
@@ -152,6 +154,12 @@ export function Row({
    * `trailing` ise gezinme satırının yanındaki ikincil bilgi (sayı, tarih).
    */
   value?: ReactNode;
+  /**
+   * Uzun basınca panoya yazılacak dizgi. Görünen değerden farklı olabiliyor:
+   * kategori satırında simge kopyalanmıyor, tutar satırında biçimlenmiş metin
+   * kopyalanıyor.
+   */
+  copy?: string;
   badge?: ReactNode;
   /** Rozetler adın yanına sığmıyorsa alt satıra alınır — ad kırpılmasın. */
   badgesBelow?: boolean;
@@ -174,9 +182,19 @@ export function Row({
             {title}
           </span>
           {value ? (
-            <span className="min-w-0 flex-1 break-words text-right text-body">
-              {value}
-            </span>
+            copy ? (
+              <CopyOnHold
+                value={copy}
+                label={typeof title === "string" ? title : "Değer"}
+                className="min-w-0 flex-1 text-right"
+              >
+                <span className="block break-words text-body">{value}</span>
+              </CopyOnHold>
+            ) : (
+              <span className="min-w-0 flex-1 break-words text-right text-body">
+                {value}
+              </span>
+            )
           ) : null}
           {badgesBelow ? null : badge}
         </div>

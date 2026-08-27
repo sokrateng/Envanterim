@@ -8,6 +8,7 @@ import {
 import { readCustomFields, type FieldDef } from "@/lib/custom-fields";
 import { formatMoney } from "@/lib/money";
 import { canEdit } from "@/lib/permissions";
+import { CopyOnHold } from "@/components/CopyOnHold";
 import { toInputDate } from "@/lib/dates";
 import { prisma } from "@/lib/prisma";
 import { ownershipCostMinor, type TimelineEvent } from "@/lib/events";
@@ -466,9 +467,18 @@ export default async function EkipmanPage({
           değil: iki satırlık kutu kısa adlarda yıldızlarla arasında boş bir
           şerit bırakıyordu. Kırpma zaten iki satırı geçmesini engelliyor. */}
       <div className="flex items-start justify-between gap-3 px-4 pt-3">
-        <h1 className={`min-w-0 break-words ${titleClass(item.name)}`}>
-          {item.name}
-        </h1>
+        {/* Ada uzun basınca marka, model ve ad tek dizgi olarak kopyalanıyor:
+            servise yazarken, arama kutusuna yapıştırırken aranan şey bu üçü
+            birlikte. Tek tek istenirse aşağıdaki satırlardan kopyalanıyor. */}
+        <CopyOnHold
+          value={[item.brand, item.model, item.name].filter(Boolean).join(" ")}
+          label="Ekipman"
+          className="min-w-0 flex-1"
+        >
+          <h1 className={`min-w-0 break-words ${titleClass(item.name)}`}>
+            {item.name}
+          </h1>
+        </CopyOnHold>
         {editable ? (
           <EditItemButton
             itemId={item.id}
@@ -516,13 +526,29 @@ export default async function EkipmanPage({
             <Row
               title="Kategori"
               value={`${item.category.icon ?? "🏷"} ${item.category.name}`}
+              // Simge kopyalanmıyor: yapıştırılan yerde işe yaramıyor.
+              copy={item.category.name}
             />
           ) : null}
-          {item.brand ? <Row title="Marka" value={item.brand} /> : null}
-          {item.model ? <Row title="Model" value={item.model} /> : null}
-          {item.serialNo ? <Row title="Seri no" value={item.serialNo} /> : null}
-          {item.place ? <Row title="Yer" value={item.place} /> : null}
-          <Row title="Lokasyon" value={item.location.name} />
+          {item.brand ? (
+            <Row title="Marka" value={item.brand} copy={item.brand} />
+          ) : null}
+          {item.model ? (
+            <Row title="Model" value={item.model} copy={item.model} />
+          ) : null}
+          {/* Seri noya uzun basınca yalnız seri no kopyalanıyor: servise ya da
+              üreticinin sorgu sayfasına yapıştırılan şey bu. */}
+          {item.serialNo ? (
+            <Row title="Seri no" value={item.serialNo} copy={item.serialNo} />
+          ) : null}
+          {item.place ? (
+            <Row title="Yer" value={item.place} copy={item.place} />
+          ) : null}
+          <Row
+            title="Lokasyon"
+            value={item.location.name}
+            copy={item.location.name}
+          />
           <Row
             href={`/envanter/${item.id}/etiket`}
             title="QR etiket"
@@ -536,14 +562,26 @@ export default async function EkipmanPage({
           <Row
             title="Alış tarihi"
             value={item.purchaseDate ? trDate.format(item.purchaseDate) : "—"}
+            copy={
+              item.purchaseDate ? trDate.format(item.purchaseDate) : undefined
+            }
           />
-          <Row title="Satıcı" value={item.seller?.name ?? "—"} />
+          <Row
+            title="Satıcı"
+            value={item.seller?.name ?? "—"}
+            copy={item.seller?.name ?? undefined}
+          />
           <Row
             title="Alış tutarı"
             value={
               item.purchasePriceMinor != null
                 ? formatMoney(item.purchasePriceMinor, item.currency)
                 : "—"
+            }
+            copy={
+              item.purchasePriceMinor != null
+                ? formatMoney(item.purchasePriceMinor, item.currency)
+                : undefined
             }
           />
           <Row
@@ -593,7 +631,12 @@ export default async function EkipmanPage({
         <Group title={`${item.category?.name ?? "Özel"} alanları`}>
           <Rows>
             {customRows.map((row) => (
-              <Row key={row.key} title={row.label} value={row.text} />
+              <Row
+                key={row.key}
+                title={row.label}
+                value={row.text}
+                copy={row.text}
+              />
             ))}
           </Rows>
         </Group>

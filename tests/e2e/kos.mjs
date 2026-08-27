@@ -35,6 +35,7 @@ const TEMEL = [
   "paylasim",
   "zimmet",
   "kaydirma",
+  "kopyala",
   "hesap",
   "panel",
   "cevrimdisi",

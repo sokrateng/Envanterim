@@ -199,6 +199,13 @@ fiske hızlıysa açık kalır, değilse kapanır.
   şeridi yok, aynı bilgiyi iki yerde göstermek yer kaybıydı.
 - **Ad alanı sabit yükseklikte** (82px), punto ada göre küçülüyor
   (`src/lib/typography.ts`). Uzun adlar sayfayı aşağı itmiyor.
+- **Uzun basınca kopyalanıyor.** Detaydaki değer satırlarına basılı tutmak o
+  alanın değerini panoya yazıyor; başlıkta marka, model ve ad tek dizgi olarak
+  gidiyor, seri no satırında yalnız seri no. Kopyalama **parmak kalkınca**
+  yapılıyor: Safari pano yazmasını kullanıcı hareketine bağlıyor, zamanlayıcı
+  içinden çağrılan yazma sessizce reddediliyor. Kısa dokunuş bir şey yapmıyor —
+  satıra değen parmak panoyu değiştirmemeli. Haber ekranın altında bir şeritte
+  çıkıyor: satırın içine yazılsa satır uzayıp altını aşağı iterdi.
 - **Durum tek satır**, seçenekler panelde: yılda bir iki kez değişen bir şey
   için dört satır ayırmıyoruz.
 
