@@ -151,7 +151,7 @@ export default async function ZimmetPage({
       </Group>
 
       <p className="px-8 pt-2 text-footnote text-muted">
-        Emekli ve satılmış ekipmanlar bu raporda yok.{" "}
+        Pasif ve satılmış ekipmanlar bu raporda yok.{" "}
         <Link href={`/envanter?lokasyon=${id}`} className="text-blue">
           Envanterin tamamı
         </Link>

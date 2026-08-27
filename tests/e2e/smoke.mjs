@@ -49,7 +49,9 @@ try {
   await page.screenshot({ path: `${out}/3-lokasyonlar.png` });
 
   await page.tap('a:has-text("Ev")');
-  await page.waitForSelector('text=Envanter');
+  // `text=Envanter` sayfa başlığındaki <title>'a da eşleşiyor ve o hiç görünür
+  // olmadığı için bekleme takılıyordu; görünür bir bağlantıyı bekliyoruz.
+  await page.waitForSelector('a:has-text("Üyeler")');
   await page.tap('a:has-text("Üyeler")');
   await page.waitForSelector('h1:has-text("Üyeler")');
   await page.tap('button:has-text("+ Üye")');

@@ -19,7 +19,9 @@ export type ItemStatus = (typeof ITEM_STATUS)[number];
 export const ITEM_STATUS_LABELS: Record<ItemStatus, string> = {
   IN_USE: "Kullanımda",
   IN_REPAIR: "Serviste",
-  RETIRED: "Emekli",
+  // "Emekli" kulağa "artık yok" gibi geliyordu; ekipman duruyor, kullanımda
+  // değil (CLAUDE.md: silmiyoruz, durumla çıkarıyoruz).
+  RETIRED: "Pasif",
   SOLD: "Satıldı",
 };
 

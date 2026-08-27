@@ -8,8 +8,8 @@ import { SwipeRow, type SwipeAction } from "@/components/SwipeRow";
  * Envanter satırının kaydırma kısayolları.
  *
  * Kısayol, ekipman sayfasındaki işlemin aynısı — jesti bilmeyen hiçbir şey
- * kaybetmiyor. Sık yapılan iki iş burada: bekleyen zimmeti üzerine almak ve
- * ekipmanı servise/kullanıma almak.
+ * kaybetmiyor. Sola çekince sağdan: bekleyen zimmeti üzerine alma, servise/
+ * kullanıma alma, zimmet. Sağa çekince soldan: düzenleme.
  */
 export function ItemSwipe({
   itemId,
@@ -72,8 +72,18 @@ export function ItemSwipe({
     onSelect: () => router.push(`/envanter/${itemId}#zimmet`),
   });
 
+  // Düzenleme formu ekipman sayfasında; adresteki bayrak paneli açık getiriyor.
+  const leadingActions: SwipeAction[] = editable
+    ? [
+        {
+          label: "Düzenle",
+          onSelect: () => router.push(`/envanter/${itemId}?duzenle=1`),
+        },
+      ]
+    : [];
+
   return (
-    <SwipeRow label={name} actions={actions}>
+    <SwipeRow label={name} actions={actions} leadingActions={leadingActions}>
       {children}
     </SwipeRow>
   );

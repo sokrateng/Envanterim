@@ -105,7 +105,7 @@ export default async function RaporPage({
       <div className="px-4 pt-3 print:hidden">
         <p className="text-footnote text-muted">
           Yazdır penceresinden &quot;PDF olarak kaydet&quot;i seçebilirsin.
-          Emekli ve satılmış ekipmanlar rapora girmiyor.
+          Pasif ve satılmış ekipmanlar rapora girmiyor.
         </p>
         <div className="pt-3">
           <PrintButton>PDF olarak kaydet</PrintButton>

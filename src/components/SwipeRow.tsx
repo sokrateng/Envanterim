@@ -4,13 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import {
   clampOffset,
   direction,
-  settleOpen,
+  settle,
   velocity,
   type Direction,
+  type SwipeSide,
 } from "@/lib/swipe";
 
 /**
- * Sola kaydırınca altından işlem düğmeleri çıkan liste satırı.
+ * Kaydırınca altından işlem düğmeleri çıkan liste satırı: sola çekince sağdaki
+ * (yıkıcı ve durum işlemleri), sağa çekince soldaki (düzenleme).
  *
  * Üç kural (docs/TASARIM.md, TUZAKLAR #45):
  * - Jest dikey kaydırmayı çalmıyor; yön bir kez seçiliyor.
@@ -26,16 +28,20 @@ export type SwipeAction = {
 
 export function SwipeRow({
   actions,
+  leadingActions = [],
   children,
   label,
 }: {
   actions: SwipeAction[];
+  /** Sağa kaydırınca soldan çıkanlar. */
+  leadingActions?: SwipeAction[];
   children: React.ReactNode;
   /** Ekran okuyucu için: hangi satırın işlemleri. */
   label: string;
 }) {
   const surface = useRef<HTMLDivElement>(null);
   const panel = useRef<HTMLDivElement>(null);
+  const leadingPanel = useRef<HTMLDivElement>(null);
   const gesture = useRef<{
     x: number;
     y: number;
@@ -45,12 +51,14 @@ export function SwipeRow({
   } | null>(null);
 
   const [offset, setOffset] = useState(0);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<SwipeSide>(null);
   const [width, setWidth] = useState(0);
+  const [leadingWidth, setLeadingWidth] = useState(0);
 
   useEffect(() => {
     if (panel.current) setWidth(panel.current.offsetWidth);
-  }, [actions.length]);
+    if (leadingPanel.current) setLeadingWidth(leadingPanel.current.offsetWidth);
+  }, [actions.length, leadingActions.length]);
 
   // Başka bir satır açılınca bu kapansın: aynı anda iki açık satır kafa
   // karıştırıyor ve dokunma hedefleri üst üste biniyor.
@@ -58,7 +66,7 @@ export function SwipeRow({
     if (!open) return;
     const close = (event: Event) => {
       if (surface.current?.contains(event.target as Node)) return;
-      setOpen(false);
+      setOpen(null);
       setOffset(0);
     };
     document.addEventListener("pointerdown", close);
@@ -72,7 +80,7 @@ export function SwipeRow({
       y: event.clientY,
       at: event.timeStamp,
       axis: "unknown",
-      base: open ? -width : 0,
+      base: open === "trailing" ? -width : open === "leading" ? leadingWidth : 0,
     };
   }
 
@@ -93,7 +101,7 @@ export function SwipeRow({
       if (state.axis === "unknown") return;
     }
 
-    setOffset(clampOffset(state.base + dx, width));
+    setOffset(clampOffset(state.base + dx, width, leadingWidth));
   }
 
   function onPointerUp(event: React.PointerEvent) {
@@ -103,13 +111,13 @@ export function SwipeRow({
 
     const dx = event.clientX - state.x;
     const speed = velocity(dx, event.timeStamp - state.at);
-    const next = settleOpen(state.base + dx, width, speed);
+    const next = settle(state.base + dx, width, leadingWidth, speed);
     setOpen(next);
-    setOffset(next ? -width : 0);
+    setOffset(next === "trailing" ? -width : next === "leading" ? leadingWidth : 0);
   }
 
   function run(action: SwipeAction) {
-    setOpen(false);
+    setOpen(null);
     setOffset(0);
     action.onSelect();
   }
@@ -119,8 +127,28 @@ export function SwipeRow({
       {/* Kapalıyken `inert`: düğmeler ne dokunuşa ne ekran okuyucuya görünüyor.
           `aria-hidden` tek başına yetmiyor, öğe hâlâ tıklanabilir kalıyor. */}
       <div
+        ref={leadingPanel}
+        inert={open !== "leading"}
+        className="absolute inset-y-0 left-0 flex"
+      >
+        {leadingActions.map((action) => (
+          <button
+            key={action.label}
+            type="button"
+            aria-label={`${action.label}: ${label}`}
+            onClick={() => run(action)}
+            className={`min-h-touch w-20 px-2 text-subheadline text-white active:opacity-80 ${
+              action.tone === "red" ? "bg-red" : "bg-blue"
+            }`}
+          >
+            {action.label}
+          </button>
+        ))}
+      </div>
+
+      <div
         ref={panel}
-        inert={!open}
+        inert={open !== "trailing"}
         className="absolute inset-y-0 right-0 flex"
       >
         {actions.map((action) => (

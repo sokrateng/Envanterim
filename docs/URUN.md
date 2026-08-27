@@ -22,7 +22,7 @@
 3. **Sahip olma maliyeti.** Alış + servis + yedek parça toplamı. "Bu çamaşır
    makinesi bana bugüne kadar 18.400 ₺'ye mal oldu" — yenisini almaya karar
    verirken bakılan tek sayı. Veri zaten girilmiş oluyor, sadece toplamak gerekiyor.
-4. **Yaşam döngüsü durumu.** Kullanımda / Serviste / Emekli / Satıldı. Silmek
+4. **Yaşam döngüsü durumu.** Kullanımda / Serviste / Pasif / Satıldı. Silmek
    yerine durum değiştirmek geçmişi korur, raporu doğru tutar.
 5. **Tekrarlayan bakım hatırlatması.** Garanti bitimi tek seferlik; oysa
    "6 ayda bir klima bakımı", "her 10.000 km'de servis" sürekli. Bildirim altyapısı

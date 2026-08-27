@@ -43,6 +43,24 @@ async function swipeLeft(page, box, mesafe = 130) {
   await session.detach();
 }
 
+/** Sağa kaydırma: soldaki kısayol paneli. */
+async function swipeRight(page, box, mesafe = 130) {
+  const session = await page.context().newCDPSession(page);
+  const y = box.y + box.height / 2;
+  const x0 = box.x + 20;
+  const nokta = (x) => [{ x, y, radiusX: 12, radiusY: 12, force: 1 }];
+
+  await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: nokta(x0) });
+  for (let step = 1; step <= 6; step += 1) {
+    await session.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: nokta(x0 + (mesafe * step) / 6),
+    });
+  }
+  await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await session.detach();
+}
+
 /** Dikey sürükleme — jest yönü doğru seçiyor mu. */
 async function swipeVertical(page, box, mesafe = 200) {
   const session = await page.context().newCDPSession(page);
@@ -121,6 +139,26 @@ try {
   const zimmetDugmesi = page.locator('button[aria-label^="Zimmet:"]').first();
   if (!(await zimmetDugmesi.count())) throw new Error("işlem düğmesi yok");
   log("işlem düğmeleri göründü");
+
+  // 2b) Sağa kaydırınca soldan "Düzenle" çıkmalı ve panel açık gelmeli.
+  await page.goto(`${BASE}/envanter?q=${encodeURIComponent(damga)}`);
+  await satir.waitFor();
+  await swipeRight(page, kutu);
+  await page.waitForTimeout(350);
+  const duzenle = page.locator('button[aria-label^="Düzenle:"]').first();
+  if (!(await duzenle.count())) throw new Error("sağa kaydırmada düzenle düğmesi yok");
+  await page.screenshot({ path: `${out}/1b-duzenle.png` });
+  await duzenle.tap();
+  await page.waitForSelector('div[role="dialog"][aria-label="Ekipmanı düzenle"]', { timeout: 15000 });
+  // Bayrak adresten silinmiş olmalı: yenilemede panel tekrar açılmasın.
+  if (page.url().includes("duzenle=1")) throw new Error("adresteki bayrak silinmedi");
+  log("sağa kaydırma düzenleme panelini açtı");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(300);
+  await page.goto(`${BASE}/envanter?q=${encodeURIComponent(damga)}`);
+  await satir.waitFor();
+  await swipeLeft(page, kutu);
+  await page.waitForTimeout(350);
 
   // 3) "Serviste" düğmesi gerçekten durumu değiştirmeli
   const serviste = page.locator('button[aria-label^="Serviste:"]').first();

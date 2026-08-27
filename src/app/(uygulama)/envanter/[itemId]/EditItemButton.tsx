@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 import { useFill } from "./fill-context";
@@ -25,6 +26,9 @@ export function EditItemButton({
   defaults: ItemDefaults;
 }) {
   const closeAndRefresh = useCloseAndRefresh();
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
   const { prefill, setPrefill } = useFill();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -35,6 +39,14 @@ export function EditItemButton({
   useEffect(() => {
     if (prefill) setOpen(true);
   }, [prefill]);
+
+  // Listeden "Düzenle" kısayoluyla gelindiyse panel açık başlasın. Bayrak
+  // adresten hemen siliniyor: yenilemede panel tekrar açılmasın.
+  useEffect(() => {
+    if (params.get("duzenle") !== "1") return;
+    setOpen(true);
+    router.replace(pathname);
+  }, [params, pathname, router]);
 
   function close() {
     setOpen(false);

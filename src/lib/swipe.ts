@@ -1,10 +1,10 @@
 /**
- * Sola kaydırma jestinin matematiği — saf ve testli.
+ * Kaydırma jestinin matematiği — saf ve testli.
  *
- * iOS listelerinde satırı sola çekince altından işlem düğmeleri çıkar. Jestin
- * kendisi basit ama üç şeyi yanlış yapmak kolay: dikey kaydırmayı çalmak,
- * parmak bırakıldığında yarım yolda kalmak ve yıkıcı işlemi tek dokunuşla
- * yaptırmak. Karar burada, hareketin kendisi bileşende.
+ * iOS listelerinde satırı sola çekince sağdaki, sağa çekince soldaki işlem
+ * düğmeleri çıkar. Jestin kendisi basit ama üç şeyi yanlış yapmak kolay: dikey
+ * kaydırmayı çalmak, parmak bırakıldığında yarım yolda kalmak ve yıkıcı işlemi
+ * tek dokunuşla yaptırmak. Karar burada, hareketin kendisi bileşende.
  */
 
 /** Yatay mı dikey mi olduğuna karar vermek için gereken en küçük hareket. */
@@ -29,22 +29,37 @@ export function direction(drag: Drag): Direction {
   return ax > ay ? "horizontal" : "vertical";
 }
 
-/** Panelin genişliğini aşmayan, sağa çekilmeye izin vermeyen açılma miktarı. */
-export function clampOffset(dx: number, width: number): number {
-  if (dx >= 0) return 0;
-  return Math.max(dx, -width);
+/** Hangi taraftaki düğmeler açık: sağa çekince sol, sola çekince sağ. */
+export type SwipeSide = "leading" | "trailing" | null;
+
+/**
+ * Panellerin genişliğini aşmayan açılma miktarı. Panelin olmadığı yöne
+ * çekilemiyor: boşluğa doğru esneyen satır "bozuk" hissettiriyor.
+ */
+export function clampOffset(
+  dx: number,
+  trailingWidth: number,
+  leadingWidth = 0,
+): number {
+  if (dx > 0) return Math.min(dx, leadingWidth);
+  return Math.max(dx, -trailingWidth);
 }
 
-/** Parmak kalkınca açık mı kalsın: mesafe ya da hız yeterli mi. */
-export function settleOpen(
+/** Parmak kalkınca hangi taraf açık kalsın: mesafe ya da hız yeterli mi. */
+export function settle(
   offset: number,
-  width: number,
+  trailingWidth: number,
+  leadingWidth: number,
   velocity = 0,
-): boolean {
-  if (width <= 0) return false;
+): SwipeSide {
   // Hızlı bir fiske kısa da olsa açar; iOS'ta böyle.
-  if (velocity < -0.5) return true;
-  return Math.abs(offset) >= width * OPEN_RATIO;
+  if (trailingWidth > 0 && (velocity < -0.5 || offset <= -trailingWidth * OPEN_RATIO)) {
+    return "trailing";
+  }
+  if (leadingWidth > 0 && (velocity > 0.5 || offset >= leadingWidth * OPEN_RATIO)) {
+    return "leading";
+  }
+  return null;
 }
 
 /** Piksel/ms cinsinden hız; sıfır süre bölmesi olmasın. */

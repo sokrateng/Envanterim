@@ -92,7 +92,7 @@ export function StatusPicker({
           ))}
         </div>
         <p className="pt-3 text-footnote text-muted">
-          Ekipman silinmez: emekli ya da satıldı olarak işaretlenir, geçmişi
+          Ekipman silinmez: pasif ya da satıldı olarak işaretlenir, geçmişi
           kalır.
         </p>
       </Sheet>

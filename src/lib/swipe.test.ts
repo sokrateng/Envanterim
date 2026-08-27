@@ -3,7 +3,7 @@ import {
   DIRECTION_THRESHOLD,
   clampOffset,
   direction,
-  settleOpen,
+  settle,
   velocity,
 } from "./swipe";
 
@@ -28,11 +28,16 @@ describe("direction", () => {
 });
 
 describe("clampOffset", () => {
-  it("sağa çekmeye izin vermez", () => {
+  it("sol panel yoksa sağa çekmeye izin vermez", () => {
     expect(clampOffset(40, 160)).toBe(0);
   });
 
-  it("panel genişliğini aşmaz", () => {
+  it("sol panel varsa onun genişliğine kadar açılır", () => {
+    expect(clampOffset(40, 160, 80)).toBe(40);
+    expect(clampOffset(400, 160, 80)).toBe(80);
+  });
+
+  it("sağ panel genişliğini aşmaz", () => {
     expect(clampOffset(-400, 160)).toBe(-160);
   });
 
@@ -41,21 +46,27 @@ describe("clampOffset", () => {
   });
 });
 
-describe("settleOpen", () => {
+describe("settle", () => {
   it("yarıdan az çekilirse kapanır", () => {
-    expect(settleOpen(-40, 160)).toBe(false);
+    expect(settle(-40, 160, 80)).toBeNull();
+    expect(settle(20, 160, 80)).toBeNull();
   });
 
-  it("eşiği geçerse açık kalır", () => {
-    expect(settleOpen(-70, 160)).toBe(true);
+  it("eşiği geçerse o taraf açık kalır", () => {
+    expect(settle(-70, 160, 80)).toBe("trailing");
+    expect(settle(40, 160, 80)).toBe("leading");
   });
 
   it("hızlı fiske kısa mesafede de açar", () => {
-    expect(settleOpen(-20, 160, -1.2)).toBe(true);
+    expect(settle(-20, 160, 80, -1.2)).toBe("trailing");
+    expect(settle(10, 160, 80, 1.2)).toBe("leading");
   });
 
-  it("genişlik ölçülmediyse açmaz", () => {
-    expect(settleOpen(-20, 0)).toBe(false);
+  it("olmayan tarafı açmaz", () => {
+    expect(settle(-20, 0, 80)).toBeNull();
+    expect(settle(60, 160, 0)).toBeNull();
+    // Hız da olmayan paneli açamaz.
+    expect(settle(10, 160, 0, 1.2)).toBeNull();
   });
 });
 

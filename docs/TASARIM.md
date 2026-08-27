@@ -69,7 +69,7 @@ açılan panel: üst köşeler yuvarlak (16px), tepede tutamak çubuğu, arkada
 karartma. GeziPay'deki `DialogShell` bu desenin küçük hâli, doğrudan taşınabilir.
 
 **Segmented control.** Filtre için açılır menü yerine: "Tümü / Kullanımda /
-Serviste / Emekli". Tek dokunuşla değişir.
+Serviste / Pasif". Tek dokunuşla değişir.
 
 **Kaydırarak eylem.** Liste satırında sağa/sola kaydırma — GeziPay'deki
 `SwipeRow` doğrudan taşınabilir. Envanterde: sola → Düzenle · Sil,
