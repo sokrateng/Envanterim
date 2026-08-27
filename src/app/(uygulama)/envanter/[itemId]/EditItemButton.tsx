@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
 import { useCloseAndRefresh } from "@/lib/history-layer";
 import { useFill } from "./fill-context";
@@ -26,7 +26,6 @@ export function EditItemButton({
   defaults: ItemDefaults;
 }) {
   const closeAndRefresh = useCloseAndRefresh();
-  const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const { prefill, setPrefill } = useFill();
@@ -40,13 +39,21 @@ export function EditItemButton({
     if (prefill) setOpen(true);
   }, [prefill]);
 
-  // Listeden "Düzenle" kısayoluyla gelindiyse panel açık başlasın. Bayrak
-  // adresten hemen siliniyor: yenilemede panel tekrar açılmasın.
+  // Listeden "Düzenle" kısayoluyla gelindiyse panel açık başlasın.
+  //
+  // Bayrak adresten hemen siliniyor (yenilemede panel tekrar açılmasın) ama
+  // `router.replace` ile değil: panel açılırken geçmişe kendi kaydını
+  // bırakıyor ve replace onunla yarışıyor (TUZAKLAR #60). Doğrudan
+  // `replaceState` eşzamanlı ve yeni kayıt açmıyor. Bir kez çalışsın diye
+  // bayrak ref'te: sonraki çizimlerde panel kendiliğinden açılmasın.
+  const shortcutHandled = useRef(false);
   useEffect(() => {
+    if (shortcutHandled.current) return;
     if (params.get("duzenle") !== "1") return;
+    shortcutHandled.current = true;
+    window.history.replaceState(window.history.state, "", pathname);
     setOpen(true);
-    router.replace(pathname);
-  }, [params, pathname, router]);
+  }, [params, pathname]);
 
   function close() {
     setOpen(false);

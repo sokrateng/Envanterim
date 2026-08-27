@@ -401,3 +401,17 @@ kontroller erken koşuyor ve "fotoğraf yok" diye patlıyordu. Kayıt sonrası
 beklemesi **panelin kapanması** olmalı (`div[role="dialog"]` → `detached`),
 metnin görünmesi değil.
 
+## Liste satırı
+
+**63. Satırın yatay boşluğu üstteki kaptaydı; kaydırma paneli oradan sızıyordu.**
+`Rows` her çocuğa `pl-4` veriyordu. Mutlak konumlu işlem paneli bu boşluğun da
+üstüne düşüyor, hareket eden yüzey ise boşluktan sonra başlıyor — kapalı
+satırda bile soldan mavi bir şerit görünüyordu. Karanlık temada iyice göze
+batıyor. **Kural:** kaydırma jestli satır kenardan kenara olmalı; yatay boşluk
+satırın kendi içinde (`Row`'un gövdesinde), kapta değil.
+
+**64. Bağlantının içindeki düğme dokunuşu yutturuyor.** Listedeki küçük görsel
+satır bağlantısının içindeydi; üstüne düğme koyunca hem geçersiz biçimlendirme
+(`<a>` içinde `<button>`) oluyor hem dokunuş satırı açıyordu. Görsel artık
+bağlantının dışında, `Row` iki parça çiziyor: solda görsel, yanında bağlantı.
+

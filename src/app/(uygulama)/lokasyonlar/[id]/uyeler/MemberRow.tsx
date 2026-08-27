@@ -51,7 +51,7 @@ export function MemberRow({
   }
 
   return (
-    <div className="py-2.5 pr-4">
+    <div className="py-2.5 pl-4 pr-4">
       <div className="flex min-h-touch items-center gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">

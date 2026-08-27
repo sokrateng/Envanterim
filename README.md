@@ -20,6 +20,8 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
 - **Arama ve filtre.** Ada/markaya/modele/seri numarasına göre arama; durum,
   lokasyon ve kategori filtresi; kalan garanti günü rozeti.
 - **Fotoğraf ve belge.** Ürün fotoğrafı, fatura, garanti belgesi, kılavuz.
+  Listedeki küçük görsele dokunmak fotoğrafı büyütüyor; fotoğrafı olmayan
+  ekipmana oradan kamerayla ekleniyor.
 - **Notlar.** Tarif, doğru ayar, uyarı — fotoğraflı, yazan ve tarihiyle.
   Zaman çizelgesi olan biteni tutuyor, notlar bilgiyi.
 - **Beğeni yıldızı.** Kişi başına tek puan, ortalama herkese açık: hangi

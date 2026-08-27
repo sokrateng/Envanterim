@@ -22,6 +22,11 @@ Testler **kendi kayıtlarını açar** ve veriyi silmez: ekipman silinmiyor
 (CLAUDE.md), kullanıcı ve lokasyon birikiyor. Geliştirme veritabanında sorun
 değil; üretimde koşturma.
 
+Birikme yüzlerce ekipmana ulaşınca liste sayfaları yavaşlıyor ve 15 saniyelik
+beklemeler sınırda kalıyor: tek tek geçen testler tam koşuda düşebiliyor.
+Böyle bir durumda geliştirme veritabanını sıfırlamak (`prisma migrate reset`)
+ve `npm run seed:e2e` ile yeniden tohumlamak en hızlı çözüm.
+
 ## Dış servis isteyenler
 
 Bu dördü sahte sunucu ya da özel bayrak istiyor; `npm run test:e2e --hepsi`

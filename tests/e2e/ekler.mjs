@@ -81,6 +81,34 @@ try {
   }
   log("fotoğraf silindi");
 
+  // Listedeki küçük görsel: fotoğrafı olmayan satırdan kamerayla ekleme,
+  // fotoğrafı olandan büyütme.
+  const AD = "Foto kısayolu " + Date.now().toString().slice(-6);
+  await page.goto(`${BASE}/envanter`);
+  await page.tap('button[aria-label="Ekipman ekle"]');
+  await page.fill('input[name="name"]', AD);
+  await page.tap('div[role="dialog"] button[type="submit"]');
+  await page.waitForSelector(`text=${AD}`, { timeout: 15000 });
+
+  const ekleDugmesi = page.locator(`button[aria-label="${AD} için fotoğraf çek"]`);
+  await ekleDugmesi.waitFor({ timeout: 15000 });
+  // Dokunuş satırı açmamalı: görsel bağlantının dışında (TUZAKLAR #64).
+  // Gizli dosya girişi düğmenin hemen ardında duruyor.
+  const dosyaGirisi = page.locator(
+    `button[aria-label="${AD} için fotoğraf çek"] + input[type="file"]`,
+  );
+  await dosyaGirisi.setInputFiles("/tmp/testfiles/foto.png");
+  await page.waitForSelector(`button[aria-label="${AD} fotoğrafını büyüt"]`, {
+    timeout: 20000,
+  });
+  if (!page.url().includes("/envanter")) throw new Error("görsel dokunuşu satırı açtı");
+  log("listeden kamerayla fotoğraf eklendi");
+
+  await page.tap(`button[aria-label="${AD} fotoğrafını büyüt"]`);
+  await page.waitForSelector('[data-testid="zoom-gorsel"]', { timeout: 10000 });
+  log("listedeki fotoğraf büyütülebiliyor");
+  await page.screenshot({ path: `${out}/5-liste-foto.png` });
+
   console.log("\nEK YÜKLEME TESTİ GEÇTİ");
 } finally {
   await browser.close();

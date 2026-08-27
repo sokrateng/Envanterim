@@ -80,8 +80,13 @@ export function Group({
 }
 
 /** Satır ayracı soldan 16px içeriden başlar — iOS deseni. */
+/**
+ * Satır listesi. Yatay boşluk satırın kendi içinde: kaydırma jestli satır
+ * kenardan kenara olmalı, yoksa altındaki işlem paneli boşluktan sızıyor
+ * (TUZAKLAR #63).
+ */
 export function Rows({ children }: { children: ReactNode }) {
-  return <div className="divide-y divide-separator [&>*]:pl-4">{children}</div>;
+  return <div className="divide-y divide-separator">{children}</div>;
 }
 
 export function Row({
@@ -100,12 +105,15 @@ export function Row({
   badge?: ReactNode;
   /** Rozetler adın yanına sığmıyorsa alt satıra alınır — ad kırpılmasın. */
   badgesBelow?: boolean;
-  /** Satırın solundaki görsel (küçük fotoğraf, simge). */
+  /**
+   * Satırın solundaki görsel. Bağlantının **dışında** duruyor: içinde
+   * olsaydı üstündeki düğme geçersiz biçimlendirme olur, dokunuş da satırı
+   * açardı (TUZAKLAR #64).
+   */
   leading?: ReactNode;
 }) {
-  const inner = (
+  const body = (
     <div className="flex min-h-touch items-center gap-3 py-2.5 pr-4">
-      {leading}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="truncate text-headline">{title}</span>
@@ -129,11 +137,23 @@ export function Row({
     </div>
   );
 
-  if (!href) return inner;
+  // Solda görsel varsa aradaki boşluk onun sarmalayıcısından geliyor.
+  const inset = leading ? "pl-3" : "pl-4";
+
   return (
-    <Link href={href} className="block active:bg-surface-pressed">
-      {inner}
-    </Link>
+    <div className="flex items-center">
+      {leading ? <div className="shrink-0 pl-4">{leading}</div> : null}
+      {href ? (
+        <Link
+          href={href}
+          className={`block min-w-0 flex-1 ${inset} active:bg-surface-pressed`}
+        >
+          {body}
+        </Link>
+      ) : (
+        <div className={`min-w-0 flex-1 ${inset}`}>{body}</div>
+      )}
+    </div>
   );
 }
 

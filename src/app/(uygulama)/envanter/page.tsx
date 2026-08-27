@@ -26,7 +26,7 @@ import {
   holderSummary,
   isOverdue,
 } from "@/lib/assignment";
-import { Thumb } from "@/components/Thumb";
+import { ItemPhoto } from "./ItemPhoto";
 import { ItemSwipe } from "./ItemSwipe";
 import { isExtractionConfigured } from "@/lib/invoice-extract";
 import { NewItemButton } from "./NewItemButton";
@@ -460,10 +460,14 @@ export default async function EnvanterPage({
                     badgesBelow
                     href={`/envanter/${item.id}`}
                     leading={
-                      <Thumb
+                      <ItemPhoto
+                        itemId={item.id}
+                        name={item.name}
                         url={item.attachments[0]?.url ?? null}
-                        alt={item.name}
                         icon={item.category?.icon ?? null}
+                        editable={editableLocations.some(
+                          (l) => l.id === item.location.id,
+                        )}
                       />
                     }
                     title={item.name}

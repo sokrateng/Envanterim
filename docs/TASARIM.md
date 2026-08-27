@@ -144,7 +144,11 @@ fiske hızlıysa açık kalır, değilse kapanır.
 ## Liste ve detay
 
 - **Satırın solunda ürün fotoğrafı** (44px), yoksa kategori simgesi. Fotoğrafsız
-  satır da aynı yeri kaplıyor: liste hizası bozulmuyor.
+  satır da aynı yeri kaplıyor: liste hizası bozulmuyor. Görsele dokunmak
+  fotoğrafı büyütüyor; fotoğraf yoksa doğrudan kamerayı açıyor — makinenin
+  başındaki kullanıcı için ekipmanı açıp ekler bölümüne inmek uzun yol.
+- **Kaydırma jestli satır kenardan kenara.** Yatay boşluk satırın içinde;
+  kapta olursa işlem paneli boşluktan sızıyor (TUZAKLAR #63).
 - **Filtreler tek düğmenin arkasında.** Dört çip sırası 390 pikselde ekranın
   yarısını yiyordu. Düğmedeki sayı kaç filtrenin açık olduğunu söylüyor; açık
   filtreler listenin üstünde tek satırda, dokununca kalkıyor.
