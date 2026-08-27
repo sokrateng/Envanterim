@@ -68,8 +68,12 @@ Bunu atlarsan çubuk ana ekran göstergesinin altında kalır.
 açılan panel: üst köşeler yuvarlak (16px), tepede tutamak çubuğu, arkada
 karartma. GeziPay'deki `DialogShell` bu desenin küçük hâli, doğrudan taşınabilir.
 
-**Segmented control.** Filtre için açılır menü yerine: "Tümü / Kullanımda /
-Serviste / Pasif". Tek dokunuşla değişir.
+**Segmented control.** Filtre için açılır menü yerine çipler: "Tümü /
+Kullanımda / Serviste / Pasif". Durum, lokasyon ve kategori **çoklu seçimli** —
+"pasif hariç hepsi" demenin yolu kalanları işaretlemek; hariç tutma kipi
+mobilde ikinci bir zihinsel model demek olurdu. Seçili çipe tekrar dokunmak
+onu listeden çıkarıyor, "Tümü" grubu sıfırlıyor. Zimmet ve favori birbirini
+dışlayan kipler, tek seçimli kalıyorlar.
 
 **Kaydırarak eylem.** Liste satırında sağa/sola kaydırma — GeziPay'deki
 `SwipeRow` doğrudan taşınabilir. Envanterde: sola → Düzenle · Sil,

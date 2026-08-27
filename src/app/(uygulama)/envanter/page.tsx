@@ -19,6 +19,7 @@ import type { CategoryOption } from "@/components/ItemFields";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { favoritePage } from "@/lib/favorite-page";
+import { parseValues } from "@/lib/filter-values";
 import { statusView } from "@/lib/item-status";
 import { listVendors } from "@/lib/vendors";
 import { warrantyStatus } from "@/lib/warranty";
@@ -74,14 +75,17 @@ export default async function EnvanterPage({
   // İstemciye giden veri zaten filtrelenmiş olmalı: sorgu yalnız üye olunan
   // lokasyonlara bakar, gelen lokasyon parametresi bu kümeyle kesiştirilir.
   const memberLocationIds = locations.map((l) => l.id);
+  // Çoklu seçim: "pasif hariç hepsi" demenin yolu kalanları işaretlemek
+  // (src/lib/filter-values.ts). İzinli küme dışındaki değer eleniyor.
+  const selectedLocations = parseValues(filters.lokasyon, memberLocationIds);
+  /** Tek lokasyon süzülüyorsa bazı yerler onu ayrıca kullanıyor. */
   const selectedLocation =
-    filters.lokasyon && memberLocationIds.includes(filters.lokasyon)
-      ? filters.lokasyon
-      : null;
+    selectedLocations.length === 1 ? selectedLocations[0] : null;
 
-  const status = ITEM_STATUS.includes(filters.durum as ItemStatus)
-    ? (filters.durum as ItemStatus)
-    : null;
+  const statuses = parseValues(filters.durum, ITEM_STATUS);
+  // Kategori kimlikleri sorgudan önce bilinmiyor; satırlar zaten üye olunan
+  // lokasyonlarla sınırlı, uydurma bir kimlik hiçbir satıra denk gelmiyor.
+  const selectedCategories = parseValues(filters.kategori, null);
 
   const assignmentFilter = ZIMMET_FILTERS.includes(
     filters.zimmet as ZimmetFilter,
@@ -91,7 +95,6 @@ export default async function EnvanterPage({
 
   const onlyFavorites = filters.favori === "1";
   const query = (filters.q ?? "").trim();
-  const requestedCategory = filters.kategori ?? null;
 
   // Kategoriler lokasyona ait; forma yalnız üye olunan lokasyonlarınki gider.
   const categoriesPromise = memberLocationIds.length
@@ -121,12 +124,16 @@ export default async function EnvanterPage({
   // Süzme veritabanında yapılıyor: sayfa sınırından sonra elemek listeyi
   // sessizce eksiltir — kullanıcı eksik listeye baktığını anlamaz.
   const where = {
-    locationId: selectedLocation ? selectedLocation : { in: memberLocationIds },
-    ...(status ? { status } : {}),
+    locationId: selectedLocations.length
+      ? { in: selectedLocations }
+      : { in: memberLocationIds },
+    ...(statuses.length ? { status: { in: statuses } } : {}),
     // Kategori kimliği doğrudan kullanılıyor: satırlar zaten üye olunan
     // lokasyonlarla sınırlı, başka lokasyonun kategorisi eşleşemez. Böylece
     // liste sorgusu kategori listesini beklemiyor.
-    ...(requestedCategory ? { categoryId: requestedCategory } : {}),
+    ...(selectedCategories.length
+      ? { categoryId: { in: selectedCategories } }
+      : {}),
     ...(query
       ? {
           OR: [
@@ -305,10 +312,15 @@ export default async function EnvanterPage({
         fields: [],
       }));
 
-  const categoryFilter =
-    requestedCategory && categories.some((c) => c.id === requestedCategory)
-      ? requestedCategory
-      : null;
+
+  /** Boş listede "filtreden mi geliyor" sorusunun cevabı. */
+  const activeFilterCount = [
+    statuses.length,
+    selectedLocations.length,
+    selectedCategories.length,
+    onlyFavorites ? 1 : 0,
+    assignmentFilter ? 1 : 0,
+  ].filter(Boolean).length;
 
   const editableLocations = locations.filter(
     (l) => l.role === "OWNER" || l.role === "EDITOR",
@@ -321,6 +333,7 @@ export default async function EnvanterPage({
       key: "durum",
       title: "Durum",
       anyLabel: "Tümü",
+      multiple: true,
       options: ITEM_STATUS.map((option) => ({
         value: option,
         label: ITEM_STATUS_LABELS[option],
@@ -332,6 +345,7 @@ export default async function EnvanterPage({
             key: "lokasyon",
             title: "Lokasyon",
             anyLabel: "Tüm lokasyonlar",
+            multiple: true,
             options: locations.map((location) => ({
               value: location.id,
               label: `${location.icon ?? "📍"} ${location.name}`,
@@ -345,6 +359,7 @@ export default async function EnvanterPage({
             key: "kategori",
             title: "Kategori",
             anyLabel: "Tüm kategoriler",
+            multiple: true,
             options: filterCategories.map((category) => ({
               value: category.id,
               label: `${category.icon ?? "🏷"} ${category.name}`,
@@ -432,7 +447,7 @@ export default async function EnvanterPage({
         <EmptyState
           title="Ekipman yok"
           description={
-            query || status
+            query || activeFilterCount
               ? "Bu filtreyle eşleşen ekipman bulunamadı."
               : "Alttaki + ile ilk ekipmanını ekle."
           }

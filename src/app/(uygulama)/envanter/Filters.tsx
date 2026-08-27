@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Sheet } from "@/components/Sheet";
 import { useCloseThen } from "@/lib/history-layer";
+import { parseValues, toParam, toggleValue } from "@/lib/filter-values";
 
 /**
  * Bütün filtreler tek düğmenin arkasında.
@@ -23,6 +24,12 @@ export type FilterGroup = {
   /** Hiçbiri seçilmediğinde görünen seçenek. */
   anyLabel: string;
   options: FilterOption[];
+  /**
+   * Birden fazla seçilebiliyor mu. Durum, lokasyon ve kategori öyle: "pasif
+   * hariç hepsi" demenin yolu kalanları işaretlemek. Zimmet ve favori ise
+   * birbirini dışlayan kipler, çoğullanmıyorlar.
+   */
+  multiple?: boolean;
 };
 
 export function Filters({
@@ -41,6 +48,14 @@ export function Filters({
   const [draft, setDraft] = useState<Record<string, string | undefined>>(current);
 
   const activeCount = groups.filter((group) => current[group.key]).length;
+
+  /** Gruptaki taslak seçim; çoklu grupta liste, tekli grupta tek elemanlı. */
+  function secim(group: FilterGroup): string[] {
+    return parseValues(
+      draft[group.key],
+      group.options.map((option) => option.value),
+    );
+  }
 
   function apply(values: Record<string, string | undefined>) {
     const query = new URLSearchParams(params.toString());
@@ -105,7 +120,7 @@ export function Filters({
                   // Erişilebilir ad grubu da söylüyor: "Serviste" tek başına
                   // ekranın başka yerlerinde de geçiyor.
                   name={`${group.title}: ${group.anyLabel}`}
-                  active={!draft[group.key]}
+                  active={secim(group).length === 0}
                   onClick={() =>
                     setDraft((now) => ({ ...now, [group.key]: undefined }))
                   }
@@ -115,9 +130,18 @@ export function Filters({
                     key={option.value}
                     label={option.label}
                     name={`${group.title}: ${option.label}`}
-                    active={draft[group.key] === option.value}
+                    active={secim(group).includes(option.value)}
                     onClick={() =>
-                      setDraft((now) => ({ ...now, [group.key]: option.value }))
+                      setDraft((now) => ({
+                        ...now,
+                        [group.key]: group.multiple
+                          ? toParam(toggleValue(secim(group), option.value))
+                          : // Tek seçimli grupta aynı çipe tekrar dokunmak
+                            // seçimi kaldırıyor: "Tümü"ye uzanmaya gerek yok.
+                            secim(group).includes(option.value)
+                            ? undefined
+                            : option.value,
+                      }))
                     }
                   />
                 ))}

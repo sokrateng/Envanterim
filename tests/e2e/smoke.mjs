@@ -130,6 +130,41 @@ try {
   log("durum filtresi çalışıyor");
   await page.screenshot({ path: `${out}/7-filtre.png` });
 
+  // Çoklu seçim: "pasif hariç hepsi" demenin yolu kalanları işaretlemek.
+  await page.tap('button[aria-label="Filtreler — 1 açık"]');
+  await page.tap('button[aria-label="Durum: Kullanımda"]');
+  await page.tap('button[aria-label="Durum: Satıldı"]');
+  await page.getByRole("button", { name: "Uygula", exact: true }).tap();
+  await page.waitForURL((url) => {
+    const durum = url.searchParams.get("durum") ?? "";
+    return (
+      durum.includes("IN_REPAIR") &&
+      durum.includes("IN_USE") &&
+      durum.includes("SOLD") &&
+      !durum.includes("RETIRED")
+    );
+  });
+  await page.waitForTimeout(600);
+  // Eklediğimiz kullanımdaki ekipman şimdi listede olmalı: seçime dahil.
+  if (!(await page.locator(`a:has-text("${URUN}")`).count())) {
+    throw new Error("çoklu seçimde kullanımdaki ekipman elendi");
+  }
+  // Pasif seçilmediği için listede pasif satır kalmamalı.
+  if (await page.locator('a[href^="/envanter/"] >> text=/^Pasif$/').count()) {
+    throw new Error("seçilmeyen durum listede");
+  }
+  log("çoklu durum seçimi çalışıyor: pasif hariç hepsi");
+
+  // Seçili çipe tekrar dokunmak onu listeden çıkarıyor.
+  await page.tap('button[aria-label="Filtreler — 1 açık"]');
+  await page.tap('button[aria-label="Durum: Satıldı"]');
+  await page.getByRole("button", { name: "Uygula", exact: true }).tap();
+  await page.waitForURL((url) => {
+    const durum = url.searchParams.get("durum") ?? "";
+    return durum.includes("IN_USE") && !durum.includes("SOLD");
+  });
+  log("seçili çip tekrar dokununca çıkıyor");
+
   // Filtreyi kaldırmanın yolu panelin "Temizle"si: liste üstünde ayrı bir
   // çip şeridi yok, açık filtre sayısı düğmenin rozetinde duruyor.
   await page.tap('button[aria-label="Filtreler — 1 açık"]');
