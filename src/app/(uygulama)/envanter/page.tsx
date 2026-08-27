@@ -22,7 +22,12 @@ import { favoritePage } from "@/lib/favorite-page";
 import { parseValues } from "@/lib/filter-values";
 import { statusView } from "@/lib/item-status";
 import { listVendors } from "@/lib/vendors";
-import { warrantyStatus } from "@/lib/warranty";
+import {
+  WARRANTY_FILTERS,
+  WARRANTY_FILTER_LABELS,
+  warrantyRange,
+  warrantyStatus,
+} from "@/lib/warranty";
 import {
   activeAssignment,
   assignmentState,
@@ -44,6 +49,7 @@ type Search = {
   durum?: string;
   lokasyon?: string;
   kategori?: string;
+  garanti?: string;
   zimmet?: string;
   favori?: string;
   yeni?: string;
@@ -92,6 +98,10 @@ export default async function EnvanterPage({
   )
     ? (filters.zimmet as ZimmetFilter)
     : null;
+
+  // Garanti penceresi tek seçimli: pencereler iç içe (30 ⊂ 90 ⊂ 180 ⊂ 365),
+  // birleşimleri zaten geniş olanı verirdi (src/lib/warranty.ts).
+  const warrantyWindow = warrantyRange(filters.garanti ?? "");
 
   const onlyFavorites = filters.favori === "1";
   const query = (filters.q ?? "").trim();
@@ -144,6 +154,8 @@ export default async function EnvanterPage({
           ],
         }
       : {}),
+    // Garanti aralığı: tarihi olmayan ekipman kendiliğinden eleniyor.
+    ...(warrantyWindow ? { warrantyEndDate: warrantyWindow } : {}),
     // Zimmet durumu sütun değil, kapanmamış kayıt: koşul ilişkiye kuruluyor.
     ...(assignmentFilter === "zimmetsiz"
       ? { assignments: { none: { closedAt: null } } }
@@ -318,6 +330,7 @@ export default async function EnvanterPage({
     statuses.length,
     selectedLocations.length,
     selectedCategories.length,
+    warrantyWindow ? 1 : 0,
     onlyFavorites ? 1 : 0,
     assignmentFilter ? 1 : 0,
   ].filter(Boolean).length;
@@ -367,6 +380,15 @@ export default async function EnvanterPage({
           },
         ]
       : []),
+    {
+      key: "garanti",
+      title: "Garanti",
+      anyLabel: "Tümü",
+      options: WARRANTY_FILTERS.map((option) => ({
+        value: option,
+        label: WARRANTY_FILTER_LABELS[option],
+      })),
+    },
     {
       key: "favori",
       title: "Favoriler",
@@ -588,6 +610,7 @@ function buildHref(params: Search) {
   if (params.durum) query.set("durum", params.durum);
   if (params.lokasyon) query.set("lokasyon", params.lokasyon);
   if (params.kategori) query.set("kategori", params.kategori);
+  if (params.garanti) query.set("garanti", params.garanti);
   if (params.zimmet) query.set("zimmet", params.zimmet);
   if (params.sayfa) query.set("sayfa", params.sayfa);
   const text = query.toString();

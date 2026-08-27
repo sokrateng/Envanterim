@@ -72,8 +72,15 @@ karartma. GeziPay'deki `DialogShell` bu desenin küçük hâli, doğrudan taşı
 Kullanımda / Serviste / Pasif". Durum, lokasyon ve kategori **çoklu seçimli** —
 "pasif hariç hepsi" demenin yolu kalanları işaretlemek; hariç tutma kipi
 mobilde ikinci bir zihinsel model demek olurdu. Seçili çipe tekrar dokunmak
-onu listeden çıkarıyor, "Tümü" grubu sıfırlıyor. Zimmet ve favori birbirini
-dışlayan kipler, tek seçimli kalıyorlar.
+onu listeden çıkarıyor, "Tümü" grubu sıfırlıyor. Zimmet, favori ve garanti
+birbirini dışlayan kipler, tek seçimli kalıyorlar — garanti pencereleri iç içe
+(30 ⊂ 90 ⊂ 180 ⊂ 365), birleşimleri zaten geniş olanı verirdi.
+
+Her ölçüt kendi çerçevesinde duruyor (ince kenarlık, 10px yarıçap): çipler
+art arda dizilince bir grubun son satırı bir sonrakinin ilk satırına yapışıyor
+ve hangi çipin hangi başlığa ait olduğu karışıyordu. Seçilmemiş çip dolgu
+rengiyle (`fill`) duruyor; panelin zemini `surface`, aynı rengi vermek çipi
+görünmez yapardı.
 
 **Kaydırarak eylem.** Liste satırında sağa/sola kaydırma — GeziPay'deki
 `SwipeRow` doğrudan taşınabilir. Envanterde: sola → Düzenle · Sil,
@@ -158,7 +165,8 @@ fiske hızlıysa açık kalır, değilse kapanır.
   kapta olursa işlem paneli boşluktan sızıyor (TUZAKLAR #63).
 - **Filtreler tek düğmenin arkasında.** Dört çip sırası 390 pikselde ekranın
   yarısını yiyordu. Düğmedeki sayı kaç filtrenin açık olduğunu söylüyor; açık
-  filtreler listenin üstünde tek satırda, dokununca kalkıyor.
+  filtreyi kaldırmanın yolu panelin "Temizle"si — listenin üstünde ayrı bir çip
+  şeridi yok, aynı bilgiyi iki yerde göstermek yer kaybıydı.
 - **Ad alanı sabit yükseklikte** (82px), punto ada göre küçülüyor
   (`src/lib/typography.ts`). Uzun adlar sayfayı aşağı itmiyor.
 - **Durum tek satır**, seçenekler panelde: yılda bir iki kez değişen bir şey

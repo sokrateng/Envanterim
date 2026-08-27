@@ -72,3 +72,46 @@ export function isReminderDue(
   const daysLeft = daysBetween(now, dueDate);
   return daysLeft <= leadDays && daysLeft >= 0;
 }
+
+/**
+ * Filtre penceresi anahtarları. Sayılar gün: "90" = bugünle 90 gün sonrası
+ * arasında bitenler. `bitmis` süresi dolmuş olanlar.
+ */
+export const WARRANTY_FILTERS = ["30", "90", "180", "365", "bitmis"] as const;
+export type WarrantyFilter = (typeof WARRANTY_FILTERS)[number];
+
+export const WARRANTY_FILTER_LABELS: Record<WarrantyFilter, string> = {
+  "30": "30 gün içinde",
+  "90": "90 gün içinde",
+  "180": "180 gün içinde",
+  "365": "1 yıl içinde",
+  bitmis: "Süresi bitmiş",
+};
+
+/**
+ * Filtre anahtarını tarih aralığına çevirir — sorgu koşulu buradan çıkıyor.
+ *
+ * Pencereler iç içe: 30 gün içinde bitenler 90'ın da içinde. Bu yüzden filtre
+ * tek seçimli; birleşim zaten geniş olanı verirdi.
+ *
+ * Sınır günün başına normalize ediliyor: garanti tarihi yerel gün başı olarak
+ * saklanıyor (`dateOnly`, TUZAKLAR #27), saat kalırsa bugün biten garanti
+ * pencerenin dışında kalırdı. Üst sınır ertesi günün başı ve `lt`, böylece
+ * son gün de içeride.
+ *
+ * Aralık koşulu tarihi olmayan ekipmanı kendiliğinden eliyor: SQL'de NULL
+ * karşılaştırması doğru dönmüyor.
+ */
+export function warrantyRange(
+  key: string,
+  now: Date = new Date(),
+): { gte?: Date; lt: Date } | null {
+  if (!(WARRANTY_FILTERS as readonly string[]).includes(key)) return null;
+
+  const today = startOfDay(now);
+  if (key === "bitmis") return { lt: today };
+
+  const end = new Date(today);
+  end.setDate(end.getDate() + Number(key) + 1);
+  return { gte: today, lt: end };
+}

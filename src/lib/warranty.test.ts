@@ -4,6 +4,7 @@ import {
   daysUntilWarrantyEnd,
   isReminderDue,
   startOfDay,
+  warrantyRange,
   warrantyStatus,
 } from "./warranty";
 
@@ -103,5 +104,38 @@ describe("isReminderDue", () => {
 
   it("son gün hâlâ gönderilir", () => {
     expect(isReminderDue(d(2026, 3, 14, 23), 7, now)).toBe(true);
+  });
+});
+
+describe("warrantyRange", () => {
+  const now = d(2026, 3, 14, 15, 30);
+
+  it("bilinmeyen anahtara koşul üretmiyor", () => {
+    // Adres çubuğu kullanıcının elinde; uydurma değer sorguya girmemeli.
+    expect(warrantyRange("yok", now)).toBeNull();
+    expect(warrantyRange("", now)).toBeNull();
+  });
+
+  it("biten garantiyi bugünden öncesiyle sınırlar", () => {
+    expect(warrantyRange("bitmis", now)).toEqual({ lt: d(2026, 3, 14) });
+  });
+
+  it("pencereyi bugünün başından son günün sonuna kurar", () => {
+    // Üst sınır ertesi günün başı: 30. günde biten garanti de içeride.
+    expect(warrantyRange("30", now)).toEqual({
+      gte: d(2026, 3, 14),
+      lt: d(2026, 4, 14),
+    });
+    expect(warrantyRange("365", now)).toEqual({
+      gte: d(2026, 3, 14),
+      lt: d(2027, 3, 15),
+    });
+  });
+
+  it("pencereler iç içe: dar olan geniş olanın içinde", () => {
+    const dar = warrantyRange("30", now)!;
+    const genis = warrantyRange("180", now)!;
+    expect(dar.gte!.getTime()).toBe(genis.gte!.getTime());
+    expect(dar.lt.getTime()).toBeLessThan(genis.lt.getTime());
   });
 });

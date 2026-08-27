@@ -108,10 +108,16 @@ export function Filters({
       </button>
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Filtrele">
-        <div className="max-h-[65dvh] overflow-y-auto pb-2">
+        {/* Her ölçüt kendi çerçevesinde: çipler sırayla dizilince hangi
+            çipin hangi başlığa ait olduğu karışıyordu — 390 pikselde bir
+            grubun son satırı bir sonrakinin ilk satırına yapışıyor. */}
+        <div className="flex max-h-[65dvh] flex-col gap-2 overflow-y-auto pb-2">
           {groups.map((group) => (
-            <section key={group.key} className="pt-2">
-              <h3 className="pb-1 text-footnote uppercase text-muted">
+            <section
+              key={group.key}
+              className="rounded-card border border-separator p-3"
+            >
+              <h3 className="pb-2 text-footnote uppercase text-muted">
                 {group.title}
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -188,10 +194,10 @@ function ChipButton({
       onClick={onClick}
       aria-label={name}
       aria-pressed={active}
+      // Seçilmemiş çip dolgu rengiyle duruyor: panelin zemini zaten
+      // `surface`, aynı rengi vermek çipi görünmez yapardı.
       className={`min-h-touch whitespace-nowrap rounded-card px-3 text-footnote transition active:scale-95 ${
-        active
-          ? "bg-blue text-white"
-          : "border border-separator bg-surface text-ink"
+        active ? "bg-blue text-white" : "bg-fill text-ink"
       }`}
     >
       {label}

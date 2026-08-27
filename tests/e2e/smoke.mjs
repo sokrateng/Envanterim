@@ -172,6 +172,29 @@ try {
   await page.waitForURL((url) => !url.searchParams.has("durum"));
   log("filtre panelden temizlendi");
 
+  // Garanti penceresi: eklediğimiz ekipmanın garantisi 12 gün sonra bitiyor,
+  // yani "30 gün içinde"nin içinde ve "süresi bitmiş"in dışında.
+  await page.tap('button[aria-label="Filtreler"]');
+  await page.tap('button[aria-label="Garanti: 30 gün içinde"]');
+  await page.getByRole("button", { name: "Uygula", exact: true }).tap();
+  await page.waitForURL(/garanti=30/);
+  await page.waitForTimeout(600);
+  if (!(await page.locator(`a:has-text("${URUN}")`).count())) {
+    throw new Error("30 gün içinde biten garanti listede yok");
+  }
+  await page.tap('button[aria-label="Filtreler — 1 açık"]');
+  await page.tap('button[aria-label="Garanti: Süresi bitmiş"]');
+  await page.getByRole("button", { name: "Uygula", exact: true }).tap();
+  await page.waitForURL(/garanti=bitmis/);
+  await page.waitForTimeout(600);
+  if (await page.locator(`a:has-text("${URUN}")`).count()) {
+    throw new Error("garantisi sürüyor ama 'süresi bitmiş' filtresinde çıktı");
+  }
+  log("garanti filtresi çalışıyor");
+  await page.tap('button[aria-label="Filtreler — 1 açık"]');
+  await page.getByRole("button", { name: "Temizle", exact: true }).tap();
+  await page.waitForURL((url) => !url.searchParams.has("garanti"));
+
   // Panel açıkken geri tuşu paneli kapatmalı, sayfadan atmamalı (TUZAKLAR #17).
   // Boş formda soru sorulmuyor: kaybolacak bir şey yok.
   await page.tap('a[aria-label="Yeni ekipman"]');
