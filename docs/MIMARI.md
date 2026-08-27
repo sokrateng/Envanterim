@@ -446,3 +446,27 @@ Adım atlamak sonradan göç yazdırır.
 6. `scripts/create-admin.ts` — üretimde giriş yapacak kimse olmadan dağıtma
 7. `DEPLOY.md` — bucket, ortam değişkenleri, göç, duman testi
 8. Sonra özellikler (`docs/URUN.md` sırasıyla)
+
+
+## Panel (genel bakış)
+
+`/panel` envanterin özetini çıkarıyor: durum, garanti, kategori, marka, alış
+yılı, en değerli ekipmanlar ve kayıt eksikleri. Bütün sayılar `src/lib/dashboard.ts`
+içinde, saf ve testli; hiçbiri saklanmıyor, her açılışta hesaplanıyor.
+
+Girdi sigorta raporununkiyle **aynı satır tipi** (`ReportItem`): iki ekran aynı
+veriye baksın, biri "12 ekipman" derken öteki "13" demesin. Yetki her zamanki
+yerden geçiyor — sorgu yalnız üye olunan lokasyonlara bakıyor, adresten gelen
+lokasyon bu kümeyle kesiştiriliyor.
+
+**Kur.** Kayıtlarda kur yok ve uydurulmuyor (CLAUDE.md). Tek bir TRY toplamı
+isteniyorsa kur kullanıcıdan alınıyor: `src/lib/exchange.ts` saf çevirimi
+yapıyor, kuru girilmeyen birim toplama **girmiyor** ve bu ekranda yazıyor. Kur
+tarayıcıda duruyor (cihaz başına); şemaya ayar tablosu eklemedik, çünkü kur
+kişisel ve anlık bir görüntüleme tercihi, envanterin verisi değil. Otomatik kur
+(örneğin TCMB günlük XML'i) istenirse buraya bir kaynak eklenebilir — o zaman
+da kurun kaynağı ve tarihi ekranda yazmalı.
+
+**Ölçüldü:** 682 ekipmanlı bir envanterde panel 126–226 ms'de açılıyor. Sorgu
+ekipman başına olay, parça ve servis satırlarını da çekiyor; envanter çok
+büyürse önce burası özetlenir (lokasyon başına sayıları veritabanında toplamak).

@@ -22,11 +22,24 @@ const TABS = [
     path: "M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9ZM3.5 7.5 12 12m0 0 8.5-4.5M12 12v9",
   },
   {
+    href: "/panel",
+    label: "Panel",
+    // Sütun grafik: paneldeki iş bu, tek bakışta anlaşılıyor.
+    path: "M4 20V10M10 20V4M16 20v-7M22 20H2",
+  },
+  {
     href: "/hesap",
     label: "Hesap",
     path: "M12 11.5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20.5c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6",
   },
 ];
+
+/**
+ * Ekleme düğmesi sekmelerin tam ortasında duruyor: dört sekmede ikinci ile
+ * üçüncünün arasına giriyor. Sabit bir dizin yerine ortadan hesaplanıyor ki
+ * sekme eklenince düğme yine ortada kalsın.
+ */
+const FAB_AFTER = Math.floor(TABS.length / 2) - 1;
 
 export function TabBar() {
   const pathname = usePathname();
@@ -85,7 +98,7 @@ export function TabBar() {
             // Ekleme düğmesi ortada ve sekmelerin üstüne taşıyor: parmağın
             // doğal yeri ekranın altı, oysa "+" ekranın en uzak köşesindeydi.
             // Her sekmede duruyor — yeni ekipman her yerden açılabilmeli.
-            index === 1 ? (
+            index === FAB_AFTER ? (
               <li key="yeni" className="flex w-[72px] shrink-0 justify-center">
                 <Link
                   href={yeniAdres}

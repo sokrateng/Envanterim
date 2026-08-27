@@ -93,6 +93,10 @@ sekme, ekipman detayının geri düğmesi, tarama sayfası, "ekipman açılamad�
 (`src/lib/last-filter.ts`, `src/components/EnvanterLink.tsx`).
 "Temizle" de bir tercih: boş hâl saklanıyor, dönüşte süzme geri gelmiyor.
 
+**Alt sekme çubuğu dört sekme.** Lokasyonlar · Envanter · [+] · Panel · Hesap.
+Ekleme düğmesi tam ortada duruyor ve dizinden değil sekme sayısından
+hesaplanıyor — sekme eklenince düğme yine ortada kalsın.
+
 **Kaydırarak eylem.** Liste satırında sağa/sola kaydırma — GeziPay'deki
 `SwipeRow` doğrudan taşınabilir. Envanterde: sola → Düzenle · Sil,
 sağa → Serviste işaretle.
@@ -206,6 +210,30 @@ o, yazmıyorsa fatura tarihinden 24 ay. Varsayım olduğu forma taşınıyor
 (`warrantyAssumed`) ve aynı ipucu çıkıyor — okunan bilgiyle varsayım aynı
 şey değil. e-Fatura XML'i ekipmanı doğrudan açtığı için varsayım önizleme
 ekranında yazılı, kullanıcı onaylayarak geçiyor.
+
+## Panel
+
+Envanterin genel görünümü (`/panel`). PowerBI tadında ama telefonda: üstte
+lokasyon çipleri, sonra dört sayı kutusu, sonra kartlar. Her kart tek bir
+soruyu cevaplıyor.
+
+- **Grafik kütüphanesi yok.** Buradaki işlerin hepsi oran çubuğu ve sayı; düz
+  HTML ile çiziliyor (`src/components/charts.tsx`). Telefonda 100 KB'lık bir
+  çizim kütüphanesi indirmek, gösterdiği bilgiden pahalıya geliyordu.
+- **Renk tek başına bilgi taşımıyor.** Her çubuğun yanında etiketi ve sayısı
+  yazıyor; renk yalnız pekiştiriyor. Renk körlüğünde de siyah beyaz çıktıda da
+  kart okunuyor.
+- **Büyüklük karşılaştırmasında tek renk.** Kategori ve marka çubukları aynı
+  mavi: mesajı boy taşıyor. Ayrı renk yalnız durum ve garanti kartlarında,
+  çünkü orada renk uygulamanın başka yerlerinde de aynı anlamı taşıyor.
+- **Aynı sayı iki yerde farklı yazamaz.** Kutulardaki sayılar kartların
+  satırlarından okunuyor; "Kullanımda" kutuda 618 kartta 586 olamaz.
+- **Kapsam iki türlü ve yazılı.** Durum kartı bütün ekipmanları sayıyor; tutar,
+  garanti, kategori ve marka kartları elde olanlara bakıyor. Sayfanın altında
+  bu bir cümleyle duruyor.
+- **Kuyruk sessizce kesilmiyor.** Kategori ve marka listeleri ilk altıyı
+  gösterip kalanı "Diğer"de topluyor, kartın başlığı da kaç grubun toplandığını
+  yazıyor.
 
 ## Onay kutusu
 

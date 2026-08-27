@@ -34,8 +34,12 @@ npm run create-admin     # ilk hesap
   kimin eri­şeceği `LocationMember` ile belirlenir. Yetki kontrolü **her zaman**
   lokasyon üyeliğinden geçer, kullanıcı kimliğinden değil.
 - **Para tamsayı.** Tüm tutarlar kuruş cinsinden `Int`. Float para yok. Birim
-  ekipmanla birlikte duruyor (`Item.currency`, varsayılan TRY); **kur çevirisi
-  yok** — farklı birimler toplanmaz, ayrı gösterilir.
+  ekipmanla birlikte duruyor (`Item.currency`, varsayılan TRY). **Kur
+  uydurulmaz:** kayıtlarda kur tutulmuyor, farklı birimler kendiliğinden
+  toplanmıyor. Panelde tek bir TRY toplamı isteniyorsa kur **kullanıcıdan**
+  alınıyor, ekranda hangi kurla toplandığı yazıyor ve kuru girilmeyen birim
+  toplama girmiyor (`src/lib/exchange.ts`). Sunucudan ya da sabit bir tablodan
+  kur çekip sessizce toplamak yok.
 - **Tarihler tarih, metin değil.** Garanti/alış tarihi `DateTime`; karşılaştırma
   ve hatırlatma sorguları buna bağlı.
 - **Sunucu bileşeni varsayılan.** `"use client"` yalnız form durumu, parmak
