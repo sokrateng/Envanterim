@@ -82,6 +82,11 @@ try {
   await page.waitForSelector(`text=${URUN}`, { timeout: 10000 });
   log("ekipman eklendi");
 
+  // Etiketin taşıdığı adres; erişim denetimini bunun üstünden sınıyoruz.
+  const itemId = (
+    await page.locator(`a:has-text("${URUN}")`).first().getAttribute("href")
+  ).split("/").pop();
+
   // Rozeti listenin ilkinden değil, eklediğimiz satırdan oku: başka testler
   // sıralamayı değiştirebiliyor (TUZAKLAR #22'nin test tarafı).
   const badge = await page
@@ -207,7 +212,29 @@ try {
   const locationId = new URL(page.url()).searchParams.get("lokasyon");
   const res = await stranger.goto(`${BASE}/lokasyonlar/${locationId ?? "yok"}`);
   if (res && res.status() !== 404) throw new Error(`yabancıya ${res.status()} döndü`);
-  log("yabancı: envanter boş, lokasyon 404");
+
+  // Etiketten gelen adres: üyesi olmayan kullanıcı 404 alıyor ve ekipmanın
+  // adını göremiyor. Olmayan ekipmanla aynı cevap — hangisi olduğu dışarı
+  // sızmıyor.
+  const urunRes = await stranger.goto(`${BASE}/envanter/${itemId}`);
+  if (urunRes && urunRes.status() !== 404) {
+    throw new Error(`yabancı ekipmana ${urunRes.status()} ile ulaştı`);
+  }
+  const yabanciGovde = await stranger.locator("body").innerText();
+  if (yabanciGovde.includes(URUN)) throw new Error("ekipman adı yabancıya sızdı");
+  log("yabancı: envanter boş, lokasyon ve ekipman 404");
+
+  // Girişi olmayan hiç göremiyor: giriş sayfasına düşüyor.
+  const misafirCtx = await browser.newContext(iphone);
+  const misafir = await misafirCtx.newPage();
+  await misafir.goto(`${BASE}/envanter/${itemId}`);
+  if (!misafir.url().includes("/giris")) {
+    throw new Error(`girişsiz kullanıcı ${misafir.url()} adresinde kaldı`);
+  }
+  if ((await misafir.locator("body").innerText()).includes(URUN)) {
+    throw new Error("ekipman adı girişsiz kullanıcıya sızdı");
+  }
+  log("girişsiz: ekipman adresi giriş sayfasına düşüyor");
   await stranger.screenshot({ path: `${out}/9-yabanci.png` });
 
   console.log("\nDUMAN TESTİ GEÇTİ");
