@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 /**
  * Alt sekme çubuğu — güvenli alan hesaba katılmazsa ana ekran göstergesinin
@@ -28,6 +28,17 @@ const TABS = [
 
 export function TabBar() {
   const pathname = usePathname();
+  const params = useSearchParams();
+
+  // Envanterdeyken açık filtreler korunuyor: düz bir "/envanter?yeni=1"
+  // bağlantısı sorguyu baştan yazıp süzmeyi siliyordu — panel de o zaman
+  // süzülen lokasyonla değil ilk lokasyonla açılıyordu.
+  let yeniAdres = "/envanter?yeni=1";
+  if (pathname === "/envanter") {
+    const sorgu = new URLSearchParams(params.toString());
+    sorgu.set("yeni", "1");
+    yeniAdres = `/envanter?${sorgu.toString()}`;
+  }
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-separator bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
@@ -64,7 +75,7 @@ export function TabBar() {
             index === 1 ? (
               <li key="yeni" className="flex w-[72px] shrink-0 justify-center">
                 <Link
-                  href="/envanter?yeni=1"
+                  href={yeniAdres}
                   aria-label="Yeni ekipman"
                   className="-mt-5 grid h-14 w-14 place-items-center rounded-full border-4 border-surface bg-blue text-[26px] text-white shadow-lg active:opacity-70"
                 >

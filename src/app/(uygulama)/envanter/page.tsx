@@ -407,7 +407,13 @@ export default async function EnvanterPage({
             id: l.id,
             name: l.name,
           }))}
-          defaultLocationId={selectedLocation ?? editableLocations[0].id}
+          // Süzülen lokasyon panele geçiyor. Yalnız düzenleyebildiğim
+          // lokasyon işe yarar: görüntüleyici olduğum lokasyona ekipman
+          // ekleyemem, açılır listede de yok.
+          defaultLocationId={
+            editableLocations.find((l) => l.id === selectedLocation)?.id ??
+            editableLocations[0].id
+          }
           categoriesByLocation={categoriesByLocation}
           vendorsByLocation={vendorsByLocation}
           extractionEnabled={isExtractionConfigured()}
@@ -490,7 +496,12 @@ export default async function EnvanterPage({
                 [item.brand, item.model].filter(Boolean).join(" "),
                 item.category?.name ?? null,
                 item.serialNo ? `SN ${item.serialNo}` : null,
-                selectedLocation ? null : item.location.name,
+                // Lokasyon adı ancak ayırt ediyorsa satırda: tek lokasyonu
+                // olan kullanıcıda her satıra aynı kelimeyi yazmak yer
+                // kaybı, süzülmüşken de zaten filtre çipinde yazıyor.
+                locations.length > 1 && !selectedLocation
+                  ? item.location.name
+                  : null,
               ]
                 .filter(Boolean)
                 .join(" · ");

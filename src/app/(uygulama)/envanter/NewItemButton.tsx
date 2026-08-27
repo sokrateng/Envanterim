@@ -97,6 +97,11 @@ export function NewItemButton({
   const [fillCount, setFillCount] = useState(0);
 
   function reset() {
+    // Lokasyon da sıfırlanıyor: listede bir lokasyon süzülüyken açılan panel
+    // o lokasyonla gelmeli. Durum yalnız ilk kurulumda okunsaydı, filtre
+    // değişse de panel eski lokasyonu gösterirdi — aynı sayfada kalındığı
+    // için bileşen yeniden kurulmuyor.
+    setLocationId(defaultLocationId);
     setError(null);
     setInvoice(null);
     setLines(null);
@@ -263,6 +268,7 @@ export function NewItemButton({
           {locations.length > 1 ? (
             <Field label="Lokasyon">
               <select
+                name="locationId"
                 value={locationId}
                 onChange={(event) => setLocationId(event.target.value)}
                 className={inputClass}
