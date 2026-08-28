@@ -134,9 +134,9 @@ try {
   const basliktaki = page.locator(`button[aria-label="${AD} fotoğrafını büyüt"]`);
   if (!(await basliktaki.count())) throw new Error("detay bandında fotoğraf düğmesi yok");
 
-  // Bant fotoğrafı kırpmıyor: sabit yükseklik + `object-cover` ürünün
-  // ortasından bir şerit gösteriyordu, dikey fotoğraflarda cihazın yalnız
-  // gövdesi görünüyordu.
+  // Bandın alanı sabit ve fotoğraf içine sığdırılıyor. İki uçtan da geçtik:
+  // `object-cover` ürünün ortasından bir şerit gösteriyordu, boyu fotoğrafa
+  // uydurmak ise dikey fotoğrafta ekranın yarısını yiyordu.
   const bant = await page.evaluate((ad) => {
     // Bant sayfanın tepesinde: fotoğrafı olan ekipmanda ilk görsel o.
     const img = [...document.images].find((el) => el.alt === ad);
@@ -144,21 +144,18 @@ try {
     const r = img.getBoundingClientRect();
     return {
       fit: getComputedStyle(img).objectFit,
-      oran: +(r.height / r.width).toFixed(2),
-      dogalOran: +(img.naturalHeight / img.naturalWidth).toFixed(2),
+      yukseklik: Math.round(r.height),
+      genislik: Math.round(r.width),
     };
   }, AD);
   if (!bant) throw new Error("bant görseli bulunamadı");
   if (bant.fit !== "contain") {
     throw new Error(`bant fotoğrafı kırpıyor: object-fit ${bant.fit}`);
   }
-  // Ekran sınırına dayanmayan fotoğrafta kutu tam fotoğrafın oranında.
-  if (bant.oran < 1.2 && Math.abs(bant.oran - bant.dogalOran) > 0.03) {
-    throw new Error(
-      `bant oranı fotoğrafla uyuşmuyor: ${bant.oran} ≠ ${bant.dogalOran}`,
-    );
+  if (bant.yukseklik !== 260) {
+    throw new Error(`bandın yüksekliği sabit değil: ${bant.yukseklik}px`);
   }
-  log("bant fotoğrafı kırpmıyor, boyu fotoğrafa uyuyor");
+  log(`bant sabit alanda ve kırpmıyor: ${bant.genislik}×${bant.yukseklik}`);
 
   // Başlıktaki görsel adın üstüne binmemeli (TUZAKLAR #66).
   const cakisma = await page.evaluate(() => {

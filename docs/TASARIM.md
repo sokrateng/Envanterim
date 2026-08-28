@@ -172,13 +172,15 @@ fiske hızlıysa açık kalır, değilse kapanır.
 
 ## Liste ve detay
 
-- **Detayın tepesindeki bant fotoğrafı kırpmıyor.** Sabit yükseklik +
-  `object-cover` ürünün ortasından bir şerit gösteriyordu: dikey çekilmiş bir
-  yazıcının yalnız gövdesi görünüyor, üstü altı kesiliyordu. Bandın işi "hangi
-  cihazdı bu" sorusunu cevaplamak, o yüzden fotoğrafın tamamı görünüyor ve
-  bandın boyu fotoğrafa uyuyor (`object-contain`, en az 220px, en çok 60dvh).
-  Küçük kutuda kırpma doğru: 44 pikselde sığdırmak fotoğrafı iyice küçültür,
-  liste hizası da bozulurdu.
+- **Detayın tepesindeki bant sabit alanda, fotoğraf içine sığdırılıyor**
+  (260px, `object-contain`). İki uçtan da geçtik: `object-cover` ürünün
+  ortasından bir şerit gösteriyordu — dikey çekilmiş bir cihazın üstü altı
+  kesiliyordu; bandın boyunu fotoğrafa uydurmak ise dikey fotoğrafta ekranın
+  yarısını yiyordu. Sabit alan ikisini de çözüyor: her ekipmanda aynı
+  yükseklik, kesilmeyen bir fotoğraf ve altında hep aynı yerde başlayan
+  bilgiler. Yanda kalan boşluğa aynı fotoğrafın bulanık kopyası seriliyor —
+  ölü gri şerit yerine fotoğrafın kendi rengi. Küçük kutuda kırpma doğru:
+  44 pikselde sığdırmak fotoğrafı iyice küçültür, liste hizası da bozulurdu.
 - **Satırın solunda ürün fotoğrafı** (44px), yoksa kategori simgesi. Fotoğrafsız
   satır da aynı yeri kaplıyor: liste hizası bozulmuyor. Görsele dokunmak
   fotoğrafı büyütüyor; fotoğraf yoksa fotoğraf seçiciyi açıyor — makinenin
