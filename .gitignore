@@ -43,3 +43,10 @@ next-env.d.ts
 
 # kurulumda kopyalanır (scripts/copy-zxing.mjs)
 /public/zxing
+
+# SQLite veritabanı ve yedekleri (Pi)
+/data
+*.db
+*.db-wal
+*.db-shm
+*.db-journal

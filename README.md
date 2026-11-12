@@ -105,21 +105,22 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
 
 ## Yığın
 
-Next.js 15 App Router · TypeScript · Tailwind · Prisma + PostgreSQL (Supabase) ·
-NextAuth (credentials) · Vitest + Playwright · Vercel · Claude API ya da
-Azure AI Foundry
+Next.js 15 App Router · TypeScript · Tailwind · Prisma 6 + SQLite ·
+NextAuth (credentials) · Vitest + Playwright · Raspberry Pi (systemd +
+Tailscale Funnel) · Claude API ya da Azure AI Foundry
 
 ## Başlarken
 
 ```bash
-cp .env.example .env      # iki veritabanı bağlantısı + NEXTAUTH_SECRET
+cp deploy/pi/env.pi.example .env   # DATABASE_URL (file:…) + NEXTAUTH_SECRET
 npm install
 npm run db:migrate        # şemayı kur
 npm run create-admin      # ilk hesap
 npm run dev               # http://localhost:3000
 ```
 
-`NEXTAUTH_SECRET` için `openssl rand -base64 32`. Supabase, Anthropic ve SMTP
+`NEXTAUTH_SECRET` için `openssl rand -base64 32`. Veritabanı tek bir SQLite
+dosyası; ayrıca bir şey kurmak gerekmiyor. Anthropic ve SMTP
 değişkenleri tanımsızken de çalışır: dosyalar yerel diske düşer, faturadan
 okuma ve e-posta bildirimi arayüzde görünmez.
 
@@ -152,8 +153,9 @@ ayrıntı [`tests/e2e/README.md`](tests/e2e/README.md).
 
 ## Dağıtım
 
-Supabase + Vercel kurulumu, göç sırası, depolama kovası, ilk hesap ve duman
-testi: [`DEPLOY.md`](DEPLOY.md).
+Raspberry Pi'de systemd servisi ve Tailscale Funnel ile çalışıyor; kurulum,
+güncelleme ve yedek: [`deploy/pi/README_PI.md`](deploy/pi/README_PI.md).
+Ortam değişkenleri, e-posta, push ve duman testi: [`DEPLOY.md`](DEPLOY.md).
 
 ## Mimari kararlar nerede
 
@@ -163,7 +165,7 @@ testi: [`DEPLOY.md`](DEPLOY.md).
 | [`docs/MIMARI.md`](docs/MIMARI.md) | Veri modeli, yetki deseni, dinamik alanlar, bildirimler, faturadan okuma |
 | [`docs/TASARIM.md`](docs/TASARIM.md) | iOS görünümü: tipografi, renk, dokunma hedefi, güvenli alan |
 | [`docs/URUN.md`](docs/URUN.md) | Benzer uygulamalar ve öncelikli özellik listesi |
-| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 76 hata ve çözümü |
+| [`docs/TUZAKLAR.md`](docs/TUZAKLAR.md) | Bu yığında gerçekten yaşanmış 79 hata ve çözümü |
 
 Kural `CLAUDE.md`'de, gerekçe `docs/`'ta durur: ajanın davranışını değiştiren
 şey bağlamda sürekli duran kısa kurallardır; uzun mimari yazısı bir kez okunur.

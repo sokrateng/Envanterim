@@ -5,24 +5,36 @@ Her maddede **neden** o seçim yapıldığı var.
 
 ## 1. Yığın
 
-**Vercel + Next.js App Router** — ayrı backend yok; API uçları da sayfalar da
-aynı projede sunucusuz fonksiyon olarak koşar.
-**Supabase** — yönetilen Postgres + dosya depolama, aynı sağlayıcıda.
-**Prisma** — tek şema dosyası, tip güvenli sorgu, göç yönetimi.
+**Next.js App Router** — ayrı backend yok; API uçları da sayfalar da tek
+süreçte (`next start`) koşar. Eskiden Vercel'de sunucusuz fonksiyonlardı; şimdi
+Raspberry Pi'de systemd servisi, önünde Tailscale Funnel (`deploy/pi/`).
+**SQLite** — tek dosya (`data/envanterim.db`), ayrı veritabanı servisi yok.
+Dosyalar (`.uploads/`) aynı makinede. Ücretsiz Supabase/Vercel katmanları
+kapatılınca ev sunucusuna taşındı; bu ölçekte (birkaç kişilik aile/ekip) tek
+yazıcılı SQLite yeterli, WAL modu okuyanı yazan engellemesin diye açık.
+**Prisma 6** — tek şema dosyası, tip güvenli sorgu, göç yönetimi. Json
+sütunları SQLite'ta metin olarak durur; bunun için Prisma 6.2+ gerekiyor.
 **NextAuth (credentials)** — kullanıcı adı + şifre. E-posta doğrulama, SMTP ve
-OAuth derdi yok; davetle büyüyen kapalı bir sisteme uyuyor.
+OAuth derdi yok; davetle büyüyen kapalı bir sisteme uyuyor. İnternete açık
+olduğu için giriş denemesi sınırlıdır (`src/lib/login-limit.ts`).
 
-### Bağlantı ayrımı (atlanırsa göç kırılır)
+### Postgres'ten SQLite'a geçişin bedeli
 
 ```prisma
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")  // havuzlanmış (Supabase pooler, 6543)
-  directUrl = env("DIRECT_URL")    // doğrudan (5432) — migrate/db push
+  provider = "sqlite"
+  url      = env("DATABASE_URL") // file:/home/enginc/envanterim/data/envanterim.db
 }
 ```
 
-Pooler adresi bölgeye göre değişir; panelden kopyala, tahmin etme.
+- `mode: "insensitive"` yok. Eşitlik denetimi uygulamada (`src/lib/text-match.ts`:
+  I/ı/İ/i aynı, Türkçe harfler ayrı); `contains` yalnız ASCII harflerde duyarsız.
+  Yani arama kutusunda "şişe" yazınca "Şişe" bulunmaz.
+- Json sütununun şema varsayılanı yok (`DEFAULT {}` geçersiz SQL üretiyor):
+  `Item.customFields` her oluşturmada açıkça verilir.
+- Eski 17 Postgres göçü tek bir başlangıç göçüyle (`prisma/migrations`) yer
+  değiştirdi; Postgres'e dönmek şema ve göç yeniden yazmak demek.
+- Bağlantı havuzu / `DIRECT_URL` ayrımı artık yok (eski TUZAKLAR #3 geçmişe kaldı).
 
 ## 2. Sahiplik ve paylaşım — en temel karar
 
@@ -189,7 +201,9 @@ girer. Özel alana göre filtreleme gerekirse Postgres GIN indeksi eklenir.
 
 ## 4. Bildirimler
 
-**Garanti uyarısı** Vercel Cron ile günde bir çalışan bir uçtan gider:
+**Garanti uyarısı** günde bir çalışan bir uçtan gider (Pi'de
+`envanterim-cron.timer`, eskiden Vercel Cron; uç `CRON_SECRET` ister, tanımsızsa
+kapalıdır):
 `warrantyEndDate` bugünden 30 ve 7 gün sonrasına düşen ürünler bulunur, o
 lokasyonun üyelerine web push gönderilir. Gönderilen uyarı `ItemReminder.sentAt`
 ile damgalanır — yoksa her gün tekrar gider.
@@ -240,9 +254,11 @@ diye kullanıcının işlemi geri alınmaz. Ekran yalnız sahibe açık.
 
 ## 5. Dosya depolama
 
-Supabase Storage'a düz `fetch` ile yazılır, SDK eklenmez (soğuk başlangıç hafif
-kalsın). Ortam değişkenleri tanımsızsa yerel diske düşer; böylece Supabase
-kurmadan geliştirme çalışır.
+Pi kurulumunda Supabase değişkenleri tanımsız: dosyalar yerel diske
+(`.uploads/`) yazılır ve `/api/dosya/…` ucundan **oturum denetimiyle** sunulur.
+Yedeği `deploy/pi/backup.sh` alır. (Eski yolda Supabase Storage'a düz `fetch`
+ile yazılırdı, SDK eklenmezdi; değişkenler tanımlanırsa o yol hâlâ çalışır, ama
+bu depoda denenmedi.)
 
 Fatura PDF'i, garanti belgesi ve kılavuz da aynı yoldan gider — `Attachment.kind`
 ayırır. Fotoğraflar yüklemeden önce istemcide küçültülür.
@@ -370,7 +386,8 @@ olarak düşürmüyorum.
 
 ### Sınırlar (dağıtımdan önce bilinmesi gerekenler)
 
-- **Vercel istek gövdesi ~4,5 MB.** Telefon fotoğrafı bunu aşabilir. Dosyayı
+- **(Yalnız Vercel yolunda) istek gövdesi ~4,5 MB.** Pi'de bu sınır yok, ama
+  uygulama yükleme ucunda yine 4 MB'ta kesiyor. Telefon fotoğrafı bunu aşabilir. Dosyayı
   önce Supabase Storage'a yükle, route handler oradan okusun. İstemcide
   küçültme (GeziPay'deki `image-client.ts`) yine de ilk savunma.
 - **Fonksiyon süresi.** Çıkarma çağrısı saniyeler sürer; route'ta

@@ -5,10 +5,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Raspberry Pi'de tek dosyalık SQLite: ayrı bir veritabanı servisi bakmamak için.
+// Json alanları SQLite'ta metin olarak durur; Prisma 6.2+ bunu kendisi çevirir.
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL") // havuzlanmış (Supabase pooler, 6543)
-  directUrl = env("DIRECT_URL") // doğrudan (5432) — migrate/db push (TUZAKLAR #3)
+  provider = "sqlite"
+  url      = env("DATABASE_URL") // örn. file:/home/enginc/envanterim/data/envanterim.db
 }
 
 model User {
@@ -174,7 +175,7 @@ model Item {
   warrantyEndDate    DateTime?
 
   status       String @default("IN_USE") // IN_USE | IN_REPAIR | RETIRED | SOLD
-  customFields Json   @default("{}") // CategoryField tanımlarına göre doğrulanır
+  customFields Json   // CategoryField tanımlarına göre doğrulanır
 
   // Alt ekipman: lisans, hoparlör, klavye… kendi garantisi ve faturası olan
   // tam bir ekipman, yalnız bir ana ekipmana bağlı. Ana ekipman silinmiyor

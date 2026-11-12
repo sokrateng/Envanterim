@@ -1,8 +1,20 @@
-# Dağıtım — Vercel + Supabase
+# Dağıtım
+
+> **Güncel yol: Raspberry Pi.** Uygulama Pi'de systemd servisi olarak, veritabanı
+> tek dosyalık SQLite olarak çalışıyor ve Tailscale Funnel ile internete açık.
+> Kurulum, güncelleme ve yedek: [`deploy/pi/README_PI.md`](deploy/pi/README_PI.md).
+> Bu dosyada **ortam değişkenleri, faturadan okuma, bildirimler ve duman testi**
+> hâlâ geçerli. 1–5. bölümler (Supabase/Vercel/Postgres) **bırakılan eski yoldur**,
+> şema SQLite'a geçtiği için olduğu gibi uygulanamaz; geçmiş kaydı olarak duruyor.
+>
+> Pi'de farklı olanlar: `DATABASE_URL` bir `file:` yolu (`DIRECT_URL` yok);
+> dosyalar `.uploads/` altında (Supabase yok); günlük hatırlatmayı Vercel Cron
+> değil `envanterim-cron.timer` tetikler; `CRON_SECRET` **zorunlu** (tanımsızsa
+> cron ucu 503 verir).
 
 Sıra önemli: veritabanı → şema → ortam değişkenleri → ilk hesap → duman testi.
 
-## 1. Supabase projesi
+## 1. Supabase projesi (eski yol)
 
 1. Yeni proje aç, bölgeyi Türkiye'ye yakın seç (`eu-central-1`).
 2. **Settings → Database → Connection string**'den iki adresi de kopyala:
@@ -149,7 +161,8 @@ eklerinde. İkisi de tanımsızsa özellik arayüzde hiç görünmez. `ANTHROPIC
   tablosuna yazılıyor, harcamayı buradan görebilirsin:
 
   ```sql
-  select date_trunc('day', "createdAt") gun, count(*), sum("inputTokens"), sum("outputTokens")
+  -- SQLite: tarihler milisaniye olarak saklanıyor
+  select date("createdAt"/1000, 'unixepoch') gun, count(*), sum("inputTokens"), sum("outputTokens")
   from "InvoiceRead" group by 1 order by 1 desc;
   ```
 
@@ -169,9 +182,10 @@ eklerinde. İkisi de tanımsızsa özellik arayüzde hiç görünmez. `ANTHROPIC
    `VAPID_SUBJECT` **bir adres**: `mailto:sen@ornek.com` ya da `https://…`.
    Etiket yazılırsa push kapalı kalır ve günlüğe neden yazılır (TUZAKLAR #52).
 
-2. `vercel.json` cron'u tanımlı: `/api/cron/garanti` her gün 06:00 UTC'de
-   çalışır. Vercel isteği `Authorization: Bearer $CRON_SECRET` ile gönderir;
-   `CRON_SECRET` tanımlıysa uç başka isteği kabul etmez.
+2. `/api/cron/garanti` her gün çalışır: Pi'de `envanterim-cron.timer`
+   (06:00 yerel saat), eski Vercel yolunda `vercel.json`. İstek
+   `Authorization: Bearer $CRON_SECRET` taşımalı; `CRON_SECRET` **tanımsızsa uç
+   kapalıdır** (503), yanlışsa 401.
 3. Uç iki iş yapar: garanti bitimine **30 ve 7 gün** kalan ekipmanlar için
    uyarı, bir de zamanı gelen **tekrarlayan bakım** kuralları için. İkisi de
    yalnız kullanımda ya da serviste olan ekipmanlara bakar.
@@ -181,7 +195,7 @@ eklerinde. İkisi de tanımsızsa özellik arayüzde hiç görünmez. `ANTHROPIC
 6. Elle denemek için:
 
    ```bash
-   curl -H "Authorization: Bearer $CRON_SECRET" https://<proje>.vercel.app/api/cron/garanti
+   curl -H "Authorization: Bearer $CRON_SECRET" http://127.0.0.1:3000/api/cron/garanti
    ```
 
    Yanıt: `{"bakilan":…,"planlanan":…,"gonderilen":…,"atlanan":…,"bakim":{…}}`.
@@ -277,10 +291,12 @@ Lokasyon ekranındaki **Yedek al (JSON)** tüm kayıtları tek dosyaya indiriyor
 ekipmanlar, olaylar, parçalar, bakım kuralları, zimmet geçmişi, kategoriler ve
 dinamik alan tanımları. **Fotoğraf ve belgelerin kendisi pakete girmiyor** —
 sunucusuz fonksiyonun belleğine sığmaz; dosya adresleri listede, indirmek
-ayrı bir iş. Supabase kovasının kendi yedeğini almayı ihmal etme.
+ayrı bir iş.
 
-Veritabanı yedeği Supabase tarafında: ücretsiz katmanda günlük yedek yok,
-düzenli `pg_dump` planla.
+Pi'de tam yedek `bash deploy/pi/backup.sh`: SQLite dosyasının tutarlı bir
+kopyasını (SQLite'ın kendi yedekleme API'siyle) ve `.uploads/` arşivini
+`~/envanterim-yedek/` altına alır, son 14 tanesini tutar. Yedekler aynı SD
+karttadır; düzenli olarak başka bir yere kopyala.
 
 **Hareketler** ekranı (yalnız sahip) son 100 silme ve yetki değişikliğini
 gösteriyor. Zimmet geçmişi ayrıca ekipmanın zaman çizelgesinde duruyor.

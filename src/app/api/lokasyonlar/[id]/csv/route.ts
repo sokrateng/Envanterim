@@ -188,6 +188,8 @@ export async function POST(
         purchasePriceMinor: row.purchasePriceMinor,
         currency: row.currency,
         warrantyEndDate: row.warrantyEndDate,
+        // SQLite'ta Json sütununun şema varsayılanı yok: boş nesne açıkça yazılıyor.
+        customFields: {},
       },
     });
     created += 1;

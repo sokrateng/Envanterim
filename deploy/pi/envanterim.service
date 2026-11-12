@@ -1,0 +1,23 @@
+[Unit]
+Description=Envanterim (Next.js, SQLite)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=enginc
+WorkingDirectory=/home/enginc/envanterim
+# .env: DATABASE_URL, NEXTAUTH_URL, NEXTAUTH_SECRET, CRON_SECRET, VAPID anahtarları…
+EnvironmentFile=/home/enginc/envanterim/.env
+Environment=NODE_ENV=production
+# Yalnız yerel ağ arayüzü değil, yalnız bu makine: internete Tailscale Funnel açıyor.
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3000
+Restart=on-failure
+RestartSec=5
+# Kamera paneli ve YOLO aynı makinede: bu uygulama onları aç bırakmasın.
+MemoryHigh=450M
+MemoryMax=700M
+Nice=5
+
+[Install]
+WantedBy=multi-user.target

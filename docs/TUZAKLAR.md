@@ -571,3 +571,28 @@ işletim sisteminin kendi menüsü çıkıyor (kitaplık · kamera · dosya). Ka
 dokunuş uzaklaştı, arşiv erişilebilir oldu. Uçtan uca test artık alanda
 `capture` olmadığını da kontrol ediyor — kestirmenin geri gelmesi sessiz bir
 gerileme olurdu.
+
+**77. SQLite'ta `Json @default("{}")` geçersiz SQL üretiyor.** Postgres'ten
+SQLite'a geçince `prisma migrate` `DEFAULT {}` yazdı (tırnaksız) ve göç
+`unrecognized token: "{"` ile düştü. **Ders:** varsayılan değeri şemada değil
+kodda ver. **Çözüm:** `@default("{}")` kaldırıldı; `Item.customFields` oluşturan
+her yer (`csv`, `e-fatura`, seed) `customFields: {}` yazıyor. `tsc` unutulan
+yeri yakalıyor, çünkü alan artık zorunlu.
+
+**78. `mode: "insensitive"` SQLite'ta yok, `=` harfe duyarlı.** Firma adı ve
+seri no eşitliği büyük/küçük harf duyarsız olmalıydı. İlk çözüm Türkçe yerel
+ayarla küçültmekti (`toLocaleLowerCase("tr-TR")`): "I" → "ı" olduğu için
+kayıtlı `SN-I22` ile okutulan `sn-i22` eşleşmedi — Postgres'te eşleşirdi.
+**Ders:** barkod gibi ASCII veride Türkçe küçültme geriye gidiştir.
+**Çözüm:** `text-match.ts` I, ı, İ ve i'yi aynı sayıyor, ç/ş/ğ/ö/ü ayrı kalıyor.
+`contains` yalnız ASCII'de duyarsız; arama kutusundaki bu taviz bilinçli.
+
+**79. Giriş sınırı bcrypt beklenirken sayılmıyordu; sahte hash geçersizdi.**
+Sınır kontrolü ile başarısızlık kaydı arasında `await bcrypt.compare` vardı:
+500 eşzamanlı istek hepsi "kilitli değil" görüp içeri girdi. Ayrıca "kullanıcı
+yok" yolundaki sahte hash 64 karakterdi (geçerlisi 60); bcryptjs geçersiz
+uzunlukta hiç iş yapmadan `false` döndüğü için var olmayan kullanıcı
+milisaniyede yanıt alıp ad sayımına izin veriyordu. **Ders:** kontrol ve
+sayımı aynı eşzamansız adımda yapma; zamanlamayı eşitlemek için sahte veri de
+geçerli biçimde olmalı. **Çözüm:** `startLoginAttempt` süren denemeyi de sınıra
+sayıyor (`begin`/`end`), sahte hash `bcrypt.hashSync` ile üretiliyor.

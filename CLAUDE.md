@@ -14,8 +14,10 @@ HIG'e yakın durmalı — ayrıntı `docs/TASARIM.md`.
 
 ## Yığın
 
-Next.js 15 App Router · TypeScript · Tailwind · Prisma + PostgreSQL (Supabase) ·
-NextAuth (credentials) · Vitest · Vercel · web-push (VAPID)
+Next.js 15 App Router · TypeScript · Tailwind · Prisma 6 + SQLite ·
+NextAuth (credentials) · Vitest · web-push (VAPID) · **Raspberry Pi'de systemd +
+Tailscale Funnel** (Vercel/Supabase yolu bırakıldı; şema artık SQLite, Postgres'e
+dönmek göç ve şema değişikliği ister — bkz. `deploy/pi/README_PI.md`)
 
 ## Komutlar
 
@@ -59,7 +61,16 @@ npm run create-admin     # ilk hesap
   `output_config.format` (eski `output_format` değil). Azure yolunda OpenAI
   Responses sözleşmesi ve `text.format` kullanılır; iki sağlayıcı **aynı** JSON
   şemasını paylaşır, dönen veri her hâlde kendi zod şemamızdan geçer.
-- **Sır istemciye sızmaz.** Supabase `service_role` yalnız sunucuda.
+- **Sır istemciye sızmaz.** Hiçbir anahtar `NEXT_PUBLIC_` olmaz (VAPID
+  *açık* anahtarı hariç). Eski Supabase yolunda `service_role` da yalnız
+  sunucuda kalırdı.
+- **Veritabanı SQLite.** Büyük/küçük harf duyarsız eşitlik Prisma'da yok:
+  `mode: "insensitive"` yazma; eşitliği `src/lib/text-match.ts` ile uygulamada
+  yap. `contains` yalnız ASCII için duyarsız. Json sütununun şema varsayılanı
+  yok: `Item.customFields` oluştururken `{}` açıkça verilir.
+- **Giriş sınırı.** `NextAuth authorize` içinde `startLoginAttempt` kullanılır
+  (`src/lib/login-limit.ts`); denemeyi `fail()`/`succeed()` ile **mutlaka**
+  kapat. `CRON_SECRET` tanımsızsa cron ucu kapalıdır.
 - **Yorum "neden"i anlatır.**
 
 ## Commit öncesi
@@ -83,4 +94,5 @@ Arayüz değişikliğini iPhone profilinde (390×844, dokunmatik) tarayıcıda g
 - `docs/TASARIM.md` — iOS görünümü: tipografi, renk, dokunma hedefi, güvenli alan
 - `docs/URUN.md` — benzer uygulamalar ve öncelikli özellik listesi
 - `docs/TUZAKLAR.md` — bu yığında yaşanmış somut hatalar
-- `DEPLOY.md` — Vercel + Supabase kurulumu
+- `deploy/pi/README_PI.md` — Raspberry Pi kurulumu, güncelleme, yedek
+- `DEPLOY.md` — ortam değişkenleri, e-posta, push, duman testi (Pi + eski Vercel notları)

@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { TimelineEvent } from "@/lib/events";
@@ -24,14 +25,26 @@ import {
  */
 export const maxDuration = 60;
 
+/** Sabit zamanlı karşılaştırma: iki tarafın özeti alınıp aynı uzunluğa getiriliyor. */
+function bearerMatches(header: string | null, secret: string): boolean {
+  const digest = (value: string) => createHash("sha256").update(value).digest();
+  return timingSafeEqual(digest(header ?? ""), digest(`Bearer ${secret}`));
+}
+
 export async function GET(request: Request) {
-  // Vercel Cron `Authorization: Bearer <CRON_SECRET>` gönderiyor.
+  // Çağıran `Authorization: Bearer <CRON_SECRET>` göndermeli (Pi'deki
+  // zamanlayıcı ya da Vercel Cron). Sır tanımsızsa uç **kapalı**: eskiden
+  // tanımsızken herkese açıktı; uygulama internete açıldığında bu, herkesin
+  // bildirim gönderimini tetikleyebilmesi demek.
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const header = request.headers.get("authorization");
-    if (header !== `Bearer ${secret}`) {
-      return NextResponse.json({ hata: "Yetkisiz" }, { status: 401 });
-    }
+  if (!secret) {
+    return NextResponse.json(
+      { hata: "CRON_SECRET tanımlı değil; zamanlanmış iş kapalı" },
+      { status: 503 },
+    );
+  }
+  if (!bearerMatches(request.headers.get("authorization"), secret)) {
+    return NextResponse.json({ hata: "Yetkisiz" }, { status: 401 });
   }
 
   if (!isPushConfigured() && !isEmailConfigured()) {

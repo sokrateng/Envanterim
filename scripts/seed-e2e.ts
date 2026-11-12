@@ -84,6 +84,7 @@ async function main() {
         purchasePriceMinor: 2_499_990,
         purchaseDate: new Date(),
         warrantyEndDate: garanti,
+        customFields: {},
       },
     });
   }

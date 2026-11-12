@@ -4,6 +4,7 @@ import { UNAUTHENTICATED, apiError, parseBody } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { readScan } from "@/lib/scan";
 import { currentUser } from "@/lib/session";
+import { sameText } from "@/lib/text-match";
 
 const schema = z.object({ kod: z.string().max(4096, "Kod çok uzun") });
 
@@ -57,14 +58,26 @@ export async function POST(request: Request) {
 
   // Barkod/seri no: tek bir ürüne denk geliyorsa doğrudan aç, yoksa aramaya
   // düşür — yanlış ürünü açmaktansa listeyi göstermek iyidir.
-  const matches = await prisma.item.findMany({
+  // `contains` SQLite'ta ASCII için harf duyarsız (seri numaraları ASCII);
+  // tam eşitlik ise uygulamada denetleniyor, "AB1" aramasına "AB12" karışmasın.
+  // Sınır (`take`) yok: kısa bir kodda aday sayısı kırpılırsa tam eşleşme
+  // düşebilirdi; satırlar üç küçük alan, lokasyon başına zaten az sayıda.
+  const query = target.query.trim();
+  const candidates = await prisma.item.findMany({
     where: {
       locationId: { in: locationIds },
-      serialNo: { equals: target.query, mode: "insensitive" },
+      serialNo: { contains: query },
     },
-    select: { id: true, name: true, location: { select: { name: true } } },
-    take: 2,
+    select: {
+      id: true,
+      name: true,
+      serialNo: true,
+      location: { select: { name: true } },
+    },
   });
+  const matches = candidates
+    .filter((i) => i.serialNo !== null && sameText(i.serialNo, query))
+    .slice(0, 2);
 
   if (matches.length === 1) {
     return NextResponse.json({

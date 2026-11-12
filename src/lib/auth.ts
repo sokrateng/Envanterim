@@ -1,7 +1,15 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { clientAddress, startLoginAttempt } from "@/lib/login-limit";
 import { prisma } from "@/lib/prisma";
+
+const MAX_USERNAME_LENGTH = 64;
+
+// Geçerli biçimde (60 karakter, cost 10) sahte bir hash. Geçersiz biçimli hash
+// bcryptjs'te hiç iş yapmadan false döner; o zaman var olmayan kullanıcı
+// milisaniyede yanıt alır ve kullanıcı adı sayımı mümkün olurdu.
+const DUMMY_HASH = bcrypt.hashSync("zamanlama-icin-sahte-parola", 10);
 
 // Kullanıcı adı + şifre. E-posta doğrulama ve OAuth yok: sistem davetle büyüyor
 // (MIMARI §1).
@@ -15,20 +23,36 @@ export const authOptions: NextAuthOptions = {
         username: { label: "Kullanıcı adı", type: "text" },
         password: { label: "Şifre", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         const username = credentials?.username?.trim().toLowerCase();
         const password = credentials?.password;
         if (!username || !password) return null;
+        // Anahtar olarak bellekte tutuluyor: uzunluk sınırsız olmasın.
+        if (username.length > MAX_USERNAME_LENGTH) return null;
 
-        const user = await prisma.user.findUnique({ where: { username } });
-        // Kullanıcı yoksa da hash karşılaştırması kadar zaman harcamak
-        // "bu ad var mı" sorusunu zamanlamayla yanıtlatmaz.
-        const hash = user?.passwordHash ?? "$2a$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidi";
-        const ok = await bcrypt.compare(password, hash);
-        if (!user || !ok) return null;
-        if (user.status !== "ACTIVE") return null;
+        // Kilitliyken şifre doğru olsa da giriş yok: yoksa kilit, doğru tahmini
+        // ayırt etmenin yolu olurdu. Hash karşılaştırmasına hiç girmiyoruz.
+        // Deneme, bcrypt beklenirken de sayılıyor (eşzamanlı istek seli).
+        const attempt = startLoginAttempt(username, clientAddress(req?.headers));
+        if (!attempt) return null;
 
-        return { id: user.id, name: user.name, username: user.username };
+        try {
+          const user = await prisma.user.findUnique({ where: { username } });
+          // Kullanıcı yoksa da gerçek bir hash'le karşılaştırıyoruz: aynı
+          // süreyi harcamak "bu ad var mı" sorusunu zamanlamayla yanıtlatmaz.
+          const ok = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
+          if (!user || !ok || user.status !== "ACTIVE") {
+            attempt.fail();
+            return null;
+          }
+
+          attempt.succeed();
+          return { id: user.id, name: user.name, username: user.username };
+        } catch (error) {
+          // Veritabanı hatası da denemeyi açık bırakmasın.
+          attempt.fail();
+          throw error;
+        }
       },
     }),
   ],

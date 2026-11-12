@@ -1,0 +1,10 @@
+[Unit]
+Description=Envanterim günlük garanti ve bakım hatırlatması
+After=envanterim.service
+
+[Service]
+Type=oneshot
+User=enginc
+EnvironmentFile=/home/enginc/envanterim/.env
+# Sır komut satırında görünmesin diye başlık curl'e yapılandırma olarak veriliyor.
+ExecStart=/bin/sh -c 'printf "header = \\"Authorization: Bearer %s\\"\\n" "$CRON_SECRET" | curl -fsS --max-time 120 -K - http://127.0.0.1:3000/api/cron/garanti'

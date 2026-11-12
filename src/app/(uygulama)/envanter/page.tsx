@@ -159,13 +159,16 @@ export default async function EnvanterPage({
     ...(selectedCategories.length
       ? { categoryId: { in: selectedCategories } }
       : {}),
+    // SQLite'ta `contains` yalnız ASCII harfler için büyük/küçük duyarsız
+    // (LIKE): "ş/ğ/ı" gibi harflerde yazım aynı olmalı. Postgres'ten bilinçli
+    // taviz — tek dosyalık veritabanı için.
     ...(query
       ? {
           OR: [
-            { name: { contains: query, mode: "insensitive" as const } },
-            { brand: { contains: query, mode: "insensitive" as const } },
-            { model: { contains: query, mode: "insensitive" as const } },
-            { serialNo: { contains: query, mode: "insensitive" as const } },
+            { name: { contains: query } },
+            { brand: { contains: query } },
+            { model: { contains: query } },
+            { serialNo: { contains: query } },
           ],
         }
       : {}),
