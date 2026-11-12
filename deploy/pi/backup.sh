@@ -23,6 +23,8 @@ fi
 
 # Eskileri temizle: son $KEEP yedek kalsın.
 for pattern in 'envanterim-*.db' 'dosyalar-*.tar.gz'; do
-  ls -1t "$OUT_DIR"/$pattern 2>/dev/null | tail -n +"$((KEEP + 1))" | xargs -r rm -f
+  # Eşleşen dosya yoksa (ör. henüz .uploads yok) ls hata verir; pipefail
+  # yüzünden betik düşmesin diye `|| true`.
+  { ls -1t "$OUT_DIR"/$pattern 2>/dev/null || true; } | tail -n +"$((KEEP + 1))" | xargs -r rm -f
 done
 echo "Yedek alındı: $OUT_DIR ($STAMP)"
