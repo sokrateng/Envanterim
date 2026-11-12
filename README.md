@@ -100,6 +100,10 @@ tek yerde; liste eşinle, ortağınla ya da ekiple paylaşılıyor.
 - **Yedek ve denetim izi.** Lokasyonun tamamı tek JSON dosyasına iniyor;
   kimin neyi sildiği "Hareketler" ekranında duruyor.
 - **Şifre yönetimi.** Şifre değiştirme ve e-postayla sıfırlama.
+- **Sistem ekranı (yalnız yönetici).** Hesap → Sistem: yedeklerin durumu
+  (güncel / gecikmiş / hata), "Şimdi yedekle", yedek dosyalarını indirme ve
+  push bildirimlerinin iletişim adresi. Yönetici `User.isAdmin` ile belirlenir;
+  `create-admin` ile açılan hesap yöneticidir.
 
 Öncelik listesi ve sıradaki özellikler: [`docs/URUN.md`](docs/URUN.md).
 

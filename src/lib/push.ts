@@ -1,9 +1,9 @@
 import "server-only";
 
 import webpush from "web-push";
+import { resolvePushContact } from "@/lib/app-settings";
 import { prisma } from "@/lib/prisma";
 import type { PushPayload } from "@/lib/reminders";
-import { isValidVapidSubject } from "@/lib/vapid";
 
 /**
  * Web push gönderimi (MIMARI §4). VAPID anahtarları yoksa özellik kapalı;
@@ -13,41 +13,15 @@ import { isValidVapidSubject } from "@/lib/vapid";
  * yapmıyor (TUZAKLAR #1); `410 Gone` dönen aboneliği **sil** — yoksa her
  * turda başarısız gönderim birikiyor (#29).
  */
-let configured: boolean | null = null;
-
-function ensureConfigured(): boolean {
-  if (configured !== null) return configured;
-  configured = false;
-
+function vapidKeys(): { publicKey: string; privateKey: string } | null {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT ?? "mailto:envanter@example.com";
-
-  if (!publicKey || !privateKey) return false;
-
-  if (!isValidVapidSubject(subject)) {
-    console.error(
-      `VAPID_SUBJECT bir adres olmalı ("mailto:sen@ornek.com" ya da ` +
-        `"https://..."); gelen değer: ${subject}. Bildirim kapalı kaldı.`,
-    );
-    return false;
-  }
-
-  try {
-    webpush.setVapidDetails(subject, publicKey, privateKey);
-  } catch (error) {
-    // Bozuk anahtar bütün özelliği düşürmesin: bildirim kapanır, uygulama
-    // çalışmaya devam eder.
-    console.error("VAPID anahtarları geçersiz:", (error as Error).message);
-    return false;
-  }
-
-  configured = true;
-  return true;
+  return publicKey && privateKey ? { publicKey, privateKey } : null;
 }
 
+/** Anahtarlar tanımlı mı. İletişim adresi her gönderimde ayrıca çözülüyor. */
 export function isPushConfigured(): boolean {
-  return ensureConfigured();
+  return vapidKeys() !== null;
 }
 
 export type SendResult = { sent: number; removed: number };
@@ -57,7 +31,20 @@ export async function sendToUsers(
   userIds: string[],
   payload: PushPayload,
 ): Promise<SendResult> {
-  if (!ensureConfigured() || userIds.length === 0) {
+  const keys = vapidKeys();
+  if (!keys || userIds.length === 0) {
+    return { sent: 0, removed: 0 };
+  }
+
+  // İletişim adresi ekrandan değiştirilebiliyor (Sistem → Bildirimler): her
+  // gönderimde okunuyor, servisi yeniden başlatmak gerekmiyor.
+  const { subject } = await resolvePushContact();
+  try {
+    webpush.setVapidDetails(subject, keys.publicKey, keys.privateKey);
+  } catch (error) {
+    // Bozuk anahtar bütün özelliği düşürmesin: bildirim gitmez, uygulama
+    // çalışmaya devam eder.
+    console.error("VAPID anahtarları geçersiz:", (error as Error).message);
     return { sent: 0, removed: 0 };
   }
 

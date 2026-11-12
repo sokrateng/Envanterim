@@ -18,6 +18,23 @@ sütunları SQLite'ta metin olarak durur; bunun için Prisma 6.2+ gerekiyor.
 OAuth derdi yok; davetle büyüyen kapalı bir sisteme uyuyor. İnternete açık
 olduğu için giriş denemesi sınırlıdır (`src/lib/login-limit.ts`).
 
+### Sistem yöneticisi ve ayarlar
+
+Lokasyon rolleri (OWNER/EDITOR/VIEWER) bir lokasyonun **içindeki** yetkidir.
+Yedek bütün lokasyonların ve hesapların verisini taşıdığı için onu görmek
+lokasyon üyeliğiyle verilemez: `User.isAdmin` ayrı bir bayrak. Yetki oturum
+belirtecinde değil her istekte veritabanından okunur (`src/lib/admin.ts`);
+yöneticiliği alınan hesap açık oturumuyla da yedeğe erişemez. İlk göç, mevcut
+kurulumda **ilk açılan hesabı** yönetici yapar.
+
+`AppSetting` (anahtar–değer) ekrandan değiştirilen ayarları tutar; şimdilik
+yalnız push iletişim adresi. Çözüm sırası: ekran → `VAPID_SUBJECT` → örnek
+adres (`resolvePushContact`). Sır burada tutulmaz.
+
+Yedekleme betiği (`deploy/pi/backup.sh`) sonucu `durum.json`'a yazar; ekran onu
+ve klasördeki dosyaları okur. "Şimdi yedekle" aynı betiği sabit yolla çalıştırır
+(kullanıcı girdisi komuta girmez, aynı anda tek yedek).
+
 ### Postgres'ten SQLite'a geçişin bedeli
 
 ```prisma

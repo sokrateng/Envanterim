@@ -42,6 +42,11 @@ model User {
   resetCodeExpiresAt DateTime?
   resetCodeTries     Int       @default(0)
 
+  // Sistem yöneticisi: yedekler ve push iletişim adresi gibi **lokasyondan
+  // bağımsız**, makinenin tamamını ilgilendiren ayarlar. Lokasyon rolü
+  // (OWNER/EDITOR/VIEWER) bunun için yetmez: o bir lokasyonun içindeki yetkidir.
+  isAdmin Boolean @default(false)
+
   memberships       LocationMember[]
   assignedEvents    ItemEvent[]        @relation("EventAssignee")
   assignmentsHeld   ItemAssignment[]   @relation("AssignmentHolder")
@@ -489,4 +494,13 @@ model PushSubscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// Uygulama genelinde tek değerli ayarlar (ör. push iletişim adresi). Ortam
+// değişkeninden farkı: yönetici ekrandan değiştirebilir, servisi yeniden
+// başlatmak gerekmez. Sır tutulmaz — .env'de kalması gerekenler orada durur.
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }

@@ -73,6 +73,8 @@ async function main() {
       username,
       passwordHash: await bcrypt.hash(password, 10),
       status: "ACTIVE",
+      // Bu betikle açılan hesap sistem yöneticisidir (yedek ve sistem ayarları).
+      isAdmin: true,
     },
     select: { id: true, username: true },
   });

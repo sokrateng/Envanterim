@@ -8,3 +8,20 @@
 export function isValidVapidSubject(subject: string): boolean {
   return /^(mailto:\S+@\S+\.\S+|https:\/\/\S+)$/.test(subject.trim());
 }
+
+/**
+ * Kullanıcının yazdığını `VAPID_SUBJECT` biçimine çevirir. İnsanlar "mailto:"
+ * yazmaz, düz e-posta yazar; ekranda bunu istemek gereksiz bir tuzak olurdu.
+ * Geçersizse null döner.
+ */
+export function normalizeVapidSubject(input: string): string | null {
+  const value = input.trim();
+  if (!value) return null;
+
+  const candidate =
+    /^(mailto:|https:\/\/)/i.test(value) || !value.includes("@")
+      ? value
+      : `mailto:${value}`;
+
+  return isValidVapidSubject(candidate) ? candidate : null;
+}
