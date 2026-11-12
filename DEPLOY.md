@@ -295,7 +295,8 @@ ayrı bir iş.
 
 Pi'de tam yedek `bash deploy/pi/backup.sh`: SQLite dosyasının tutarlı bir
 kopyasını (SQLite'ın kendi yedekleme API'siyle) ve `.uploads/` arşivini
-`~/envanterim-yedek/` altına alır, son 14 tanesini tutar. Yedekler aynı SD
+`~/envanterim-yedek/` altına alır; 60 günden eski yedekleri siler (en yeni 3
+her zaman kalır). Zamanlanmış yedek haftada bir, pazar gecesi çalışır. Yedekler aynı SD
 karttadır; düzenli olarak başka bir yere kopyala.
 
 **Hareketler** ekranı (yalnız sahip) son 100 silme ve yetki değişikliğini

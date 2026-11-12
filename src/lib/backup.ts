@@ -68,8 +68,8 @@ export type BackupHealth = "ok" | "stale" | "error" | "none";
 
 export type HealthReport = { health: BackupHealth; message: string };
 
-/** Bu süreden eski son yedek "gecikmiş" sayılır (günlük yedek + pay). */
-export const STALE_AFTER_HOURS = 36;
+/** Bu süreden eski son yedek "gecikmiş" sayılır (haftalık yedek + 1 gün pay). */
+export const STALE_AFTER_HOURS = 8 * 24;
 
 export function backupHealth(
   status: BackupStatus | null,

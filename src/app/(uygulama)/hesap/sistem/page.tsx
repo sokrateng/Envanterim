@@ -51,7 +51,7 @@ export default async function SistemPage() {
 
       <Group
         title="Yedekleme"
-        footer="Zamanlanmış yedek her gece 03:30'da alınır; son 14 yedek saklanır. Yedekler aynı SD kartta durur: önemli olanı indirip başka bir yerde de sakla."
+        footer="Zamanlanmış yedek her pazar gecesi (pazartesi 03:30) alınır; son 2 ayın yedekleri saklanır, eskileri otomatik silinir. Yedekler aynı SD kartta durur: önemli olanı indirip başka bir yerde de sakla."
       >
         <BackupPanel view={view} />
       </Group>

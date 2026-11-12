@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <!-- Zemin tam kare: iOS ve Android köşeleri kendisi yuvarlar. İçerik, maskable
+       güvenli alanına (orta %80) sığsın diye 0,84 ölçekle küçültülmüş. -->
+  <rect width="100" height="100" fill="#1f7a8c"/>
+  <g transform="translate(8 10.5) scale(0.84)">
+    <g transform="rotate(-18 33 40)">
+      <rect x="29.5" y="14" width="7" height="38" rx="3.5" fill="#cfd8dc"/>
+      <circle cx="33" cy="15" r="8" fill="#cfd8dc"/>
+      <rect x="31" y="6" width="4" height="8" fill="#1f7a8c"/>
+    </g>
+    <g transform="rotate(16 68 40)">
+      <rect x="66" y="10" width="4" height="26" rx="2" fill="#cfd8dc"/>
+      <rect x="63.5" y="26" width="9" height="24" rx="4.5" fill="#ff9f0a"/>
+    </g>
+    <path d="M38 46 V36 Q38 30 44 30 H56 Q62 30 62 36 V46" fill="none" stroke="#1d2b3a" stroke-width="5" stroke-linecap="round"/>
+    <rect x="16" y="44" width="68" height="40" rx="7" fill="#e5383b"/>
+    <rect x="16" y="44" width="68" height="11" rx="6" fill="#ff6b6e"/>
+    <rect x="16" y="70" width="68" height="14" rx="7" fill="#bf2a2d"/>
+    <rect x="43" y="50" width="14" height="12" rx="3" fill="#ffd60a"/>
+    <circle cx="50" cy="56" r="2.2" fill="#b08900"/>
+    <circle cx="24" cy="62" r="2" fill="#ffffff" opacity="0.7"/>
+    <circle cx="76" cy="62" r="2" fill="#ffffff" opacity="0.7"/>
+    <circle cx="74" cy="78" r="11" fill="#34c759" stroke="#1f7a8c" stroke-width="3.5"/>
+    <path d="M68.5 78 L72.5 82 L80 74" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
