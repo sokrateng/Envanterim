@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { UNAUTHENTICATED, apiError, guard, parseBody } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@/lib/session";
+import { sameText } from "@/lib/text-match";
 import { vendorSchema } from "@/lib/validation";
 
 /**
@@ -38,13 +39,13 @@ export async function POST(request: Request) {
 
     // Aynı ad iki kez açılmasın: kullanıcı zaten var olan firmayı yazdıysa
     // rolü ekleyip o kaydı veriyoruz.
-    const existing = await prisma.vendor.findFirst({
-      where: {
-        locationId: { in: locationIds },
-        name: { equals: parsed.data.name, mode: "insensitive" },
-      },
-      select: { id: true, isSeller: true, isService: true },
+    // SQLite'ta büyük/küçük harf duyarsız eşitlik yok: adaylar çekilip
+    // uygulamada karşılaştırılıyor (text-match.ts).
+    const candidates = await prisma.vendor.findMany({
+      where: { locationId: { in: locationIds } },
+      select: { id: true, name: true, isSeller: true, isService: true },
     });
+    const existing = candidates.find((v) => sameText(v.name, parsed.data.name));
 
     if (existing) {
       const updated = await prisma.vendor.update({

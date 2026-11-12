@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { sameText } from "@/lib/text-match";
 
 /**
  * Firmalar: satıcı ve yetkili servis.
@@ -106,13 +107,13 @@ export async function resolveVendor({
 
   if (name) {
     const locationIds = await myLocationIds(userId);
-    const existing = await prisma.vendor.findFirst({
-      where: {
-        locationId: { in: locationIds },
-        name: { equals: name, mode: "insensitive" },
-      },
-      select: { id: true, isSeller: true, isService: true },
+    // SQLite'ta büyük/küçük harf duyarsız eşitlik yok (text-match.ts); firma
+    // sayısı küçük olduğundan adaylar çekilip uygulamada karşılaştırılıyor.
+    const candidates = await prisma.vendor.findMany({
+      where: { locationId: { in: locationIds } },
+      select: { id: true, name: true, isSeller: true, isService: true },
     });
+    const existing = candidates.find((v) => sameText(v.name, name));
 
     if (existing) {
       if (!existing[field]) {

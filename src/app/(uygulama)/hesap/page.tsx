@@ -27,6 +27,7 @@ export default async function HesapPage() {
       emailReminders: true,
       notifyNewItem: true,
       notifyItemChange: true,
+      isAdmin: true,
     },
   });
 
@@ -67,6 +68,20 @@ export default async function HesapPage() {
           />
         </Rows>
       </Group>
+
+      {/* Lokasyondan bağımsız, makinenin tamamını ilgilendiren ayarlar:
+          yalnız sistem yöneticisine görünüyor. */}
+      {account?.isAdmin ? (
+        <Group title="Yönetim">
+          <Rows>
+            <Row
+              href="/hesap/sistem"
+              title="Sistem"
+              subtitle="Yedekleme ve bildirim iletişim adresi"
+            />
+          </Rows>
+        </Group>
+      ) : null}
 
       {/* Sürüm: "bendeki eski mi?" sorusu servis konuşmalarında sürekli
           çıkıyor; kullanıcıya soracak yer lazım. */}

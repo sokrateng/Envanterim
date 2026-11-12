@@ -1,0 +1,11 @@
+[Unit]
+Description=Envanterim günlük hatırlatma zamanlayıcısı
+
+[Timer]
+# Vercel'deki "0 6 * * *" ile aynı saat (Pi'nin saat dilimi: Europe/Istanbul).
+OnCalendar=*-*-* 06:00:00
+# Pi 06:00'da kapalıysa açılınca bir kez çalışsın.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

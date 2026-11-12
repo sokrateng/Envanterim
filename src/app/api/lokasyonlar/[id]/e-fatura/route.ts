@@ -117,6 +117,8 @@ export async function POST(
           currency: invoiceCurrency,
           sellerId: vendor.ok ? vendor.vendorId : null,
           status: "IN_USE",
+          // SQLite'ta Json sütununun şema varsayılanı yok: boş nesne açıkça yazılıyor.
+          customFields: {},
         },
       });
       created += 1;
