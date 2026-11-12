@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Güncelleme: yeni sürümü çek, göçleri uygula, derle, yeniden başlat.
-# Proje klasöründen çalıştırılır:  bash deploy/pi/update.sh
-# Yedek alınır; sağlık denetimi başarısızsa servis çalışır durumda bırakılmaz
-# ama eski derleme .next.onceki içinde durur (elle geri alınır).
+# Güncelleme: yedek al, yeni sürümü çek, derle, servisi durdur, göçleri uygula,
+# yeniden başlat. Proje klasöründen çalıştırılır:  bash deploy/pi/update.sh
+#
+# Göç, servis DURMUŞKEN uygulanır: çalışan sunucu SQLite dosyasını tuttuğu için
+# göç "database is locked" ile düşüyor. Derleme servis açıkken yapılır; kesinti
+# yalnız durdurma ile başlatma arasındaki birkaç saniye.
 set -euo pipefail
 
 cd "$(dirname "$0")/../.."
@@ -20,17 +22,24 @@ export NODE_OPTIONS="--max-old-space-size=1536"
 say "Bağımlılıklar"
 npm ci --no-audit --no-fund
 
-say "Göçler"
-set -a; . ./.env; set +a
-node node_modules/prisma/build/index.js migrate deploy
-
 say "Derleme"
 rm -rf .next.onceki
 [ -d .next ] && mv .next .next.onceki
 npm run build
 
-say "Yeniden başlatma"
-sudo systemctl restart envanterim.service
+say "Servis durduruluyor, göçler uygulanıyor"
+sudo systemctl stop envanterim.service
+set -a; . ./.env; set +a
+if ! node node_modules/prisma/build/index.js migrate deploy; then
+  echo "HATA: göç uygulanamadı. Eski derleme geri konuyor, servis başlatılıyor." >&2
+  rm -rf .next
+  [ -d .next.onceki ] && mv .next.onceki .next
+  sudo systemctl start envanterim.service
+  exit 1
+fi
+
+say "Başlatma"
+sudo systemctl start envanterim.service
 for i in 1 2 3 4 5 6 7 8 9 10; do
   if curl -fsS -o /dev/null http://127.0.0.1:3000/giris; then
     echo "Tamam: uygulama yanıt veriyor."
