@@ -41,9 +41,9 @@ değiştirirseniz yeniden derleyin (`update.sh`).
 |---|---|
 | Durum / kayıt | `systemctl status envanterim` · `journalctl -u envanterim -n 50` |
 | Güncelleme | `bash deploy/pi/update.sh` (yedek alır, derler, yeniden başlatır) |
-| Yedek | `bash deploy/pi/backup.sh` (son 14 yedek kalır, `~/envanterim-yedek/`) |
+| Yedek | `bash deploy/pi/backup.sh` (60 günden eskiler silinir, en yeni 3 hep kalır; `~/envanterim-yedek/`) |
 | Yedek durumu | Uygulamada **Hesap → Sistem** (yönetici hesabıyla); `~/envanterim-yedek/durum.json` ve `yedek.log` |
-| Günlük yedek (cron) | `(crontab -l 2>/dev/null; echo "30 3 * * * /bin/bash /home/enginc/envanterim/deploy/pi/backup.sh >> /home/enginc/envanterim-yedek/yedek.log 2>&1") \| crontab -` |
+| Haftalık yedek (cron, pazar gecesi) | `(crontab -l 2>/dev/null; echo "30 3 * * 1 /bin/bash /home/enginc/envanterim/deploy/pi/backup.sh >> /home/enginc/envanterim-yedek/yedek.log 2>&1") \| crontab -` |
 | Hatırlatma zamanlayıcısı | `systemctl list-timers envanterim-cron.timer` |
 | Hatırlatmayı elle tetikle | `sudo systemctl start envanterim-cron.service` |
 
