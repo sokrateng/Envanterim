@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   clientAddress,
   createFailureLimiter,
+  loginBlockReason,
   startLoginAttempt,
 } from "./login-limit";
 
@@ -90,6 +91,21 @@ describe("startLoginAttempt", () => {
     const other = startLoginAttempt(user, "10.0.0.3");
     expect(other).not.toBeNull();
     other?.succeed();
+  });
+
+  it("loginBlockReason kilidin nedenini söyler, kilit yoksa null", () => {
+    const user = "neden-kullanici";
+    expect(loginBlockReason(user, "10.0.0.6")).toBeNull();
+    for (let i = 0; i < 5; i += 1) startLoginAttempt(user, "10.0.0.6")?.fail();
+    expect(loginBlockReason(user, "10.0.0.6")).toBe("kullanici-adres");
+    // Başka adresten aynı ad kilitli değil: yalnız çift kilitlendi.
+    expect(loginBlockReason(user, "10.0.0.7")).toBeNull();
+  });
+
+  it("kilit, var olmayan kullanıcı adına da aynı uygulanır", () => {
+    const ghost = "hic-olmayan-hesap";
+    for (let i = 0; i < 5; i += 1) startLoginAttempt(ghost, "10.0.0.8")?.fail();
+    expect(startLoginAttempt(ghost, "10.0.0.8")).toBeNull();
   });
 
   it("başarılı giriş kullanıcı+adres sayacını sıfırlar", () => {

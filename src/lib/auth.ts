@@ -1,7 +1,12 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { clientAddress, startLoginAttempt } from "@/lib/login-limit";
+import { LOGIN_LOCKED } from "@/lib/login-errors";
+import {
+  clientAddress,
+  loginBlockReason,
+  startLoginAttempt,
+} from "@/lib/login-limit";
 import { prisma } from "@/lib/prisma";
 
 const MAX_USERNAME_LENGTH = 64;
@@ -33,8 +38,22 @@ export const authOptions: NextAuthOptions = {
         // Kilitliyken şifre doğru olsa da giriş yok: yoksa kilit, doğru tahmini
         // ayırt etmenin yolu olurdu. Hash karşılaştırmasına hiç girmiyoruz.
         // Deneme, bcrypt beklenirken de sayılıyor (eşzamanlı istek seli).
-        const attempt = startLoginAttempt(username, clientAddress(req?.headers));
-        if (!attempt) return null;
+        const address = clientAddress(req?.headers);
+        const attempt = startLoginAttempt(username, address);
+        if (!attempt) {
+          // Kayıtta "kilit mi, şifre mi yanlış" ayırt edilebilsin. Kullanıcı adı
+          // dışarıdan geliyor: JSON ile basıp satır sonu enjekte edilmesini önlüyoruz.
+          console.warn(
+            "giriş kilitli",
+            JSON.stringify({
+              kullanici: username,
+              adres: address,
+              neden: loginBlockReason(username, address),
+            }),
+          );
+          // Form "şifre hatalı" yerine bekleme mesajı gösterebilsin diye ayrı kod.
+          throw new Error(LOGIN_LOCKED);
+        }
 
         try {
           const user = await prisma.user.findUnique({ where: { username } });
