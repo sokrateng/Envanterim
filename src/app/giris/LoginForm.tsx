@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Field, FormError, SubmitButton, inputClass } from "@/components/form";
+import { LOGIN_LOCKED } from "@/lib/login-errors";
 
 export function LoginForm({ resetEnabled }: { resetEnabled: boolean }) {
   const router = useRouter();
@@ -24,6 +25,12 @@ export function LoginForm({ resetEnabled }: { resetEnabled: boolean }) {
     });
 
     setPending(false);
+    if (result?.error === LOGIN_LOCKED) {
+      // Kilit girilen ada göre tutuluyor, hesap var mı yok mu bakılmıyor: bu
+      // mesaj hesap varlığını ele vermez. Doğru şifre de kilitliyken reddedilir.
+      setError("Çok fazla deneme yapıldı. Yaklaşık 15 dakika sonra tekrar dene.");
+      return;
+    }
     if (!result || result.error) {
       // Hangisinin yanlış olduğunu söylemiyoruz: kullanıcı adı sızmasın.
       setError("Kullanıcı adı ya da şifre hatalı");

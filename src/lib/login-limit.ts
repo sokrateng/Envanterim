@@ -141,6 +141,22 @@ export type LoginAttempt = {
   succeed(): void;
 };
 
+export type BlockReason = "kullanici-adres" | "adres" | "kullanici";
+
+/**
+ * Hangi sınır giriş denemesini durduruyor? Kilitli değilse null. Kayıt satırında
+ * "neden kilitli" görünsün diye ayrı; karar mantığı `startLoginAttempt` ile aynı.
+ */
+export function loginBlockReason(
+  username: string,
+  address: string,
+): BlockReason | null {
+  if (perUserAndAddress.isBlocked(`${username}|${address}`)) return "kullanici-adres";
+  if (perAddress.isBlocked(address)) return "adres";
+  if (perUser.isBlocked(username)) return "kullanici";
+  return null;
+}
+
 /**
  * Giriş denemesi başlatır. Kilitliyse null döner. Dönen nesne **mutlaka**
  * `fail()` ya da `succeed()` ile kapatılmalı: süren deneme sınıra sayılıyor.
@@ -150,13 +166,7 @@ export function startLoginAttempt(
   address: string,
 ): LoginAttempt | null {
   const pairKey = `${username}|${address}`;
-  if (
-    perUserAndAddress.isBlocked(pairKey) ||
-    perAddress.isBlocked(address) ||
-    perUser.isBlocked(username)
-  ) {
-    return null;
-  }
+  if (loginBlockReason(username, address)) return null;
 
   perUserAndAddress.begin(pairKey);
   perAddress.begin(address);
