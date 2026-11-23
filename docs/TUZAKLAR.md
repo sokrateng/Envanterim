@@ -298,7 +298,8 @@ uygulama ile veritabanı ayrı bölgelerdeyse her biri ayrı bir gidiş-dönüş
 Yerelde fark edilmiyor (aynı makine, ~1 ms), üretimde altı tur × 100 ms oluyor.
 **Çözüm:** birbirine bağlı olmayanları `Promise.all` ile, aynı tabloya giden
 sayım + listeyi `$transaction([...])` ile tek tura indir; bir de uygulamayı
-veritabanıyla aynı bölgeye al (`vercel.json` → `regions`).
+veritabanıyla aynı bölgeye al (Vercel'de `vercel.json` → `regions`; Pi'de
+veritabanı aynı makinede, bu sorun yok).
 
 ## Yapılandırma
 

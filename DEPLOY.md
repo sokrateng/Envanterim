@@ -46,8 +46,10 @@ bakmak yetmiyor (docs/TASARIM.md).
 
 ## 3. Vercel
 
-**Bölge:** `vercel.json` içinde `"regions": ["fra1"]` var — fonksiyonlar
-Frankfurt'ta çalışsın diye. Supabase projesi de `eu-central-1` ise uygulama ile
+**Bölge:** depodaki `vercel.json` Pi'ye geçişle kaldırıldı. Vercel'e geri
+dönülürse bölge ve cron yeniden tanımlanmalı (`"regions": ["fra1"]` ile
+`/api/cron/garanti` için günlük `crons` girdisi). Fonksiyonlar Frankfurt'ta
+çalışsın diye; Supabase projesi de `eu-central-1` ise uygulama ile
 veritabanı aynı şehirde olur. Ayrı kıtalarda olurlarsa her sorgu ~100 ms
 gidiş-dönüş yer ve sayfalar gözle görülür yavaşlar (TUZAKLAR #50). Vercel
 panelinde **Settings → Functions → Region** alanından da doğrula; Hobby planı
@@ -183,7 +185,8 @@ eklerinde. İkisi de tanımsızsa özellik arayüzde hiç görünmez. `ANTHROPIC
    Etiket yazılırsa push kapalı kalır ve günlüğe neden yazılır (TUZAKLAR #52).
 
 2. `/api/cron/garanti` her gün çalışır: Pi'de `envanterim-cron.timer`
-   (06:00 yerel saat), eski Vercel yolunda `vercel.json`. İstek
+   (06:00 yerel saat); eski Vercel yolunda cron'u `vercel.json` tanımlıyordu,
+   dosya artık depoda yok. İstek
    `Authorization: Bearer $CRON_SECRET` taşımalı; `CRON_SECRET` **tanımsızsa uç
    kapalıdır** (503), yanlışsa 401.
 3. Uç iki iş yapar: garanti bitimine **30 ve 7 gün** kalan ekipmanlar için
